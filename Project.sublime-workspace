@@ -1,0 +1,1385 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"warning",
+				"warningSent"
+			],
+			[
+				"tra",
+				"trapezoidChance"
+			],
+			[
+				"ch",
+				"changedSpeed"
+			],
+			[
+				"wor",
+				"worldPrimitives"
+			],
+			[
+				"sing",
+				"singlePlayerButton"
+			],
+			[
+				"random",
+				"randomSquare"
+			],
+			[
+				"time",
+				"timePerEventTicker"
+			],
+			[
+				"war",
+				"warningTime"
+			],
+			[
+				"timeB",
+				"timeBetweenEventsTicker"
+			],
+			[
+				"mai",
+				"mainMenu"
+			],
+			[
+				"kil",
+				"killCountdown"
+			],
+			[
+				"join",
+				"joiningGame"
+			],
+			[
+				"waiti",
+				"waitingTextBase"
+			],
+			[
+				"wa",
+				"waitingTicker"
+			],
+			[
+				"enem",
+				"enemy"
+			],
+			[
+				"try",
+				"tryingToJoinGame"
+			],
+			[
+				"cha",
+				"changeState"
+			],
+			[
+				"ne",
+				"nextOpenSession"
+			],
+			[
+				"queue",
+				"queuePlayer"
+			],
+			[
+				"con",
+				"consoleContainer"
+			],
+			[
+				"ene",
+				"enemyList"
+			],
+			[
+				"tim",
+				"timeAliveMin"
+			],
+			[
+				"timeA",
+				"timeAliveMin"
+			],
+			[
+				"spee",
+				"speedMin"
+			],
+			[
+				"speed",
+				"speedMax"
+			],
+			[
+				"hitData",
+				"hitDataAlt"
+			],
+			[
+				"be",
+				"behaviourEnums"
+			],
+			[
+				"enemies",
+				"enemiesAdded"
+			],
+			[
+				"ki",
+				"killToStartNextEvent"
+			],
+			[
+				"timeP",
+				"timePerEvent"
+			],
+			[
+				"event",
+				"timePerEventTicker"
+			],
+			[
+				"timeBetw",
+				"timeBetweenEventsTicker"
+			],
+			[
+				"g",
+				"getTargetBehaviour"
+			],
+			[
+				"comm",
+				"commandBool"
+			],
+			[
+				"ac",
+				"actualMoveY"
+			],
+			[
+				"actual",
+				"actualMoveX"
+			],
+			[
+				"x",
+				"x"
+			],
+			[
+				"po",
+				"possibleSides"
+			],
+			[
+				"rDivi",
+				"rDividerDelta"
+			],
+			[
+				"0xFF",
+				"0xff1a1a"
+			],
+			[
+				"type",
+				"typeof"
+			],
+			[
+				"shrap",
+				"shrapnel_cannon"
+			],
+			[
+				"name",
+				"nameText"
+			],
+			[
+				"abi",
+				"abilityCD"
+			],
+			[
+				"abilit",
+				"abilityData"
+			],
+			[
+				"abili",
+				"abilityCooldown"
+			],
+			[
+				"ability",
+				"abilityCD"
+			],
+			[
+				"chem",
+				"chemistPotionThrow"
+			],
+			[
+				"alterGun",
+				"alterGunAccuracyNM"
+			],
+			[
+				"AlterGun",
+				"AlterGunAccuracyNM"
+			],
+			[
+				"weaponSpeedN",
+				"weaponSpeedNumericMod"
+			],
+			[
+				"weaponSpeed",
+				"weaponSpeedPercentMod"
+			],
+			[
+				"alterWea",
+				"alterWeaponSpeed"
+			],
+			[
+				"AlterW",
+				"alterWeaponRecov"
+			],
+			[
+				"gunRelo",
+				"gunReloadPercentMod"
+			],
+			[
+				"gunRe",
+				"gunReloadPercentMod"
+			],
+			[
+				"cool",
+				"cooldownRemaining"
+			],
+			[
+				"acc",
+				"accessory"
+			],
+			[
+				"random_",
+				"random_rectangle_rooms"
+			],
+			[
+				"BurstAll",
+				"BurstAll"
+			],
+			[
+				"sfx",
+				"sfxVolume"
+			],
+			[
+				"stuc",
+				"stuckDuration"
+			],
+			[
+				"stuck",
+				"stuckTimer"
+			],
+			[
+				"pl",
+				"playerId"
+			],
+			[
+				"Player",
+				"PlayerUI"
+			],
+			[
+				"pos",
+				"position"
+			],
+			[
+				"def",
+				"defaultS"
+			],
+			[
+				"defa",
+				"defaultShield"
+			],
+			[
+				"pro",
+				"prototype"
+			],
+			[
+				"in",
+				"inventory"
+			],
+			[
+				"lastDam",
+				"lastDamagedByFaction"
+			],
+			[
+				"radius",
+				"radiusThenAggro"
+			],
+			[
+				"aggro",
+				"aggroThenRadius"
+			],
+			[
+				"top",
+				"topAggro"
+			],
+			[
+				"randomize",
+				"randomizedItem"
+			],
+			[
+				"defaultW",
+				"defaultWeapon1"
+			],
+			[
+				"default",
+				"defaultWeapon2"
+			],
+			[
+				"neu",
+				"neutralPlayer"
+			],
+			[
+				"healthRegen",
+				"healthRegenSeconds"
+			],
+			[
+				"healthR",
+				"healthRegenSeconds"
+			],
+			[
+				"attribute",
+				"attributePoints"
+			],
+			[
+				"num",
+				"numericMod"
+			],
+			[
+				"healthm",
+				"healthMaxBase"
+			],
+			[
+				"perce",
+				"percentMod"
+			],
+			[
+				"gunFire",
+				"gunFireRatePercentMod"
+			],
+			[
+				"gun",
+				"gunFireRateNumericMod"
+			],
+			[
+				"update",
+				"updateStats"
+			],
+			[
+				"heat",
+				"heatResBase"
+			],
+			[
+				"armorP",
+				"armorPercentMod"
+			],
+			[
+				"armorN",
+				"armorNumericMod"
+			],
+			[
+				"speedM",
+				"speedModNumeric"
+			],
+			[
+				"cprN",
+				"cprNumericMod"
+			],
+			[
+				"health",
+				"healthMax"
+			],
+			[
+				"un",
+				"undefined"
+			],
+			[
+				"eRe",
+				"eRegenPercentMod"
+			],
+			[
+				"eR",
+				"eRegenNumericMod"
+			],
+			[
+				"newAcc",
+				"newAccData"
+			],
+			[
+				"eq",
+				"eqData"
+			],
+			[
+				"cr",
+				"crFontSize"
+			],
+			[
+				"exp",
+				"expToNextLevel"
+			],
+			[
+				"basic",
+				"basicExplode"
+			],
+			[
+				"effect",
+				"effectsContainer"
+			],
+			[
+				"credi",
+				"creditPickupRadius"
+			],
+			[
+				"cred",
+				"creditsText"
+			],
+			[
+				"forced",
+				"forcedMove"
+			],
+			[
+				"new",
+				"newEntity2"
+			],
+			[
+				"getHas",
+				"getHasTarget"
+			],
+			[
+				"base",
+				"baseVector"
+			],
+			[
+				"collided",
+				"collidedWith"
+			],
+			[
+				"reloa",
+				"reloadSpeed"
+			],
+			[
+				"del",
+				"deltaTime"
+			],
+			[
+				"has",
+				"hasTargetEnums"
+			],
+			[
+				"barrel",
+				"barrelVoid"
+			],
+			[
+				"Barrel",
+				"BarrelAcid"
+			],
+			[
+				"barre",
+				"barrelCold"
+			],
+			[
+				"ba",
+				"barrelFire"
+			],
+			[
+				"barrel_",
+				"barrel_explosive"
+			],
+			[
+				"move",
+				"moveVector"
+			],
+			[
+				"P",
+				"Properties"
+			],
+			[
+				"Propert",
+				"PropertyEnums"
+			],
+			[
+				"effe",
+				"effectsContainer"
+			],
+			[
+				"text",
+				"textureWidth"
+			],
+			[
+				"interac",
+				"interactable"
+			],
+			[
+				"inter",
+				"interactables"
+			],
+			[
+				"destr",
+				"destroyablesData"
+			],
+			[
+				"items",
+				"itemsToAdd"
+			],
+			[
+				"inn",
+				"innerWidth"
+			],
+			[
+				"level",
+				"levelNumber"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "server/gameengine.js",
+			"settings":
+			{
+				"buffer_size": 5367,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "server/eventhandler.js",
+			"settings":
+			{
+				"buffer_size": 13988,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "server/gamesession.js",
+			"settings":
+			{
+				"buffer_size": 9215,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "server/player.js",
+			"settings":
+			{
+				"buffer_size": 6163,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "js/dust.js",
+			"settings":
+			{
+				"buffer_size": 2511,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "js/enemy.js",
+			"settings":
+			{
+				"buffer_size": 8241,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "server/behaviour.js",
+			"settings":
+			{
+				"buffer_size": 9818,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "js/behaviour.js",
+			"settings":
+			{
+				"buffer_size": 8703,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Users/iroberts/Documents/GitHub/Wisp",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/db import",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/img",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/sounds"
+	],
+	"file_history":
+	[
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/enemy.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/requirecheck.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/eventhandler.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/gamesession.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/gameengine.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/wisp.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/main.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/player.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/dust.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/enemy.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/unit.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/behaviour.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/party.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/behaviour.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/utils.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/behaviour.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/graphics.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/acorn.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/server/app.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/img/sheet1.json",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/index.html",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/chatconsole.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/entity.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/properties.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/properties.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/effects.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/utils.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/db import/enemies.json",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/db import/buffs.json",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/tooltip.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/stat.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/main.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/unit.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/player.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/ui.js",
+		"/C/Users/iroberts/Documents/GitHub/Wisp/js/player.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/index.html",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/player.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/SAT.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/map.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/utils.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/gamelevel.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/pixi-extra-filters.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/party.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/graphics.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/pixi-layers.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/acorn.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/pixi.min.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/enemy.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/utils.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/mapgen.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/mapElement.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/settings.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/chatconsole.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/buffbar.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/behaviour.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/background.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/factions.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/abilities.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/enemy.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/items.json",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/actions.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/buffs.json",
+		"//it-surface-ir/c$/Users/iroberts/Documents/{aardvark,",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/inventory.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/gamesession.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/equipment.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/gameengine.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/classes.json",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/enemies.json",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/buff.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/item.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/app.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/node_modules/socket.io/lib/parser.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/importstuff.json",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/actor.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/gun.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/meleeweapon.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/js/keyhandler.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/server/fielditem.js",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/items",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/buffs",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import/enemies",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import 3-15-2016/enemies",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import 3-15-2016/buffs",
+		"/C/Users/iroberts/Documents/GitHub/dungeon/db import 3-15-2016/items"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server\\node_modules\\socket.io",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\server",
+			"C:\\Users\\iroberts\\Documents\\GitHub\\dungeon\\js"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"this.eventHandler.warning",
+			"this.deltaTime",
+			"session.",
+			"this.",
+			"enemy.hitData.pos",
+			"-32",
+			"moving",
+			"-32",
+			"dust",
+			"removePla",
+			"addPla",
+			"removePla",
+			"multiPlayerButton",
+			"console.log",
+			"}\n",
+			"console.log",
+			"conso",
+			";\n",
+			"this.singlePlayerButton",
+			"Graphics.worldPrimitives",
+			"singlePlayerButton",
+			"buttonText",
+			"cArray",
+			"this.eventTicker",
+			"warningSen",
+			"sayBubble",
+			".uidPossible",
+			"wispLogo",
+			"this.players[i]",
+			"data.radius",
+			"game",
+			"addCHild",
+			"consol",
+			"tryingToJoinGame",
+			"tryingToJoin",
+			"self",
+			"this",
+			"GameSession",
+			"loadResou",
+			"addState",
+			"hitData.pos",
+			"enemy.sprite.position.",
+			"rotation",
+			"testCi",
+			"cos",
+			"seek",
+			"eData",
+			"player",
+			";\n",
+			"Polygon",
+			"speed",
+			"Chat",
+			"bullet",
+			"this",
+			" = ",
+			"Circle",
+			"response",
+			"player",
+			"getI",
+			"touch",
+			"emit",
+			"level",
+			"pixel",
+			"pixels",
+			"pixel",
+			"pixels",
+			"preve",
+			"];\n",
+			"\")",
+			"play(",
+			"play()",
+			"log",
+			".log",
+			"this.sess",
+			"try",
+			"mapColl",
+			"flak",
+			"theFriz",
+			"for (var i = 0; i < entity.hitData.points.length;i++){\n        pts.push(new V(entity.hitData.points[i].x,entity.hitData.points[i].y));\n    }",
+			"for (var i = 0; i < entity.hitData.points.length;i++){\n            pts.push(new V(entity.hitData.points[i].x,entity.hitData.points[i].y));\n        }",
+			"for (var i = 0; i < entity.hitData.points.length;i++){\n\t\t\tpts.push(new V(entity.hitData.points[i].x,entity.hitData.points[i].y));\n\t\t}",
+			"theFriz",
+			"polygon",
+			"newEntity5.hitData.points[0].x*-1,newEntity5.hitData.points[0].y*-1],",
+			"hitDatapoints",
+			"newEntity2",
+			"addEffect",
+			"addEffet",
+			"0xFF0000",
+			".points",
+			"addEffec",
+			"projectil",
+			"project",
+			"invertFilter",
+			"invertFil",
+			"this",
+			"lthis",
+			"fogOf",
+			"FogOfWar",
+			"mapFil",
+			"shadow",
+			"hitBy",
+			"basicEx",
+			"hitBy",
+			"basicEx",
+			"tint",
+			"element",
+			"classSp",
+			"newDir",
+			"flip",
+			"anim",
+			"moveVec",
+			"this.sprite",
+			"JUMP",
+			"Acorn.Graphics",
+			"actualR",
+			"Graphics",
+			"console",
+			"resource",
+			"Graphics",
+			": ",
+			"Graphics",
+			":",
+			" =",
+			" this.",
+			".effectContainer1",
+			"addch",
+			"hitAfter"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"deltaTime",
+			"",
+			"this.session.",
+			"this.session",
+			"enemy.sprite.position",
+			"1952",
+			"1112",
+			"secretButton",
+			"sprite",
+			"g",
+			"multiPlayerButton",
+			"singlePlayerButton",
+			"this.eventEnemyArray",
+			"this.level",
+			"warning",
+			".possibleIDChars",
+			"uLost",
+			"player",
+			"this.radius",
+			"this",
+			"self",
+			"GameEngine",
+			"sprite.position",
+			"enemy.hitData.pos.",
+			"newEnemy",
+			"circle",
+			"Player",
+			": ",
+			"particle",
+			"this.dust",
+			"particle",
+			"this.dust",
+			"for (var i = 0; i < entity.hitData.points.length;i++){\n\t\t\tpts.push(new V(entity.hitData.basePoints[i].x,entity.hitData.basePoints[i].y));\n\t\t}",
+			"Math.sqrt(Math.pow(newEntity5.hitData.points[0].x,2)),Math.sqrt(Math.pow(newEntity5.hitData.points[0].y,2))],",
+			"hitData.points",
+			"newEntity7",
+			"newEntity6",
+			"newEntity5",
+			"newEntity4",
+			"newEntity3",
+			"color",
+			"Graphics",
+			"this",
+			"= ",
+			"Acorn.Graphics",
+			" =",
+			":",
+			"",
+			".effectContainer",
+			",",
+			"data.",
+			"actionsOnImmediate",
+			"intelligence",
+			"Intelligence",
+			"willpower",
+			"Willpower",
+			"dexterity",
+			"Dexterity",
+			"agility",
+			"Agility",
+			"endurance",
+			"Endurance",
+			"999",
+			"}\n{\n  \"",
+			"if (this.socket.id == 'none'){",
+			"data.player",
+			"\"\n}",
+			"\"aType\" : 0\n}",
+			"damageMod",
+			"abilityCooldown",
+			"abilityCD",
+			"newPet",
+			"owner",
+			"that",
+			"Skill",
+			"Skills",
+			"\"className\"",
+			"",
+			"dmg",
+			"entity.collidedGroup[i]",
+			"description",
+			"\"damage\" : 10,",
+			"this",
+			"this.",
+			"itemToUnequip",
+			"this",
+			"0",
+			"player",
+			"itemList",
+			"[i]",
+			"player",
+			"rad",
+			"\"statRanges\" : {\n      \"strength\" : {\n        \"chance\" : 1\n      },\n      \"endurance\" : {\n        \"chance\" : 1\n      },\n      \"agility\" : {\n        \"chance\" : 1\n      },\n      \"dexterity\" : {\n        \"chance\" : 1\n      },\n      \"intelligence\" : {\n        \"chance\" : 1\n      },\n      \"willpower\" : {\n        \"chance\" : 1\n      }\n    },",
+			"\"pullStrengthMin\" : 40,\n            \"pullStrengthMax\" : 80",
+			"\"chance\" : 3",
+			"musicVolume",
+			"jabProperties",
+			"chopProperties",
+			"'center'",
+			"owner.unstick();",
+			"Graphics.renderer.view",
+			"body",
+			"\"costMod\": 10.0",
+			"\"costMod\": 1.0, \"weight\" :",
+			"0.00001",
+			"Anti-Grav",
+			"Anti-Corrode",
+			"Anti-Elec",
+			"Anti-Cold",
+			"'gravityRes'",
+			"'acidRes'",
+			"'shockRes'",
+			"'coldRes'",
+			"element",
+			"0.00001",
+			"24",
+			"ea",
+			"setSelectedItem()",
+			"Unit",
+			"",
+			": ",
+			"",
+			"that",
+			" this.",
+			"this.",
+			"Player.",
+			"Player",
+			"Enemy"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"folders":
+	[
+		{
+			"path": "C:\\Users\\iroberts\\Documents\\GitHub\\Wisp"
+		}
+	],
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "server/gameengine.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5367,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								957,
+								955
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2484.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "server/eventhandler.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13988,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5461,
+								5461
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2214.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "server/gamesession.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9215,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6370,
+								6370
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3096.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "server/player.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6163,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								889,
+								889
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 216.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "js/dust.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2511,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "js/enemy.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8241,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7394,
+								7318
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1998.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "server/behaviour.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9818,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8092,
+								8092
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3834.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "js/behaviour.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8703,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7577,
+								7577
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1512.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 34.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.unsaved_changes":
+	{
+		"height": 118.0
+	},
+	"pinned_build_system": "",
+	"project": "",
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 249.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
