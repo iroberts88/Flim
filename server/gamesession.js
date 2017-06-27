@@ -142,7 +142,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             break;
         case 'hex':
             //bouncing star
-            eData.speed = 800;
+            eData.speed = 1000;
             eData.behaviour = {name: 'hexagon', targetId: data.target};
             eData.radius = 20;
             eData.killToStartNextEvent = true;

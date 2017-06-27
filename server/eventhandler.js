@@ -137,7 +137,11 @@ EventHandler.prototype.getParallelograms = function(enemiesAdded) {
 
 EventHandler.prototype.newEvent = function() {
     var enemiesAdded = [];
-    if (this.session.level == 25 || (this.session.level > 32 && Math.random()*100 < Math.pow(2,this.squares.length))){
+    var rand = Math.round(5 + this.session.level);
+    if (rand > 100){
+        rand = 100;
+    }
+    if (this.session.level % 25 == 0){
         //parallellogram event!!!
         //kill all squares
         for (var i = 0; i < this.squares.length; i++){
@@ -174,16 +178,8 @@ EventHandler.prototype.newEvent = function() {
             case 10:
                 this.eventEnemyArray.push('tri');
                 break;
-            case 20:
-                this.eventEnemyArray.push('hex');
-                break;
         }
-        var rand = Math.round(5 + (Math.random()*(5+this.session.level)) + this.session.level/2);
-        if (rand > 50){
-            rand = 50;
-        }
-        var trapezoidChance = (this.session.level*Math.round(Math.random()));
-        if (Math.random()*100 < trapezoidChance){
+        if (this.session.level >= 24 && this.session.level%8 == 0){
             //for trapezoid event
             var positions = [[64,-32],[192,-32],[320,-32],[448,-32],[576,-32],[704,-32],[832,-32],[960,-32],[1088,-32],
                             [1216,-32],[1344,-32],[1472,-32],[1600,-32],[1728,-32],[1856,-32]];
@@ -211,8 +207,8 @@ EventHandler.prototype.newEvent = function() {
                 e.hitData.rotate(1.57);
             }
         }
-        if (Math.random()*100 < 5 && this.session.level > 15){
-            //5% chance after level 15 for a Chaos event
+        //if (Math.random()*100 < 5 && this.session.level > 15){
+            /* //5% chance after level 15 for a Chaos event
             rand = Math.ceil(rand/this.session.playerCount);
             for (var player in this.session.players){
                 for (var i = 0; i < rand;i++){
@@ -224,54 +220,30 @@ EventHandler.prototype.newEvent = function() {
             for (var i = 0; i < 5; i++){
                 var e = this.session.addEnemy('star');
                 enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-            }
-        }else if (Math.random()*100 < 5 && this.session.level > 15){
-            //5% chance after level 15 for an All-star event
-            rand = rand/2;
+            } */
+        //}else{
+            //normal event
+        rand = Math.ceil(rand/this.session.playerCount);
+        for (var player in this.session.players){
             for (var i = 0; i < rand;i++){
+                var type = this.eventEnemyArray[Math.floor(Math.random()*this.eventEnemyArray.length)];
+                var e = this.session.addEnemy(type,{target: player});
+                enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            }
+        }
+        var stars = 5+Math.ceil(this.session.level/25);
+        if (stars > 20){
+            stars = 20;
+        }
+        if (this.session.level >= 15){
+            for (var i = 0; i < stars; i++){
                 var e = this.session.addEnemy('star');
                 enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
-            for (var player in this.session.players){
-                var e = this.session.addEnemy('tri', {target: player});
-                enemiesAdded.push({type: 'tri', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-            }
-            
-        }else if (Math.random()*100 < 5 && this.session.level > 15){
-            //5% chance after level 10 for an All-tri event
-            rand = Math.ceil(rand/this.session.playerCount);
-            for (var player in this.session.players){
-                for (var i = 0; i < rand;i++){
-                    var e = this.session.addEnemy('tri',{target: player});
-                    enemiesAdded.push({type: 'tri', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-                }
-                for (var i = 0; i < rand;i++){
-                    var e = this.session.addEnemy('c3',{target: player});
-                    enemiesAdded.push({type: 'c3', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-                }
-            }
-            if (this.session.level >= 15){
-                for (var i = 0; i < 10; i++){
-                    var e = this.session.addEnemy('star');
-                    enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-                }
-            }
-        }else{
-            //normal event
-            rand = Math.ceil(rand/this.session.playerCount);
-            for (var player in this.session.players){
-                for (var i = 0; i < rand;i++){
-                    var type = this.eventEnemyArray[Math.floor(Math.random()*this.eventEnemyArray.length)];
-                    var e = this.session.addEnemy(type,{target: player});
-                    enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-                }
-            }
-            if (this.session.level >= 15){
-                for (var i = 0; i < 1+this.session.level%6; i++){
-                    var e = this.session.addEnemy('star');
-                    enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-                }
-            }
+        }
+        if (this.session.level >= 20 && this.session.level%2 == 0){
+            var e = this.session.addEnemy('hex',{target: player});
+            enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
         }
     }
     this.session.queueData('addEnemies', {data: enemiesAdded});

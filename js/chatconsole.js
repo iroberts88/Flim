@@ -20,7 +20,7 @@
             ChatConsole.textSprite.visible = false;
             Graphics.consoleContainer.addChild(ChatConsole.textSprite);
         },
-        update: function() {
+        update: function(dt) {
             if (ChatConsole.active){
                 ChatConsole.ticker += dt;
                 if (ChatConsole.ticker > 0.4){

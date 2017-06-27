@@ -138,7 +138,7 @@ Player = function(){
                         commandBool = true
                         try{
                             that.gameSession.level = 25;
-                            that.gameSession.eventHandler.eventEnemyArray = ['c1','c2','c3','tri','hex'];
+                            that.gameSession.eventHandler.eventEnemyArray = ['c1','c2','c3','tri'];
                         }catch(e){
                             
                         }

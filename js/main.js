@@ -295,28 +295,15 @@ Acorn.addState({
         this.wispLogo.anchor.x = 0.5;
         this.wispLogo.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.wispLogo);
-        this.secretButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
-        this.secretButton.position.x = 30;
-        this.secretButton.position.y = 30;
-        this.secretButton.anchor.x = 0.5;
-        this.secretButton.anchor.y = 0.5;
-        Graphics.uiContainer.addChild(this.secretButton);
-        this.secretButton.interactive = true;
-        this.singlePlayerButton = new PIXI.Text('PLAY SOLO' , {font: '64px Audiowide', fill: 'red', align: 'center'});
+        
+        //set up the Solo button
+        this.singlePlayerButton = new PIXI.Text('SOLO' , {font: '64px Audiowide', fill: 'red', align: 'center'});
         this.singlePlayerButton.anchor.x = .5;
         this.singlePlayerButton.anchor.y = .5;
         this.singlePlayerButton.position.x = Graphics.width/2;
         this.singlePlayerButton.position.y = Graphics.height/1.5;
         Graphics.uiContainer.addChild(this.singlePlayerButton);
         this.singlePlayerButton.interactive = true;
-        this.multiPlayerButton = new PIXI.Text('JOIN' , {font: '64px Audiowide', fill: 'red', align: 'center'});
-        this.multiPlayerButton.anchor.x = .5;
-        this.multiPlayerButton.anchor.y = .5;
-        this.multiPlayerButton.position.x = Graphics.width/2;
-        this.multiPlayerButton.position.y = Graphics.height/1.5 + 100;
-        Graphics.uiContainer.addChild(this.multiPlayerButton);
-        this.multiPlayerButton.interactive = true;
-
         this.singlePlayerButton.buttonMode = true;
         this.singlePlayerButton.on('click', function onClick(){
             Acorn.Net.socket_.emit('join',{single: true});
@@ -326,6 +313,15 @@ Acorn.addState({
             Acorn.Net.socket_.emit('join',{single: true});
             Acorn.changeState('joiningGame');
         });
+
+        //set up the Co-op button
+        this.multiPlayerButton = new PIXI.Text('CO-OP' , {font: '64px Audiowide', fill: 'red', align: 'center'});
+        this.multiPlayerButton.anchor.x = .5;
+        this.multiPlayerButton.anchor.y = .5;
+        this.multiPlayerButton.position.x = Graphics.width/2;
+        this.multiPlayerButton.position.y = Graphics.height/1.5 + 100;
+        Graphics.uiContainer.addChild(this.multiPlayerButton);
+        this.multiPlayerButton.interactive = true;
         this.multiPlayerButton.buttonMode = true;
         this.multiPlayerButton.on('click', function onClick(){
             Acorn.Net.socket_.emit('join',{});
@@ -335,6 +331,15 @@ Acorn.addState({
             Acorn.Net.socket_.emit('join',{});
             Acorn.changeState('joiningGame');
         });
+
+        //set up the secret button
+        this.secretButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
+        this.secretButton.position.x = 30;
+        this.secretButton.position.y = 30;
+        this.secretButton.anchor.x = 0.5;
+        this.secretButton.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.secretButton);
+        this.secretButton.interactive = true;
         this.secretButton.buttonMode = true;
         this.secretButton.on('click', function onClick(){
             Acorn.Net.socket_.emit('join',{secret: true});
@@ -344,12 +349,15 @@ Acorn.addState({
             Acorn.Net.socket_.emit('join',{secret: true});
             Acorn.changeState('joiningGame');
         });
+
+        //stop playing music if returning from in game
         Acorn.Sound.stop('flim');
     },
     update: function(dt){
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.singlePlayerButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.multiPlayerButton,Graphics.worldPrimitives);
+        ChatConsole.update(dt);
     }
 });
 
@@ -396,7 +404,7 @@ Acorn.addState({
     update: function(dt){
         Player.setDeltaTime(dt);
         //update chat console
-        ChatConsole.update();
+        ChatConsole.update(dt);
         //update player
         Player.update(dt);
         Party.update(dt);

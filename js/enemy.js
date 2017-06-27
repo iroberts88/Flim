@@ -49,7 +49,7 @@
                     break;
                 case "hex":
                     //hexagon
-                    newEnemy.speed = 800;
+                    newEnemy.speed = 1000;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('hexagon');
                     newEnemy.sprite.scale.x = (48/64);
