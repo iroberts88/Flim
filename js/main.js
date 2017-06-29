@@ -155,7 +155,7 @@ function setupSocket() {
         Party.removeMember(data);
       }else{
         //you died!
-        var dustAmount = 50;
+        var dustAmount = 100;
         for (var i = 0; i < dustAmount; i ++){
             Dust.addDust({
                 vector: [1,0],
@@ -199,7 +199,6 @@ function setupSocket() {
     });
 
     Acorn.Net.on('addEnemies', function (data) {
-        console.log(data);
       for (var i = 0; i < data.data.length; i++){
         Enemies.addEnemy(data.data[i]);
       }
@@ -210,7 +209,6 @@ function setupSocket() {
     });
 
     Acorn.Net.on('enemyNewTarget', function (data) {
-        console.log(data);
         try{
             Enemies.enemyList[data.id].behaviour.targetId = data.targetId;
         }catch(e){

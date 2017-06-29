@@ -44,8 +44,8 @@ GameSession.prototype.init = function (data) {
     this.eventHandler = new EventHandler(this);
     this.eventHandler.init({
         timePerEvent: 30,
-        timeBetweenEvents: 5,
-        warningTime: 3,
+        timeBetweenEvents: .25,
+        warningTime: .1,
         maxSquares: 4
     });
     this.level = 1;
@@ -142,7 +142,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             break;
         case 'hex':
             //bouncing star
-            eData.speed = 1000;
+            eData.speed = 750;
             eData.behaviour = {name: 'hexagon', targetId: data.target};
             eData.radius = 20;
             eData.killToStartNextEvent = true;
@@ -197,7 +197,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             break;
         case "par":
             //parallelogram
-            eData.speed = 250;
+            eData.speed = 200;
             eData.behaviour = {name: 'parallelogram'};
             eData.killToStartNextEvent = true;
             eData.hd = {pos: data.pos,points:[[-64,-64],[-128,64],[64,64],[128,-64]]};

@@ -11,8 +11,7 @@
         update: function(dt){
             for(var i in this.enemyList){
                 var enemy = this.enemyList[i];
-                var B = Behaviour.getBehaviour(enemy.behaviour.name);
-                B(enemy, dt, enemy.behaviour);
+                enemy.bFunc(enemy, dt, enemy.behaviour);
             }
         },
         alterEnemy: function(data){
@@ -49,7 +48,7 @@
                     break;
                 case "hex":
                     //hexagon
-                    newEnemy.speed = 1000;
+                    newEnemy.speed = 750;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('hexagon');
                     newEnemy.sprite.scale.x = (48/64);
@@ -139,8 +138,8 @@
                     newEnemy.sprite.tint = 0xffad33;
                     break;
                 case "par":
-                    //trapezoid
-                    newEnemy.speed = 250;
+                    //parallelogram
+                    newEnemy.speed = 200;
                     newEnemy.behaviour = {name: 'parallelogram'};
                     newEnemy.sprite = Graphics.getSprite('parallelogram');
                     newEnemy.sprite.scale.x = 2;
@@ -152,6 +151,7 @@
                     newEnemy.sprite.tint = 0x993333;
                     break;
             }
+            newEnemy.bFunc = Behaviour.getBehaviour(newEnemy.behaviour.name);
             Graphics.worldContainer.addChild(newEnemy.sprite);
             this.enemyList[newEnemy.id] = newEnemy;
         },
@@ -161,11 +161,12 @@
                 Graphics.worldContainer.removeChild(this.enemyList[id].sprite);
                 var dustAmount = Math.ceil(Math.random()*10) + 10;
                 for (var i = 0; i < dustAmount; i ++){
-                    var vec = [this.enemyList[id].moveVector.x,this.enemyList[id].moveVector.y];
-                    var angle = 45;
-                    if (this.enemyList[id].moveVector.x + this.enemyList[id].moveVector.x == 0 || this.enemyList[id].type == 'par'){
-                        vec = [1,0];
-                        angle = 180;
+                    if (this.enemyList[id].type == 'sq' || this.enemyList[id].type == 'par' || this.enemyList[id].type == 'trap'){
+                        var vec = [1,0];
+                        var angle = 180;
+                    }else{
+                        var vec = [this.enemyList[id].moveVector.x,this.enemyList[id].moveVector.y];
+                        var angle = 45;
                     }
                     Dust.addDust({
                         vector: vec,

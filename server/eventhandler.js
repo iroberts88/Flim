@@ -1,6 +1,7 @@
 //----------------------------------------------------------------
 //eventhandler.js
 // used by a game session to update levels 
+// TODO change to gameModeManager
 //----------------------------------------------------------------
 
 var EventHandler = function(session) {
@@ -231,9 +232,9 @@ EventHandler.prototype.newEvent = function() {
                 enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
         }
-        var stars = 5+Math.ceil(this.session.level/25);
-        if (stars > 20){
-            stars = 20;
+        var stars = 3+Math.ceil(this.session.level/25);
+        if (stars > 10){
+            stars = 10;
         }
         if (this.session.level >= 15){
             for (var i = 0; i < stars; i++){

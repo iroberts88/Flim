@@ -24,6 +24,8 @@ Player = function(){
     player.actualMoveY = null;
     player.actualMoveHyp = null;
 
+    player.vectorHitbox = null;
+
     player.tryingToJoinGame = null;
 
     player.kill = null;
@@ -32,7 +34,7 @@ Player = function(){
 
     player.init = function (data) {
         //init player specific variables
-        this.speed = 3000;
+        this.speed = 6000;
         this.radius = 20;
         this.kill = false;
         this.killCountDown = 5; //seconds before returned to main menu
@@ -42,6 +44,8 @@ Player = function(){
                                              new V(Math.round(.8*this.radius),Math.round(.8*this.radius)),
                                              new V(Math.round(.8*this.radius),Math.round(-.8*this.radius))]);
         this.targetPosition = new V(0,0);
+
+        this.vectorHitbox = new P(new V(960,540),[new V(0,-1),new V(0,1),new V(10,1),new V(10,-1)]);
 
         player.tryingToJoinGame = false;
 
@@ -59,6 +63,11 @@ Player = function(){
         this.actualMoveX = this.move.x*this.speed*deltaTime;
         this.actualMoveY = this.move.y*this.speed*deltaTime;
         this.actualMoveHyp = Math.sqrt(this.actualMoveX*this.actualMoveX + this.actualMoveY*this.actualMoveY);
+        //set vector hitBox position
+        this.vectorHitbox = new P(new V(this.hitData.pos.x,this.hitData.pos.y),
+                                [new V(0,this.radius*-1),new V(0,this.radius),new V(this.move+1,this.radius),new V(this.move+1,this.radius*-1)]);
+        this.vectorHitbox.rotate(Math.atan2(this.yDistance,this.xDistance));
+
         if (this.hyp < this.actualMoveHyp){
             this.hitData.pos = new V(this.targetPosition.x, this.targetPosition.y);
         }else{

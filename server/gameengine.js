@@ -88,7 +88,7 @@ GameEngine.prototype.singlePlayerSession = function(p, secret){
     if (secret){
         s.maxPlayers = 10;
         s.eventHandler.eventEnemyArray = ['c1','c2','c3','tri'];
-        s.level = 1000;
+        s.level = 1111;
     }
     self.sessions[s.id] = s;
     s.addPlayer(p);

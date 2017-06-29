@@ -135,11 +135,14 @@
                     }
                     if (this.warning){
                         this.warning.time -= dt;
-                        this.warning.text.text = Math.ceil(this.warning.time);
+                        this.warning.text.text = Math.ceil(this.warning.time*100)/100;
                         if (this.warning.time <= 0){
                             Graphics.worldContainer.removeChild(this.warning.text);
-                            Graphics.worldContainer.removeChild(this.warning.lText);
-                            this.warning = null;
+                            this.warning.lText.alpha = this.warning.lText.alpha*.98;
+                            if (this.warning.lText.alpha < .05){
+                                Graphics.worldContainer.removeChild(this.warning.lText);
+                                this.warning = null;
+                            }
                         }
                     }
                 },
@@ -183,6 +186,8 @@
                             Graphics.worldPrimitives.endFill();
                         }
                     }catch(e){
+                        console.log("ERROR: wisp draw error");
+                        console.log(e);
                     }
                     if (this.sayBubble){
                         var t = this.sayBubble.text;
