@@ -134,15 +134,26 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             break;
         case 'star':
             //bouncing star
+            var x, y = 0;
+            eData.pos = this.eventHandler.getRandomPos(true);
+            if (eData.pos[0] < 950) {
+                x = 1000 + Math.round(Math.random() * 900);
+            } else {
+                x = Math.round(Math.random() * 900);
+            }
+            if (eData.pos[1] < 500) {
+                y = 550 + Math.round(Math.random() * 500);
+            } else {
+                y = Math.round(Math.random() * 900);
+            }
             eData.speed = 450;
-            eData.behaviour = {name: 'star', startMove: [5+Math.round(Math.random()*1910), 5 + Math.round(Math.random()*1070)]};
+            eData.behaviour = {name: 'star', startMove: [x,y]};
             eData.radius = 20;
             eData.killToStartNextEvent = false;
-            eData.pos = this.eventHandler.getRandomPos(true);
             break;
         case 'hex':
-            //bouncing star
-            eData.speed = 750;
+            //hexagon
+            eData.speed = 800;
             eData.behaviour = {name: 'hexagon', targetId: data.target};
             eData.radius = 20;
             eData.killToStartNextEvent = true;
