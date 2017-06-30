@@ -7,6 +7,8 @@ var now, dt, lastTime;
 
 var pixels = [];
 
+var ended = false;
+
 var requestAnimFrame = (function(){
     return window.requestAnimationFrame       ||
         window.webkitRequestAnimationFrame ||
@@ -152,21 +154,39 @@ function setupSocket() {
     });
 
     Acorn.Net.on('youLose', function (data) {
-        var uLost = new PIXI.Text('You Lose :(' , {font: '100px Snippet', fill: 'red', align: 'left'});
-        uLost.position.x = (Graphics.width / 2);
-        uLost.position.y = (Graphics.height / 4);
-        uLost.anchor.x = 0.5;
-        uLost.anchor.y = 0.5;
-        Graphics.uiContainer.addChild(uLost);
+        if (!ended) {
+            ended = true;
+            var uLost = new PIXI.Text('You Lose :(', { font: '100px Snippet', fill: 'red', align: 'left' });
+            uLost.position.x = (Graphics.width / 2);
+            uLost.position.y = (Graphics.height / 4);
+            uLost.anchor.x = 0.5;
+            uLost.anchor.y = 0.5;
+            Graphics.uiContainer.addChild(uLost);
+        }
     });
 
     Acorn.Net.on('youWin', function (data) {
-        var uLost = new PIXI.Text('You Win! :)' , {font: '100px Snippet', fill: 'red', align: 'left'});
-        uLost.position.x = (Graphics.width / 2);
-        uLost.position.y = (Graphics.height / 4);
-        uLost.anchor.x = 0.5;
-        uLost.anchor.y = 0.5;
-        Graphics.uiContainer.addChild(uLost);
+        if (!ended) {
+            ended = true;
+            var uLost = new PIXI.Text('You Win! :)', { font: '100px Snippet', fill: 'red', align: 'left' });
+            uLost.position.x = (Graphics.width / 2);
+            uLost.position.y = (Graphics.height / 4);
+            uLost.anchor.x = 0.5;
+            uLost.anchor.y = 0.5;
+            Graphics.uiContainer.addChild(uLost);
+        }
+    });
+
+    Acorn.Net.on('disconnect', function (data) {
+        if (!ended) {
+            ended = true;
+            var uLost = new PIXI.Text('Disconnect', { font: '100px Snippet', fill: 'red', align: 'left' });
+            uLost.position.x = (Graphics.width / 2);
+            uLost.position.y = (Graphics.height / 4);
+            uLost.anchor.x = 0.5;
+            uLost.anchor.y = 0.5;
+            Graphics.uiContainer.addChild(uLost);
+        }
     });
 
     Acorn.Net.on('killPlayer', function (data) {
@@ -418,6 +438,7 @@ Acorn.addState({
     stateId: 'joiningGame',
     init: function(){
         Graphics.clear();
+        ended = false;
         this.waitingTextBase = 'waiting for next available game';
         this.waitingTicker = 0;
         this.dotz = 3;

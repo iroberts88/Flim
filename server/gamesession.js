@@ -94,7 +94,7 @@ GameSession.prototype.init = function (data) {
             this.minPlayers = 2;
             this.gameModeManager.init({
                 timePerEvent: 35,
-                timeBetweenEvents: 8,
+                timeBetweenEvents: 5,
                 warningTime: 3,
                 maxSquares: 4
             });
@@ -365,6 +365,15 @@ GameSession.prototype.tick = function(deltaTime) {
     // add players waiting to join
     var added = false;
 
+    if (this.playerCount < this.minPlayers) {
+        // a player has disconnected... remove the last player
+        for (var i in this.players) {
+            var winner = this.players[i];
+            winner.god = true;
+            winner.kill = true;
+            this.queuePlayer(winner, 'disconnect', {});
+        }
+    }
     if (this.playerCount+this.playersToAdd.length >= this.minPlayers){
         for (var i = 0; i < this.playersToAdd.length; i ++){
             this.addPlayer(this.playersToAdd[i]);
