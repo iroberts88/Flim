@@ -137,7 +137,7 @@
                         this.warning.time -= dt;
                         this.warning.text.text = Math.ceil(this.warning.time*100)/100;
                         if (this.warning.time <= 0){
-                            Graphics.worldContainer.removeChild(this.warning.text);
+                            //Graphics.worldContainer.removeChild(this.warning.text);
                             this.warning.lText.alpha = this.warning.lText.alpha*.98;
                             if (this.warning.lText.alpha < .05){
                                 Graphics.worldContainer.removeChild(this.warning.lText);
@@ -258,7 +258,7 @@
                     newText.position.x = Graphics.width/2;
                     newText.position.y = Graphics.height/3;
                     newText.alpha = 0.5;
-                    Graphics.worldContainer.addChild(newText);
+                    //Graphics.worldContainer.addChild(newText);
                     var newText2 = new PIXI.Text('level '+level,{font:"50px Electrolize", fill:'red'});
                     newText2.anchor.x = 0.5;
                     newText2.anchor.y = 0;

@@ -137,6 +137,7 @@ function setupSocket() {
     });
 
     Acorn.Net.on('addPlayerWisp', function (data) {
+        console.log(data);
       if (data.id != mainObj.playerId){
         Party.addNewMember(data);
       }
@@ -148,6 +149,24 @@ function setupSocket() {
 
     Acorn.Net.on('backToMainMenu', function (data) {
       Acorn.changeState('mainMenu');
+    });
+
+    Acorn.Net.on('youLose', function (data) {
+        var uLost = new PIXI.Text('You Lose :(' , {font: '100px Snippet', fill: 'red', align: 'left'});
+        uLost.position.x = (Graphics.width / 2);
+        uLost.position.y = (Graphics.height / 4);
+        uLost.anchor.x = 0.5;
+        uLost.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(uLost);
+    });
+
+    Acorn.Net.on('youWin', function (data) {
+        var uLost = new PIXI.Text('You Win! :)' , {font: '100px Snippet', fill: 'red', align: 'left'});
+        uLost.position.x = (Graphics.width / 2);
+        uLost.position.y = (Graphics.height / 4);
+        uLost.anchor.x = 0.5;
+        uLost.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(uLost);
     });
 
     Acorn.Net.on('killPlayer', function (data) {
@@ -166,14 +185,13 @@ function setupSocket() {
         }
         Player.kill = true;
         Graphics.worldContainer.removeChild(Player.player);
-
-        var uLost = new PIXI.Text('You Lose :(' , {font: '100px Snippet', fill: 'red', align: 'left'});
-        uLost.position.x = (Graphics.width / 2);
-        uLost.position.y = (Graphics.height / 4);
-        uLost.anchor.x = 0.5;
-        uLost.anchor.y = 0.5;
-        Graphics.uiContainer.addChild(uLost);
       }
+    });
+
+    Acorn.Net.on('unKillPlayer', function (data) {
+        console.log(data);
+        Player.kill = false;
+        Graphics.worldContainer.addChild(Player.player);
     });
 
     Acorn.Net.on('updatePlayerLoc', function (data) {
@@ -304,11 +322,11 @@ Acorn.addState({
         this.singlePlayerButton.interactive = true;
         this.singlePlayerButton.buttonMode = true;
         this.singlePlayerButton.on('click', function onClick(){
-            Acorn.Net.socket_.emit('join',{single: true});
+            Acorn.Net.socket_.emit('join',{solo: true});
             Acorn.changeState('joiningGame');
         });
         this.singlePlayerButton.on('tap', function onClick(){
-            Acorn.Net.socket_.emit('join',{single: true});
+            Acorn.Net.socket_.emit('join',{solo: true});
             Acorn.changeState('joiningGame');
         });
 
@@ -322,16 +340,34 @@ Acorn.addState({
         this.multiPlayerButton.interactive = true;
         this.multiPlayerButton.buttonMode = true;
         this.multiPlayerButton.on('click', function onClick(){
-            Acorn.Net.socket_.emit('join',{});
+            Acorn.Net.socket_.emit('join',{coop: true});
             Acorn.changeState('joiningGame');
         });
         this.multiPlayerButton.on('tap', function onClick(){
-            Acorn.Net.socket_.emit('join',{});
+            Acorn.Net.socket_.emit('join',{coop: true});
+            Acorn.changeState('joiningGame');
+        });
+
+        //set up the Co-op button
+        this.versusButton = new PIXI.Text('VERSUS' , {font: '64px Audiowide', fill: 'red', align: 'center'});
+        this.versusButton.anchor.x = .5;
+        this.versusButton.anchor.y = .5;
+        this.versusButton.position.x = Graphics.width/2;
+        this.versusButton.position.y = Graphics.height/1.5 + 200;
+        Graphics.uiContainer.addChild(this.versusButton);
+        this.versusButton.interactive = true;
+        this.versusButton.buttonMode = true;
+        this.versusButton.on('click', function onClick(){
+            Acorn.Net.socket_.emit('join',{vs: true});
+            Acorn.changeState('joiningGame');
+        });
+        this.versusButton.on('tap', function onClick(){
+            Acorn.Net.socket_.emit('join',{vs: true});
             Acorn.changeState('joiningGame');
         });
 
         //set up the secret button
-        this.secretButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
+        this.secretButton = new PIXI.Text('.' , {font: '12px Orbitron', fill: 'black', align: 'left'});
         this.secretButton.position.x = 30;
         this.secretButton.position.y = 30;
         this.secretButton.anchor.x = 0.5;
@@ -348,6 +384,24 @@ Acorn.addState({
             Acorn.changeState('joiningGame');
         });
 
+        //set up the secret button
+        this.starsButton = new PIXI.Text('.' , {font: '12px Orbitron', fill: 'black', align: 'left'});
+        this.starsButton.position.x = 1900;
+        this.starsButton.position.y = 100;
+        this.starsButton.anchor.x = 0.5;
+        this.starsButton.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.starsButton);
+        this.starsButton.interactive = true;
+        this.starsButton.buttonMode = true;
+        this.starsButton.on('click', function onClick(){
+            Acorn.Net.socket_.emit('join',{star: true});
+            Acorn.changeState('joiningGame');
+        });
+        this.starsButton.on('tap', function onClick(){
+            Acorn.Net.socket_.emit('join',{star: true});
+            Acorn.changeState('joiningGame');
+        });
+
         //stop playing music if returning from in game
         Acorn.Sound.stop('flim');
     },
@@ -355,6 +409,7 @@ Acorn.addState({
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.singlePlayerButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.multiPlayerButton,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.versusButton,Graphics.worldPrimitives);
         ChatConsole.update(dt);
     }
 });
@@ -366,26 +421,26 @@ Acorn.addState({
         this.waitingTextBase = 'waiting for next available game';
         this.waitingTicker = 0;
         this.dotz = 3;
-        this.waiting = new PIXI.Text(this.waitingTextBase , {font: '36px Orbitron', fill: 'white', align: 'left'});
-        this.waiting.position.x = (Graphics.width / 2);
+        this.waiting = new PIXI.Text(this.waitingTextBase , {font: '36px Orbitron', fill: 'white', align: 'center'});
+        this.waiting.position.x = (Graphics.width / 3);
         this.waiting.position.y = (Graphics.height / 2);
-        this.waiting.anchor.x = 0.5;
-        this.waiting.anchor.y = 0.5;
+        this.waiting.anchor.x = 0.0;
+        this.waiting.anchor.y = 0.0;
         Graphics.uiContainer.addChild(this.waiting);
         
     },
     update: function(dt){
         this.waitingTicker += dt;
-        if (this.waitingTicker > 0.5){
+        if (this.waitingTicker > 0.3){
             if (this.dotz == 3){
                 this.dotz = 0;
             }else{
                 this.dotz += 1;
             }
-            this.waitingTicker -= 1.0;
+            this.waitingTicker -= 0.3;
         }
-        var text = this.waitingTextBase
-        for (var i = 0; i < this.dotz.length; i ++){
+        var text = this.waitingTextBase;
+        for (var i = 0; i < this.dotz; i ++){
             text += '.';
         }
         this.waiting.text = text;

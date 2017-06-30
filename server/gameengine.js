@@ -9,10 +9,10 @@ var self = null;
 var GameEngine = function() {
     this.DBINDEX = {};
     this.gameTickInterval = 20;
-
+    this.lastTime = Date.now();
     this.sessions = {}; //List of currently active gameSessions
     this.players = {}; //List of players that do not have a gameSession
-    this.nextOpenSession = null;
+    this.openSessions = null;
 
     //variables for ID's
     this.ids = {};
@@ -34,62 +34,58 @@ GameEngine.prototype.start = function () {
 }
 
 GameEngine.prototype.tick = function() {
+    var now = Date.now();
+    var deltaTime = (now-this.lastTime) / 1000.0;
     //update all sessions
-    self.nextOpenSession = null;
+    self.openSessions = [];
     for(var i in self.sessions) {
-        var openSession = false;
-        if (self.sessions[i].playerCount > 0){
-            self.sessions[i].tick();
-            if (self.sessions[i].playerCount < self.sessions[i].maxPlayers){
-                //this session is open
-                self.nextOpenSession = self.sessions[i];
-                openSession = true;
-            }
-        }else{
-            //empty session. remove it!
-            delete self.sessions[i];
+        self.sessions[i].tick(deltaTime);
+        if (self.sessions[i].playerCount < self.sessions[i].maxPlayers){
+            //this session is open
+            self.openSessions.push(self.sessions[i]);
         }
-        if (!openSession){
-            //no open sessions available for players;
-            self.nextOpenSession = null;
+        if (self.sessions[i].playerCount + self.sessions[i].playersToAdd.length <= 0){
+            self.sessions[i].emptyFor += deltaTime;
+            if (self.sessions[i].emptyFor > 5.0){
+                console.log("deleting session " + self.sessions[i].id);
+                delete self.sessions[i];
+            }
         }
     }
     for (var player in self.players){
         var p = self.players[player];
         if(p.tryingToJoinGame){
-            if (self.nextOpenSession){
-                //there is an open session
-                //add the player if it is between rounds!
-                if (self.nextOpenSession.eventHandler.betweenEvents){
-                    console.log('Adding ' + p.id + ' to next open session');
-                    self.nextOpenSession.addPlayer(p);
-                    delete self.players[player];
+            var openSession = false;
+            for (var session = 0;session < self.openSessions.length;session++){
+                if (self.openSessions[session].gameModeManager.gameMode == p.tryingToJoinGame){
+                    //there is an open session of the correct type
+                    //add the player if it is between rounds!
+                    openSession = true;
+                    if (self.openSessions[session].gameModeManager.betweenEvents && self.openSessions[session].playerCount + self.openSessions[session].playersToAdd.length <= self.openSessions[session].maxPlayers){
+                        self.openSessions[session].playersToAdd.push(p);
+                        p.tryingToJoinGame = false;
+                    }
                 }
-            }else{
-                //no open session, create a new one!
-                console.log('Creating a new session for player ' + p.id);
+            }
+            if (!openSession){
+                console.log('Creating a new' + p.tryingToJoinGame + ' session');
                 var s = new GameSession(self);
-                s.init({sid:self.getID()});
+                s.init({sid:self.getID(),gameMode: p.tryingToJoinGame});
                 self.sessions[s.id] = s;
-                s.addPlayer(p);
-                delete self.players[player];
             }
         }
     }
     self.emit();
     self.clearQueue();
+    this.lastTime = now;
 }
 
-GameEngine.prototype.singlePlayerSession = function(p, secret){
+GameEngine.prototype.singlePlayerSession = function(p, type){
     console.log('Creating single player session for ' + p.id);
+    if (typeof type == 'undefined'){type = 'none'}
     var s = new GameSession(self);
-    s.init({sid:self.getID()});
+    s.init({sid:self.getID(),gameMode: 'solo'});
     s.maxPlayers = 1;
-    if (secret){
-        s.maxPlayers = 10;
-        s.eventHandler.eventEnemyArray = ['c1','c2','c3','tri'];
-        s.level = 1111;
-    }
     self.sessions[s.id] = s;
     s.addPlayer(p);
     delete self.players[p.id];

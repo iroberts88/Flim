@@ -4,7 +4,7 @@
 
 var Player = require('./player.js').Player,
     Enemy = require('./enemy.js').Enemy,
-    EventHandler = require('./eventhandler.js').EventHandler,
+    GameModeManager = require('./gamemodemanager.js').GameModeManager,
     SAT = require('./SAT.js'); //SAT POLYGON COLLISSION1
 
 
@@ -15,7 +15,7 @@ var P = SAT.Polygon;
 var GameSession = function (engine) {
     this.engine = engine;
 
-    this.eventHandler = null;
+    this.gameModeManager = null;
 
     this.id = null;
     this.lastTime = null;
@@ -24,6 +24,7 @@ var GameSession = function (engine) {
     this.playerList = null;
     this.playerCount = null;
     this.maxPlayers = null;
+    this.minPlayers = null;
     this.enemies = null;
     this.deltaTime = null;
     this.level = null;
@@ -38,25 +39,107 @@ GameSession.prototype.init = function (data) {
     this.players = {};
     this.playerList = [];
     this.playerCount = 0;
-    this.maxPlayers = 4;
+    this.level = 1;
+    this.minPlayers = 1;
     this.enemies = {};
     this.deltaTime = 0;
-    this.eventHandler = new EventHandler(this);
-    this.eventHandler.init({
-        timePerEvent: 30,
-        timeBetweenEvents: .25,
-        warningTime: .1,
-        maxSquares: 4
-    });
-    this.level = 1;
+    this.playersToAdd = [];
+    this.emptyFor = 0;
+    this.gameModeManager = new GameModeManager(this);
+    switch(data.gameMode){
+        case 'solo':
+            this.maxPlayers = 1;
+            this.gameModeManager.init({
+                timePerEvent: 35,
+                timeBetweenEvents: .5,
+                warningTime: .4,
+                maxSquares: 4
+            });
+            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
+            this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            break;
+        case 'coop':
+            this.maxPlayers = 4;
+            this.minPlayers = 2;
+            this.gameModeManager.init({
+                timePerEvent: 40,
+                timeBetweenEvents: 5,
+                warningTime: 3,
+                maxSquares: 4
+            });
+            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
+            this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayersCoop;
+            break;
+        case 'secret':
+            this.maxPlayers = 10;
+            this.gameModeManager.init({
+                timePerEvent: 40,
+                timeBetweenEvents: 5,
+                warningTime: 3,
+                maxSquares: 4
+            });
+            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
+            this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayersCoop;
+            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
+            this.level = 1111;
+            break;
+        case 'vs':
+            this.maxPlayers = 2;
+            this.minPlayers = 2;
+            this.gameModeManager.init({
+                timePerEvent: 35,
+                timeBetweenEvents: 8,
+                warningTime: 3,
+                maxSquares: 4
+            });
+            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerVersus;
+            this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            break;
+        case 'star':
+            this.maxPlayers = 1;
+            this.gameModeManager.init({
+                timePerEvent: 35,
+                timeBetweenEvents: .5,
+                warningTime: .4,
+                maxSquares: 0
+            });
+            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
+            this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            break;
+        case 'chaos':
+            this.maxPlayers = 100;
+            this.gameModeManager.init({
+                timePerEvent: 35,
+                timeBetweenEvents: .5,
+                warningTime: .4,
+                maxSquares: 5
+            });
+            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
+            this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            break;
+    }
+    this.gameModeManager.gameMode = data.gameMode;
     this.width = 1920;
     this.height = 1080;
 };
 
 GameSession.prototype.addPlayer = function(p) {
     p.tryingToJoinGame = false;
-    this.eventHandler.timeBetweenEventsTicker = 0; //reset time between events
-    this.eventHandler.warningSent = false;
+    p.god = false;
+    this.gameModeManager.timeBetweenEventsTicker = 0; //reset time between events
+    this.gameModeManager.warningSent = false;
     p.setGameSession(this);
     this.playerCount += 1;
 
@@ -130,12 +213,12 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'chaos', spring: 2+ Math.floor(Math.random()*4), targetId: data.target,speed: 400+(100*Math.floor(Math.random()*6))};
             eData.radius = 10;
             eData.killToStartNextEvent = true;
-            eData.pos = this.eventHandler.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos();
             break;
         case 'star':
             //bouncing star
             var x, y = 0;
-            eData.pos = this.eventHandler.getRandomPos(true);
+            eData.pos = this.gameModeManager.getRandomPos(true);
             if (eData.pos[0] < 950) {
                 x = 1000 + Math.round(Math.random() * 900);
             } else {
@@ -144,7 +227,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             if (eData.pos[1] < 500) {
                 y = 550 + Math.round(Math.random() * 500);
             } else {
-                y = Math.round(Math.random() * 900);
+                y = Math.round(Math.random() * 500);
             }
             eData.speed = 450;
             eData.behaviour = {name: 'star', startMove: [x,y]};
@@ -157,7 +240,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'hexagon', targetId: data.target};
             eData.radius = 20;
             eData.killToStartNextEvent = true;
-            eData.pos = this.eventHandler.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos();
             break;
         case "tri":
             //slow circle
@@ -165,7 +248,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 2, targetId: data.target};
             eData.radius = 30;
             eData.killToStartNextEvent = true;
-            eData.pos = this.eventHandler.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos();
             break;
         case "c1":
             //slow circle
@@ -173,7 +256,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
-            eData.pos = this.eventHandler.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos();
             break;
         case "c2":
             //med circle
@@ -181,7 +264,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
-            eData.pos = this.eventHandler.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos();
             break;
         case "c3":
             //fast circle
@@ -189,7 +272,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
-            eData.pos = this.eventHandler.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos();
             break;
         case "sq":
             //square
@@ -270,32 +353,30 @@ GameSession.prototype.log = function(data) {
     this.queueData('debug', data);
 }
 
-GameSession.prototype.tick = function() {
-    var now = Date.now();
-    var deltaTime = (now-this.lastTime) / 1000.0;
+GameSession.prototype.tick = function(deltaTime) {
     this.deltaTime = deltaTime;
-    //while(this.queue.length > 0) {
-    //    var d = this.queue.shift();
-    //    this.emit(d.call, d.data);
-    //}
-    // emit queue as a single object
-    // This should be changed to be more specific next time, calculating deltas etc (so only the most recent move per player etc)
-    //this.emit(this.queue);
+    
+    if (this.playerCount <= 0){
+        this.emptyFor += deltaTime;
+    }
     this.emit();
     // Empty queue
     this.clearQueue();
-    //Tick all players
-    for (var i in this.players){
-        var player = this.players[i];
-        player.tick(this.deltaTime);
-        if (player.kill){
-            player.killCountDown -= deltaTime;
-            if (player.killCountDown <= 0){
-                //remove player from session?
-                this.removePlayer(player);
-            }
+    // add players waiting to join
+    var added = false;
+
+    if (this.playerCount+this.playersToAdd.length >= this.minPlayers){
+        for (var i = 0; i < this.playersToAdd.length; i ++){
+            this.addPlayer(this.playersToAdd[i]);
+            added = true;
+            delete this.engine.players[this.playersToAdd[i].id];
         }
     }
+    if (added){
+        this.playersToAdd = [];
+    }
+    //Tick all players
+    this.gameModeManager.tickPlayersFunc(this.deltaTime);
     //tick all enemies
     for (var i in this.enemies){
         this.enemies[i].tick(this.deltaTime);
@@ -305,10 +386,8 @@ GameSession.prototype.tick = function() {
         }
     }
 
-    //tick eventHandler
-    this.eventHandler.tick(deltaTime);
-
-    this.lastTime = now;
+    //tick gameModeManager
+    this.gameModeManager.tick(deltaTime);
 }
 
 exports.GameSession = GameSession;

@@ -57,8 +57,7 @@ Enemy = function(){
                 var p = this.gameSession.players[player];
                 if (!p.god && !p.kill && this.active){
                     if (SAT.testPolygonPolygon(this.hitData,p.hitData) || SAT.testPolygonPolygon(this.hitData,p.vectorHitbox)){
-                        p.kill = true;
-                        this.gameSession.queueData('killPlayer', {id:p.id});
+                        this.gameSession.gameModeManager.killPlayerFunc(p);
                     }
                 }
             }

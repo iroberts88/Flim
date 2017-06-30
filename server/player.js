@@ -29,21 +29,25 @@ Player = function(){
     player.tryingToJoinGame = null;
 
     player.kill = null;
+    player.revive = null;
     player.killCountDown = null;
     player.god = false;
+    player.godTimer = 0;
+    player.godTemp = false;
 
     player.init = function (data) {
         //init player specific variables
         this.speed = 6000;
         this.radius = 20;
         this.kill = false;
+        this.revive = false;
         this.killCountDown = 5; //seconds before returned to main menu
         this.netQueue = [];
         this.hitData = new P(new V(960, 540),   [new V(Math.round(-.8*this.radius),Math.round(-.8*this.radius)),
                                              new V(Math.round(-.8*this.radius),Math.round(.8*this.radius)),
                                              new V(Math.round(.8*this.radius),Math.round(.8*this.radius)),
                                              new V(Math.round(.8*this.radius),Math.round(-.8*this.radius))]);
-        this.targetPosition = new V(0,0);
+        this.targetPosition = new V(960,540);
 
         this.vectorHitbox = new P(new V(960,540),[new V(0,-1),new V(0,1),new V(10,1),new V(10,-1)]);
 
@@ -55,6 +59,13 @@ Player = function(){
         }
     };
     player.tick = function(deltaTime){
+        if (this.godTimer > 0){
+            this.godTimer -= deltaTime;
+            this.godTemp = true;
+        }else if(this.godTemp){
+            this.godTemp = false;
+            this.god = false;
+        }
         //Move closer to targetPosition
         this.xDistance = this.targetPosition.x - this.hitData.pos.x;
         this.yDistance = this.targetPosition.y - this.hitData.pos.y;
@@ -133,6 +144,10 @@ Player = function(){
                             that.god = true;
                         }
                         break;
+                    case 'chaos':
+                        if (!that.gameSession){
+                            that.tryingToJoinGame = 'chaos';
+                        }
                     case 'setlevel':
                         //toggle god mode
                         commandBool = true
@@ -175,16 +190,18 @@ Player = function(){
 
         this.socket.on('join', function (data) {
             console.log('Player ' + that.id + ' wants to join a game.');
-            if (data.single){
-                that.gameEngine.singlePlayerSession(that);
-            }
-            if (data.secret){
-                that.gameEngine.singlePlayerSession(that, true);
-            }
             if (!that.gameSession){
-                //no gameSession exists!
-                //request a gameSession from the gameEngine
-                that.tryingToJoinGame = true;
+                if (data.solo){
+                    that.gameEngine.singlePlayerSession(that);
+                }else if (data.secret){
+                    that.tryingToJoinGame = 'secret';
+                }else if (data.coop){
+                    that.tryingToJoinGame = 'coop';
+                }else if (data.vs){
+                    that.tryingToJoinGame = 'vs';
+                }else if (data.stars){
+                    that.gameEngine.singlePlayerSession(that, 'star');
+                }
             }
         });
     };

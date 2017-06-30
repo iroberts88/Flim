@@ -24,11 +24,22 @@ var behaviourEnums = {
 
 Behaviour.prototype.getNewTarget = function(e,s){
     try{
-        var t = s.players[s.playerList[Math.floor(Math.random()*s.playerList.length)]];
-        s.queueData('enemyNewTarget',{id:e.id,targetId:t.id});
-        return t;
+        var activePlayers = [];
+        for (var t in s.players){
+            if (!s.players[t].kill){
+                activePlayers.push(s.players[t])
+            }
+        }
+        if (activePlayers.length > 0){
+            var target = activePlayers[Math.floor(Math.random()*activePlayers.length)];
+            s.queueData('enemyNewTarget', {id: e.id, targetId: target.id})
+            return target;
+        }else{
+            return 'none';
+        }
     }catch(e){
-        return 'none';
+        console.log('get target error');
+        console.log(e.stack);
     }
 }
 
