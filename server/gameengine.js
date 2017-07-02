@@ -68,9 +68,10 @@ GameEngine.prototype.tick = function() {
                 }
             }
             if (!openSession){
-                console.log('Creating a new' + p.tryingToJoinGame + ' session');
+                console.log('Creating a new ' + p.tryingToJoinGame + ' session');
                 var s = new GameSession(self);
-                s.init({sid:self.getID(),gameMode: p.tryingToJoinGame});
+                s.init({ sid: self.getID(), gameMode: p.tryingToJoinGame });
+                console.log('session id: ' + s.id);
                 self.sessions[s.id] = s;
             }
         }
@@ -84,7 +85,8 @@ GameEngine.prototype.singlePlayerSession = function(p, type){
     console.log('Creating single player session for ' + p.id);
     if (typeof type == 'undefined'){type = 'none'}
     var s = new GameSession(self);
-    s.init({sid:self.getID(),gameMode: 'solo'});
+    s.init({ sid: self.getID(), gameMode: 'solo' });
+    console.log('session id: ' + s.id);
     s.maxPlayers = 1;
     self.sessions[s.id] = s;
     s.addPlayer(p);

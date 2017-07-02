@@ -387,7 +387,7 @@ Acorn.addState({
         });
 
         //set up the secret button
-        this.secretButton = new PIXI.Text('.' , {font: '12px Orbitron', fill: 'black', align: 'left'});
+        this.secretButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
         this.secretButton.position.x = 30;
         this.secretButton.position.y = 30;
         this.secretButton.anchor.x = 0.5;
@@ -405,7 +405,7 @@ Acorn.addState({
         });
 
         //set up the secret button
-        this.starsButton = new PIXI.Text('.' , {font: '12px Orbitron', fill: 'black', align: 'left'});
+        this.starsButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
         this.starsButton.position.x = 1900;
         this.starsButton.position.y = 100;
         this.starsButton.anchor.x = 0.5;

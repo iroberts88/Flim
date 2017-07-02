@@ -1,7 +1,6 @@
 //----------------------------------------------------------------
 //GameModeManager.js
 // used by a game session to update different game modes
-// TODO change to gameModeManager
 //----------------------------------------------------------------
 
 var GameModeManager = function(session) {
@@ -117,7 +116,11 @@ GameModeManager.prototype.newEvent = function() {
         }
         this.squares = [];
         //add stars
-        for (var i = 0; i < 8; i++){
+        var num = Math.ceil(this.session.level / 25);
+        if (num > 8) {
+            num = 8;
+        }
+        for (var i = 0; i < num; i++){
             var e = this.session.addEnemy('star');
             enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
         }
@@ -222,7 +225,7 @@ GameModeManager.prototype.newEvent = function() {
 }
 
 /////////////////////////////////////////////////////////////////
-//                Functions for killing players                //
+//                Functions for killing players                    //
 ////////////////////////////////////////////////////////////////
 //These are called in enemy.tick
 
@@ -240,7 +243,6 @@ GameModeManager.prototype.killPlayerCoop = function(player){
 }
 
 GameModeManager.prototype.killPlayerVersus = function(player){
-    //TODO - score multiplier for this level should be 0 when a player dies
     player.kill = true;
     this.session.queueData('killPlayer', {id:player.id});
     this.session.queuePlayer(player,'youLose', {});
@@ -255,7 +257,7 @@ GameModeManager.prototype.killPlayerVersus = function(player){
 }
 
 /////////////////////////////////////////////////////////////////
-//                Functions for ticking players                //
+//                Functions for ticking players                   //
 ////////////////////////////////////////////////////////////////
 //called in the session.tick
 
