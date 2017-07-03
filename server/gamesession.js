@@ -46,6 +46,7 @@ GameSession.prototype.init = function (data) {
     this.playersToAdd = [];
     this.emptyFor = 0;
     this.gameModeManager = new GameModeManager(this);
+    //Set up Game mode depending on type -
     switch(data.gameMode){
         case 'solo':
             this.maxPlayers = 1;
@@ -59,6 +60,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
             break;
         case 'coop':
             this.maxPlayers = 4;
@@ -73,6 +75,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayersCoop;
+            this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemiesCoop;
             break;
         case 'secret':
             this.maxPlayers = 10;
@@ -86,6 +89,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayersCoop;
+            this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
             this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
             this.level = 1111;
             break;
@@ -102,6 +106,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerVersus;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
             break;
         case 'star':
             this.maxPlayers = 1;
@@ -111,10 +116,11 @@ GameSession.prototype.init = function (data) {
                 warningTime: .4,
                 maxSquares: 0
             });
-            this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
+            this.gameModeManager.tickFunc = this.gameModeManager.starsTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
-            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
+            this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerStars;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
             break;
         case 'chaos':
             this.maxPlayers = 100;
@@ -122,12 +128,14 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 5
+                maxSquares: 8
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
-            this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
+            this.gameModeManager.eventFunc = this.gameModeManager.chaosEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
+            this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
+            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri','trap','hex','chaos','star'];
             break;
     }
     this.gameModeManager.gameMode = data.gameMode;
@@ -214,6 +222,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 10;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
+            eData.scoreBase = 10;
             break;
         case 'star':
             //bouncing star
@@ -233,6 +242,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'star', startMove: [x,y]};
             eData.radius = 20;
             eData.killToStartNextEvent = false;
+            eData.scoreBase = 0;
             break;
         case 'hex':
             //hexagon
@@ -241,6 +251,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 20;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
+            eData.scoreBase = 5;
             break;
         case "tri":
             //slow circle
@@ -249,6 +260,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 30;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
+            eData.scoreBase = 4;
             break;
         case "c1":
             //slow circle
@@ -257,6 +269,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 8;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
+            eData.scoreBase = 1;
             break;
         case "c2":
             //med circle
@@ -265,6 +278,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 8;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
+            eData.scoreBase = 2;
             break;
         case "c3":
             //fast circle
@@ -273,6 +287,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 8;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
+            eData.scoreBase = 3;
             break;
         case "sq":
             //square
@@ -281,6 +296,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = false;
             eData.hitBoxSize = [60,60];
             eData.pos = [200 + Math.round(Math.random()*1520), 200 + Math.round(Math.random()*680)];
+            eData.scoreBase = 1;
             break;
         case "trap":
             //trapezoid
@@ -288,6 +304,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'trapezoid'};
             eData.killToStartNextEvent = false;
             eData.hd = {pos: data.pos,points:[[-32,-32],[-64,32],[64,32],[32,-32]]};
+            eData.scoreBase = 1;
             break;
         case "par":
             //parallelogram
@@ -295,6 +312,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'parallelogram'};
             eData.killToStartNextEvent = true;
             eData.hd = {pos: data.pos,points:[[-64,-64],[-128,64],[64,64],[128,-64]]};
+            eData.scoreBase = 1;
             break;
     }
     e.setGameSession(this);
@@ -387,13 +405,7 @@ GameSession.prototype.tick = function(deltaTime) {
     //Tick all players
     this.gameModeManager.tickPlayersFunc(this.deltaTime);
     //tick all enemies
-    for (var i in this.enemies){
-        this.enemies[i].tick(this.deltaTime);
-        if (this.enemies[i].kill){
-            this.queueData('removeEnemy', {id: this.enemies[i].id});
-            delete this.enemies[i];
-        }
-    }
+    this.gameModeManager.tickEnemiesFunc(this.deltaTime);
 
     //tick gameModeManager
     this.gameModeManager.tick(deltaTime);

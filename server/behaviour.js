@@ -55,43 +55,46 @@ Behaviour.prototype.chaos = function(enemy, deltaTime, data){
     Behaviour.basicMoveTowards(enemy,deltaTime, data);
 }
 Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
-    if (typeof data.acceleration == 'undefined'){
-        data.acceleration = new V(0,0);
-    }
-    if (typeof data.noTarget == 'undefined'){
-        data.noTarget = false;
-    }
-    enemy.active = true;
-    //Get the closest player and set as target position;
-    var xDist;
-    var yDist;
-    var target = enemy.gameSession.players[data.targetId];
-    if (target.kill || data.noTarget){
-        //there is no current target!
-        var Behaviour = require('./behaviour.js').Behaviour;
-        target = Behaviour.getNewTarget(enemy, enemy.gameSession);
-        if (target != 'none'){
-            data.targetId = target.id;
-        }else{
-            data.noTarget = true;
+    try{
+        if (typeof data.acceleration == 'undefined'){
+            data.acceleration = new V(0,0);
         }
-    }else{
-        xDist = target.hitData.pos.x - enemy.hitData.pos.x;
-        yDist = target.hitData.pos.y - enemy.hitData.pos.y;
-        if (!enemy.moveVector){
-            enemy.moveVector = new V(0,0);
+        if (typeof data.noTarget == 'undefined'){
+            data.noTarget = false;
+        }
+        enemy.active = true;
+        //Get the closest player and set as target position;
+        var xDist;
+        var yDist;
+        var target = enemy.gameSession.players[data.targetId];
+        if (target.kill || data.noTarget){
+            //there is no current target!
+            var Behaviour = require('./behaviour.js').Behaviour;
+            target = Behaviour.getNewTarget(enemy, enemy.gameSession);
+            if (target != 'none'){
+                data.targetId = target.id;
+            }else{
+                data.noTarget = true;
+            }
         }else{
-            data.acceleration = new V(xDist,yDist).normalize();
-            enemy.moveVector.x += data.acceleration.x*deltaTime*data.spring;
-            enemy.moveVector.y += data.acceleration.y*deltaTime*data.spring;
-            if (Math.sqrt(enemy.moveVector.x*enemy.moveVector.x + enemy.moveVector.y*enemy.moveVector.y) > 1){
-                enemy.moveVector.normalize();
+            xDist = target.hitData.pos.x - enemy.hitData.pos.x;
+            yDist = target.hitData.pos.y - enemy.hitData.pos.y;
+            if (!enemy.moveVector){
+                enemy.moveVector = new V(0,0);
+            }else{
+                data.acceleration = new V(xDist,yDist).normalize();
+                enemy.moveVector.x += data.acceleration.x*deltaTime*data.spring;
+                enemy.moveVector.y += data.acceleration.y*deltaTime*data.spring;
+                if (Math.sqrt(enemy.moveVector.x*enemy.moveVector.x + enemy.moveVector.y*enemy.moveVector.y) > 1){
+                    enemy.moveVector.normalize();
+                }
             }
         }
+        //move
+        enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
+        enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    }catch(e){
     }
-    //move
-    enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
-    enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
 Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
@@ -153,6 +156,7 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
 
 Behaviour.prototype.star = function(enemy, deltaTime, data){
     enemy.active = true;
+    var update = false;
     if (!enemy.moveVector){
         enemy.moveVector = new SAT.Vector(data.startMove[0] - enemy.hitData.pos.x, data.startMove[1] - enemy.hitData.pos.y).normalize();
     }
@@ -164,18 +168,22 @@ Behaviour.prototype.star = function(enemy, deltaTime, data){
         if (enemy.hitData.pos.x <= 0){
             enemy.hitData.pos.x = 0;
             enemy.moveVector.x = enemy.moveVector.x * -1;
+            update = true;
         }
         if (enemy.hitData.pos.y <= 0){
             enemy.hitData.pos.y = 0;
             enemy.moveVector.y = enemy.moveVector.y * -1;
+            update = true;
         }
         if (enemy.hitData.pos.x >= 1920){
             enemy.hitData.pos.x = 1920;
             enemy.moveVector.x = enemy.moveVector.x * -1;
+            update = true;
         }
         if (enemy.hitData.pos.y >= 1080){
             enemy.hitData.pos.y = 1080;
             enemy.moveVector.y = enemy.moveVector.y * -1;
+            update = true;
         }
     }else{
         if (enemy.hitData.pos.x < 1920 && enemy.hitData.pos.x > 0 && enemy.hitData.pos.y < 1080 && enemy.hitData.pos.y > 0){
@@ -185,6 +193,9 @@ Behaviour.prototype.star = function(enemy, deltaTime, data){
     //move
     enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    if (update){
+        enemy.gameSession.queueData('updateEnemyLoc',{id: enemy.id,newPos: [enemy.hitData.pos.x,enemy.hitData.pos.y],newDir: [enemy.moveVector.x,enemy.moveVector.y]});
+    }
 };
 
 Behaviour.prototype.trapezoid = function(enemy, deltaTime, data){

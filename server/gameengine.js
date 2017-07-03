@@ -83,9 +83,9 @@ GameEngine.prototype.tick = function() {
 
 GameEngine.prototype.singlePlayerSession = function(p, type){
     console.log('Creating single player session for ' + p.id);
-    if (typeof type == 'undefined'){type = 'none'}
+    if (typeof type == 'undefined'){type = 'solo'}
     var s = new GameSession(self);
-    s.init({ sid: self.getID(), gameMode: 'solo' });
+    s.init({ sid: self.getID(), gameMode: type });
     console.log('session id: ' + s.id);
     s.maxPlayers = 1;
     self.sessions[s.id] = s;

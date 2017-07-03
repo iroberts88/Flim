@@ -162,6 +162,26 @@ function setupSocket() {
             uLost.anchor.x = 0.5;
             uLost.anchor.y = 0.5;
             Graphics.uiContainer.addChild(uLost);
+            if (data.score){
+                var score = new PIXI.Text('Final Score: ' + data.score, { font: '100px Snippet', fill: 'red', align: 'left' });
+                score.position.x = (Graphics.width / 2);
+                score.position.y = (Graphics.height / 4 + 100);
+                score.anchor.x = 0.5;
+                score.anchor.y = 0.5;
+                Graphics.uiContainer.addChild(score);
+            }
+        }
+    });
+
+     Acorn.Net.on('youLasted', function (data) {
+        if (!ended) {
+            ended = true;
+            var uLost = new PIXI.Text('You Lasted ' + data.time + ' Seconds', { font: '100px Snippet', fill: 'red', align: 'left' });
+            uLost.position.x = (Graphics.width / 2);
+            uLost.position.y = (Graphics.height / 4);
+            uLost.anchor.x = 0.5;
+            uLost.anchor.y = 0.5;
+            Graphics.uiContainer.addChild(uLost);
         }
     });
 
@@ -218,6 +238,20 @@ function setupSocket() {
       //update player position
       try{
           Party.members[data.playerId].updateLoc(data.newLoc[0], data.newLoc[1]);
+      }catch(e){
+        //console.log("client error - could not update player location");
+        //console.log(e);
+      }
+    });
+
+    Acorn.Net.on('updateEnemyLoc', function (data) {
+        console.log(data);
+      //update player position
+      try{
+          Enemies.enemyList[data.id].sprite.position.x = data.newPos[0];
+          Enemies.enemyList[data.id].sprite.position.y = data.newPos[1];
+          Enemies.enemyList[data.id].moveVector.x = data.newDir[0];
+          Enemies.enemyList[data.id].moveVector.y = data.newDir[1];
       }catch(e){
         //console.log("client error - could not update player location");
         //console.log(e);
@@ -325,6 +359,7 @@ Acorn.addState({
         console.log('Initializing main menu');
         document.body.style.cursor = 'default';
         Graphics.clear();
+        ended = false;
         this.wispLogo = new PIXI.Text('F-L-I-M' , {font: '200px Orbitron', fill: 'white', align: 'left'});
         this.wispLogo.position.x = (Graphics.width / 2);
         this.wispLogo.position.y = (Graphics.height / 4);
@@ -414,12 +449,28 @@ Acorn.addState({
         this.starsButton.interactive = true;
         this.starsButton.buttonMode = true;
         this.starsButton.on('click', function onClick(){
-            Acorn.Net.socket_.emit('join',{star: true});
+            Acorn.Net.socket_.emit('join',{stars: true});
             Acorn.changeState('joiningGame');
         });
         this.starsButton.on('tap', function onClick(){
-            Acorn.Net.socket_.emit('join',{star: true});
+            Acorn.Net.socket_.emit('join',{stars: true});
             Acorn.changeState('joiningGame');
+        });
+
+        //set up the about button
+        this.aboutButton = new PIXI.Text('about' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.aboutButton.position.x = 1800;
+        this.aboutButton.position.y = 24;
+        this.aboutButton.anchor.x = 0.5;
+        this.aboutButton.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.aboutButton);
+        this.aboutButton.interactive = true;
+        this.aboutButton.buttonMode = true;
+        this.aboutButton.on('click', function onClick(){
+            Acorn.changeState('aboutPage');
+        });
+        this.aboutButton.on('tap', function onClick(){
+            Acorn.changeState('aboutPage');
         });
 
         //stop playing music if returning from in game
@@ -430,6 +481,7 @@ Acorn.addState({
         Graphics.drawBoxAround(this.singlePlayerButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.multiPlayerButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.versusButton,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.aboutButton,Graphics.worldPrimitives);
         ChatConsole.update(dt);
     }
 });
@@ -495,6 +547,86 @@ Acorn.addState({
     }
 });
 
+Acorn.addState({
+    stateId: 'aboutPage',
+    init: function(){
+        console.log('Initializing about page');
+        document.body.style.cursor = 'default';
+        Graphics.clear();
+        this.wispLogo = new PIXI.Text('About Flim' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.wispLogo.position.x = (Graphics.width / 2);
+        this.wispLogo.position.y = 40;
+        this.wispLogo.anchor.x = 0.5;
+        this.wispLogo.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.wispLogo);
+
+        this.welcome = new PIXI.Text('Welcome to Flim! The shitty game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
+        this.welcome.position.x = (Graphics.width / 2);
+        this.welcome.position.y = (100);
+        this.welcome.anchor.x = 0.5;
+        this.welcome.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.welcome);
+
+        this.nameDrop = new PIXI.Text('By Ian Roberts' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left'});
+        this.nameDrop.position.x = (Graphics.width / 2);
+        this.nameDrop.position.y = (150);
+        this.nameDrop.anchor.x = 0.5;
+        this.nameDrop.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.nameDrop);
+
+        this.controls = new PIXI.Text('Controls: Use your mouse dummy' , {font: '48px Orbitron', fill: 'white', align: 'left'});
+        this.controls.position.x = (Graphics.width / 2);
+        this.controls.position.y = (250);
+        this.controls.anchor.x = 0.5;
+        this.controls.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.controls);
+
+        this.soloMode = new PIXI.Text('Solo Mode: Use your mouse to guide the shapes into the gray squares as they appear. The faster you complete each level the higher the score!' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
+        this.soloMode.position.x = (Graphics.width / 2);
+        this.soloMode.position.y = (450);
+        this.soloMode.anchor.x = 0.5;
+        this.soloMode.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.soloMode);
+
+        this.coopMode = new PIXI.Text('Co-op Mode: Same as solo mode with more time in between levels. Shapes will split between players. Scoring is shared - if a player dies enemies will be worth nothing for that round - but the player will revive for the next round!' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
+        this.coopMode.position.x = (Graphics.width / 2);
+        this.coopMode.position.y = (725);
+        this.coopMode.anchor.x = 0.5;
+        this.coopMode.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.coopMode);
+
+        this.vsMode = new PIXI.Text('Versus Mode: No scoring. First player to get hit loses!' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
+        this.vsMode.position.x = (Graphics.width / 2);
+        this.vsMode.position.y = (950);
+        this.vsMode.anchor.x = 0.5;
+        this.vsMode.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.vsMode);
+
+        //set up the back button
+        this.backButton = new PIXI.Text('back' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.backButton.position.x = 1800;
+        this.backButton.position.y = 24;
+        this.backButton.anchor.x = 0.5;
+        this.backButton.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.backButton);
+        this.backButton.interactive = true;
+        this.backButton.buttonMode = true;
+        this.backButton.on('click', function onClick(){
+            Acorn.changeState('mainMenu');
+        });
+        this.backButton.on('tap', function onClick(){
+            Acorn.changeState('mainMenu');
+        });
+
+        //stop playing music if returning from in game
+        Acorn.Sound.stop('flim');
+    },
+    update: function(dt){
+        Graphics.worldPrimitives.clear();
+        Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
+        ChatConsole.update(dt);
+    }
+});
 
 Acorn.Input.onMouseMove(function(e) {
     if (Acorn.currentState == 'mainMenu'){

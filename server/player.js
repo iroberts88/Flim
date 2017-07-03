@@ -35,9 +35,15 @@ Player = function(){
     player.godTimer = 0;
     player.godTemp = false;
 
+    player.score = 0;
+
     player.init = function (data) {
         //init player specific variables
         this.speed = 6000;
+        this.score = 0;
+        this.god = false;
+        this.godTimer = 0;
+        this.godTemp = false;
         this.radius = 20;
         this.kill = false;
         this.revive = false;
@@ -74,17 +80,15 @@ Player = function(){
         this.actualMoveX = this.move.x*this.speed*deltaTime;
         this.actualMoveY = this.move.y*this.speed*deltaTime;
         this.actualMoveHyp = Math.sqrt(this.actualMoveX*this.actualMoveX + this.actualMoveY*this.actualMoveY);
-        //set vector hitBox position
-        this.vectorHitbox = new P(new V(this.hitData.pos.x,this.hitData.pos.y),
-                                [new V(0,this.radius*-1),new V(0,this.radius),new V(this.move+1,this.radius),new V(this.move+1,this.radius*-1)]);
-        this.vectorHitbox.rotate(Math.atan2(this.yDistance,this.xDistance));
-
         if (this.hyp < this.actualMoveHyp){
+            this.vectorHitbox = new P(new V(this.hitData.pos.x,this.hitData.pos.y),[new V(0,this.radius*-1),new V(0,this.radius),new V(this.hyp+1,this.radius),new V(this.hyp+1,this.radius*-1)]);
             this.hitData.pos = new V(this.targetPosition.x, this.targetPosition.y);
         }else{
+            this.vectorHitbox = new P(new V(this.hitData.pos.x,this.hitData.pos.y),[new V(0,this.radius*-1),new V(0,this.radius),new V(this.actualMoveHyp+1,this.radius),new V(this.actualMoveHyp+1,this.radius*-1)]);
             this.hitData.pos.x += this.actualMoveX;
             this.hitData.pos.y += this.actualMoveY;
         }
+        this.vectorHitbox.rotate(Math.atan2(this.yDistance,this.xDistance));
     };
 
     player.onDisconnect = function(callback) {
@@ -145,12 +149,20 @@ Player = function(){
                         }
                         break;
                     case 'chaos':
+                        commandBool = true;
                         if (!that.gameSession){
                             that.tryingToJoinGame = 'chaos';
                         }
+                        break;
+                    case 'stars':
+                        commandBool = true;
+                        if (!that.gameSession){
+                            that.gameEngine.singlePlayerSession(that, 'star');
+                        }
+                        break;
                     case 'setlevel':
                         //toggle god mode
-                        commandBool = true
+                        commandBool = true;
                         try{
                             that.gameSession.level = parseInt(commands[1]);
                         }catch(e){

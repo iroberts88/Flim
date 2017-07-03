@@ -17,11 +17,14 @@ Enemy = function(){
     this.behaviour = null;
     this.killToStartNextEvent = null;
     this.bFunc = null;
+    this.scoreBase = null;
 
     enemy.init = function(data) {
         try{
             this.active = false;
             this.kill = false;
+            this.scoreBase = data.scoreBase;
+
             this.speed = data.speed;
             this.behaviour = data.behaviour;
             this.bFunc = Behaviour.getBehaviour(this.behaviour.name);

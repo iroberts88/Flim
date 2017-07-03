@@ -60,13 +60,13 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
             var hyp = Math.sqrt(xDist*xDist+yDist*yDist);
             enemy.sprite.rotation = Math.atan2(yDist,xDist)+1.5;
         }
+        //move
+        enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
+        enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
     }catch(e){
         //console.log('Error with basic move behaviour');
         //console.log(e);
     }
-    //move
-    enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
-    enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
 Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
@@ -92,13 +92,10 @@ Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
                 enemy.moveVector = new SAT.Vector(xDist,yDist).normalize();
             }
         }
-    }catch(e){
-        console.log("Error with hexagon behaviour");
-        console.log(e);
-    }
-    //move
-    enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
-    enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+        //move
+        enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
+        enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    }catch(e){}
 };
 
 
