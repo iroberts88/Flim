@@ -70,38 +70,38 @@
             }
         },
         setSFXVolume: function(v){
-            this.sfxVolume = v;
-            if (this.mute){
-                this.toggleMute();
+            Settings.sfxVolume = v;
+            if (Settings.mute){
+                Settings.toggleMute();
             }else{
                 for (var i = 0; i < Acorn.Sound._sounds.length;i++){
                     var snd = Acorn.Sound._sounds[i];
                     if (snd.type == 'sfx'){
-                        snd.volume = snd.volumeBase*Settings.masterVolume*this.musicVolume;
+                        snd.volume = snd.volumeBase*Settings.masterVolume*Settings.musicVolume;
                     }
                 }
             }
         },
         setMusicVolume: function(v){
-            this.musicVolume = v;
-            if (this.mute){
-                this.toggleMute();
+            Settings.musicVolume = v;
+            if (Settings.mute){
+                Settings.toggleMute();
             }else{
                 for (var i = 0; i < Acorn.Sound._sounds.length;i++){
                     var snd = Acorn.Sound._sounds[i];
                     if (snd.type == 'music'){
-                        snd.volume = snd.volumeBase*Settings.masterVolume*this.musicVolume;
+                        snd.volume = snd.volumeBase*Settings.masterVolume*Settings.musicVolume;
                     }
                 }
             }
         },
         setMasterVolume: function(v){
-            this.masterVolume = v;
-            if (this.mute){
-                this.toggleMute();
+            Settings.masterVolume = v;
+            if (Settings.mute){
+                Settings.toggleMute();
             }else{
-                this.setMusicVolume(this.musicVolume);
-                this.setSFXVolume(this.sfxVolume);
+                Settings.setMusicVolume(Settings.musicVolume);
+                Settings.setSFXVolume(Settings.sfxVolume);
             }
         }
     };

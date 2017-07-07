@@ -231,7 +231,6 @@ function setupSocket() {
     });
 
     Acorn.Net.on('unKillPlayer', function (data) {
-        console.log(data);
         Player.kill = false;
         Graphics.worldContainer.addChild(Player.player);
     });
@@ -247,7 +246,6 @@ function setupSocket() {
     });
 
     Acorn.Net.on('updateEnemyLoc', function (data) {
-        console.log(data);
       //update player position
       try{
           Enemies.enemyList[data.id].sprite.position.x = data.newPos[0];
@@ -285,7 +283,6 @@ function setupSocket() {
     });
 
     Acorn.Net.on('enemyNewTarget', function (data) {
-        console.log(data);
         try{
             Enemies.enemyList[data.id].behaviour.targetId = data.targetId;
         }catch(e){
@@ -941,7 +938,6 @@ function setSlideBar(bar,func){
         bar.clicked = true;
     });
     bar.on('mouseup', function onClick(e){
-        bar.clicked = false;
         if (bar.clicked){
             var position = e.data.getLocalPosition(e.target);
             var start =  -1 * bar._width/2;
@@ -951,6 +947,7 @@ function setSlideBar(bar,func){
             func(percent);
             bar.percent = percent;
         }
+        bar.clicked = false;
     });
     bar.on('mouseupoutside', function onClick(){
         bar.clicked = false;
@@ -959,7 +956,6 @@ function setSlideBar(bar,func){
         bar.clicked = true;
     });
     bar.on('touchend', function onClick(e){
-        bar.clicked = false;
         if (bar.clicked){
             var position = e.data.getLocalPosition(e.target);
             var start =  -1 * bar._width/2;
@@ -969,6 +965,7 @@ function setSlideBar(bar,func){
             func(percent);
             bar.percent = percent;
         }
+        bar.clicked = false;
     });
     bar.on('touchendoutside', function onClick(){
         bar.clicked = false;
