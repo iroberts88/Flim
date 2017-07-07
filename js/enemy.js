@@ -83,7 +83,7 @@
                     newEnemy.sprite.anchor.y = 0.5;
                     newEnemy.sprite.position.x = data.x;
                     newEnemy.sprite.position.y = data.y;
-                    newEnemy.sprite.tint = 0x0000FF;
+                    newEnemy.sprite.tint = 0x42a7f4;
                     break;
                 case "c2":
                     //med circle
@@ -122,7 +122,20 @@
                     newEnemy.sprite.anchor.y = 0.5;
                     newEnemy.sprite.position.x = data.x;
                     newEnemy.sprite.position.y = data.y;
-                    newEnemy.sprite.tint = 0x8C8C8C;
+                    newEnemy.sprite.tint = 0xc0c6d1;
+                    break;
+                case "sq2":
+                    //square2
+                    newEnemy.speed = 150;
+                    newEnemy.behaviour = data.behaviour;
+                    newEnemy.sprite = Graphics.getSprite('square');
+                    newEnemy.sprite.scale.x = (60/64);
+                    newEnemy.sprite.scale.y = (60/64);
+                    newEnemy.sprite.anchor.x = 0.5;
+                    newEnemy.sprite.anchor.y = 0.5;
+                    newEnemy.sprite.position.x = data.x;
+                    newEnemy.sprite.position.y = data.y;
+                    newEnemy.sprite.tint = 0xc0c6d1;
                     break;
                 case "trap":
                     //trapezoid

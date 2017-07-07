@@ -33,7 +33,7 @@
                 Dust.addDust({
                     vector: [1,0],
                     pos: [this.members[data.id].loc.x,this.members[data.id].loc.y],
-                    color: 0xFFFFFF,
+                    color: this.members[data.id].tint,
                     angle: 180
                 })
             }

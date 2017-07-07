@@ -192,9 +192,19 @@ GameModeManager.prototype.newEvent = function() {
                 randomSquare.kill = true;
                 this.squares.splice(r,1);
             }
-            var e = this.session.addEnemy('sq');
-            enemiesAdded.push({type: 'sq', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
-            this.squares.push(e);
+            var chance = 10+Math.sqrt(this.session.level*10);
+            if (this.session.level <=25){
+                chance = 0;
+            }
+            if (Math.random()*100 < chance){
+                var e = this.session.addEnemy('sq2');
+                enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
+                this.squares.push(e);
+            }else{
+                var e = this.session.addEnemy('sq');
+                enemiesAdded.push({type: 'sq', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                this.squares.push(e);
+            }
         }
         switch(this.session.level){
             case 3:
@@ -279,8 +289,8 @@ GameModeManager.prototype.chaosEvent = function() {
             randomSquare.kill = true;
             this.squares.splice(r,1);
         }
-        var e = this.session.addEnemy('sq');
-        enemiesAdded.push({type: 'sq', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+        var e = this.session.addEnemy('sq2');
+        enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
         this.squares.push(e);
     }
     rand = Math.ceil(rand/this.session.playerCount);

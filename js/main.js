@@ -97,7 +97,8 @@ $(function() {
     });
 
     // Load Sounds
-    Acorn.Sound.addSound({url: 'sounds/my_sound.mp3', id: 'item', volume: 0.75});
+    Acorn.Sound.init();
+    Acorn.Sound.addSound({url: 'sounds/my_sound.mp3', id: 'item', volume: 0.75, preload: true});
     Acorn.Sound.addSound({url: 'sounds/Flim.mp3', multi:false, id: 'flim', volume: 0.5,type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('flim');}});
     //Acorn.Sound.addSound({url: 'sounds/cafo.ogg', id: 'music2', multi:false, type: 'music',preload: true});
     //Acorn.Sound.addSound({url: 'sounds/cafo1.mp3', id: 'cafo1', multi:false, type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('cafo2');}});
@@ -129,6 +130,7 @@ function setupSocket() {
       Enemies.init();
       for (var i = 0; i < data.players.length; i++){
         if (data.players[i].id != data.playerId){
+            data.players[i].tint = 0xff1924;
             Party.addNewMember(data.players[i]);
         }
       }
@@ -139,8 +141,8 @@ function setupSocket() {
     });
 
     Acorn.Net.on('addPlayerWisp', function (data) {
-        console.log(data);
       if (data.id != mainObj.playerId){
+        data.tint = 0xff1924;
         Party.addNewMember(data);
       }
     });
@@ -220,7 +222,7 @@ function setupSocket() {
                 vector: [1,0],
                 pos: [Player.loc.x,Player.loc.y],
                 angle: 180,
-                color: 0xFFFFFF
+                color: Player.tint
             })
         }
         Player.kill = true;
@@ -271,9 +273,11 @@ function setupSocket() {
     });
 
     Acorn.Net.on('addEnemies', function (data) {
-      for (var i = 0; i < data.data.length; i++){
-        Enemies.addEnemy(data.data[i]);
-      }
+        if (!ended){
+          for (var i = 0; i < data.data.length; i++){
+            Enemies.addEnemy(data.data[i]);
+          }
+        }
     });
 
     Acorn.Net.on('removeEnemy', function (data) {
@@ -281,6 +285,7 @@ function setupSocket() {
     });
 
     Acorn.Net.on('enemyNewTarget', function (data) {
+        console.log(data);
         try{
             Enemies.enemyList[data.id].behaviour.targetId = data.targetId;
         }catch(e){
@@ -296,9 +301,8 @@ function setupSocket() {
 }
 
 function checkReady() {
-    if(Graphics.resourcesReady && Acorn.Net.ready) {
-        console.log('Ready');
-        console.log(Graphics.resources);
+    if(Graphics.resourcesReady && Acorn.Net.ready && Acorn.Sound.ready) {
+        console.log('Graphics/Net/Sound READY');
         init();
     } else {
         console.log('Waiting on load...');
@@ -421,25 +425,23 @@ Acorn.addState({
             Acorn.changeState('joiningGame');
         });
 
-        //set up the secret button
-        this.secretButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
-        this.secretButton.position.x = 30;
-        this.secretButton.position.y = 30;
-        this.secretButton.anchor.x = 0.5;
-        this.secretButton.anchor.y = 0.5;
-        Graphics.uiContainer.addChild(this.secretButton);
-        this.secretButton.interactive = true;
-        this.secretButton.buttonMode = true;
-        this.secretButton.on('click', function onClick(){
-            Acorn.Net.socket_.emit('join',{secret: true});
-            Acorn.changeState('joiningGame');
+        //set up the settings button
+        this.settingsButton = new PIXI.Text('settings' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.settingsButton.position.x = 100;
+        this.settingsButton.position.y = 24;
+        this.settingsButton.anchor.x = 0.5;
+        this.settingsButton.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.settingsButton);
+        this.settingsButton.interactive = true;
+        this.settingsButton.buttonMode = true;
+        this.settingsButton.on('click', function onClick(){
+            Acorn.changeState('settingsPage');
         });
-        this.secretButton.on('tap', function onClick(){
-            Acorn.Net.socket_.emit('join',{secret: true});
-            Acorn.changeState('joiningGame');
+        this.settingsButton.on('tap', function onClick(){
+            Acorn.changeState('settingsPage');
         });
 
-        //set up the secret button
+        //set up the secret stars button
         this.starsButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
         this.starsButton.position.x = 1900;
         this.starsButton.position.y = 100;
@@ -482,6 +484,7 @@ Acorn.addState({
         Graphics.drawBoxAround(this.multiPlayerButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.versusButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.aboutButton,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.settingsButton,Graphics.worldPrimitives);
         ChatConsole.update(dt);
     }
 });
@@ -491,15 +494,34 @@ Acorn.addState({
     init: function(){
         Graphics.clear();
         ended = false;
-        this.waitingTextBase = 'waiting for next available game';
+        this.waitingTextBase = 'Finding a game';
         this.waitingTicker = 0;
         this.dotz = 3;
         this.waiting = new PIXI.Text(this.waitingTextBase , {font: '36px Orbitron', fill: 'white', align: 'center'});
-        this.waiting.position.x = (Graphics.width / 3);
+        this.waiting.position.x = (Graphics.width / 2) - (this.waiting.width/2);
         this.waiting.position.y = (Graphics.height / 2);
         this.waiting.anchor.x = 0.0;
         this.waiting.anchor.y = 0.0;
         Graphics.uiContainer.addChild(this.waiting);
+
+        //set up the about button
+        this.cancel = new PIXI.Text('Cancel' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.cancel.position.x = (Graphics.width / 2);
+        this.cancel.position.y = (Graphics.height / 2 + 150);
+        this.cancel.anchor.x = 0.5;
+        this.cancel.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.cancel);
+        this.cancel.interactive = true;
+        this.cancel.buttonMode = true;
+        this.cancel.on('click', function onClick(){
+            Acorn.changeState('mainMenu');
+            Acorn.Net.socket_.emit('cancelJoin',{});
+        });
+        this.cancel.on('tap', function onClick(){
+            Acorn.changeState('mainMenu');
+            Acorn.Net.socket_.emit('cancelJoin',{});
+        });
+
         
     },
     update: function(dt){
@@ -517,6 +539,10 @@ Acorn.addState({
             text += '.';
         }
         this.waiting.text = text;
+
+        Graphics.worldPrimitives.clear();
+        Graphics.drawBoxAround(this.cancel,Graphics.worldPrimitives);
+        ChatConsole.update(dt);
     }
 });
 
@@ -553,6 +579,53 @@ Acorn.addState({
         console.log('Initializing about page');
         document.body.style.cursor = 'default';
         Graphics.clear();
+        Party.init();
+        Enemies.init();
+        Party.addNewMember({id: 'test',loc:[500,500],speed:6000,tint: 0xFFFFFF,radius:20});
+        var rand = Math.ceil(Math.random()*7);
+        if (rand == 1){
+            Enemies.addEnemy({id:'test',type: 'tri',x:0,y:0,behaviour: {name: 'basicMoveTowards', spring: 2, targetId: 'test'}});
+        }else if (rand == 2){
+            Enemies.addEnemy({id:'test',type: 'c1',x:0,y:0,behaviour: {name: 'basicMoveTowards', spring: 5, targetId: 'test'}});
+        }else if (rand == 3){
+            Enemies.addEnemy({id:'test',type: 'c2',x:0,y:0,behaviour: {name: 'basicMoveTowards', spring: 5, targetId: 'test'}});
+        }else if (rand == 4){
+            Enemies.addEnemy({id:'test',type: 'c3',x:0,y:0,behaviour: {name: 'basicMoveTowards', spring: 5, targetId: 'test'}});
+        }else if (rand == 5){
+            Enemies.addEnemy({id:'test',type: 'hex',x:0,y:0,behaviour: {name: 'hexagon', targetId: 'test'}});
+        }else if (rand == 6){
+            Enemies.addEnemy({id:'test',type: 'chaos',x:0,y:0,behaviour: {name: 'chaos', spring: 2+ Math.floor(Math.random()*4), targetId: 'test',speed: 400+(100*Math.floor(Math.random()*6))}});
+        }else if (rand == 7){
+            var side = Math.floor(Math.random()*4);
+            var p = [0,0];
+            var h = 1080;
+            var w = 1920;
+            if (side == 0){ //left
+                p[0] = -20 + Math.round(Math.random()*-80);
+                p[1] = -100 + Math.round(Math.random()*(h+200));
+            }else if (side == 1){ //right
+                p[0] = w + 20 + Math.round(Math.random()*80);
+                p[1] = -100 + Math.round(Math.random()*(h+200));
+            }else if (side == 2){ //top
+                p[0] = -100 + Math.round(Math.random()*(w+200));
+                p[1] = -20 + Math.round(Math.random()*-80);
+            }else if (side == 3){
+                p[0] = -100 + Math.round(Math.random()*(w+200));
+                p[1] = h + 20 + Math.round(Math.random()*80);
+            }
+            var x, y = 0;
+            if (p[0] < 950) {
+                x = 1000 + Math.round(Math.random() * 900);
+            } else {
+                x = Math.round(Math.random() * 900);
+            }
+            if (p[1] < 500) {
+                y = 550 + Math.round(Math.random() * 500);
+            } else {
+                y = Math.round(Math.random() * 500);
+            }
+            Enemies.addEnemy({id:'test',type: 'star',x:p[0],y:p[1],behaviour: {name: 'star', startMove: [x,y]}});
+        }
         this.wispLogo = new PIXI.Text('About Flim' , {font: '40px Orbitron', fill: 'red', align: 'left'});
         this.wispLogo.position.x = (Graphics.width / 2);
         this.wispLogo.position.y = 40;
@@ -574,28 +647,28 @@ Acorn.addState({
         this.nameDrop.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.nameDrop);
 
-        this.controls = new PIXI.Text('Controls: Use your mouse dummy' , {font: '48px Orbitron', fill: 'white', align: 'left'});
+        this.controls = new PIXI.Text('Controls: Use your mouse dummy' , {font: '48px Verdana', fill: 'white', align: 'left'});
         this.controls.position.x = (Graphics.width / 2);
         this.controls.position.y = (250);
         this.controls.anchor.x = 0.5;
         this.controls.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.controls);
 
-        this.soloMode = new PIXI.Text('Solo Mode: Use your mouse to guide the shapes into the gray squares as they appear. The faster you complete each level the higher the score!' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
+        this.soloMode = new PIXI.Text('Solo Mode: Guide the shapes into the gray squares as they appear. You lose when you are hit by any shape, and the faster you complete each level the higher the score!' , {font: '36px Verdana', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
         this.soloMode.position.x = (Graphics.width / 2);
         this.soloMode.position.y = (450);
         this.soloMode.anchor.x = 0.5;
         this.soloMode.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.soloMode);
 
-        this.coopMode = new PIXI.Text('Co-op Mode: Same as solo mode with more time in between levels. Shapes will split between players. Scoring is shared - if a player dies enemies will be worth nothing for that round - but the player will revive for the next round!' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
+        this.coopMode = new PIXI.Text('Co-op Mode: Same as solo mode with more time in between levels. Shapes will split between players. Scoring is shared - if a player dies enemies will be worth nothing for that round - but the player will revive for the next round!' , {font: '36px Verdana', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
         this.coopMode.position.x = (Graphics.width / 2);
         this.coopMode.position.y = (725);
         this.coopMode.anchor.x = 0.5;
         this.coopMode.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.coopMode);
 
-        this.vsMode = new PIXI.Text('Versus Mode: No scoring. First player to get hit loses!' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
+        this.vsMode = new PIXI.Text('Versus Mode: No scoring. First player to get hit loses!' , {font: '36px Verdana', fill: 0xd9b73, align: 'left',wordWrap: true, wordWrapWidth: 1900});
         this.vsMode.position.x = (Graphics.width / 2);
         this.vsMode.position.y = (950);
         this.vsMode.anchor.x = 0.5;
@@ -603,7 +676,7 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.vsMode);
 
         //set up the back button
-        this.backButton = new PIXI.Text('back' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'red', align: 'left'});
         this.backButton.position.x = 1800;
         this.backButton.position.y = 24;
         this.backButton.anchor.x = 0.5;
@@ -625,24 +698,279 @@ Acorn.addState({
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
         ChatConsole.update(dt);
+        Party.members['test'].targetLoc.x = mouseX;
+        Party.members['test'].targetLoc.y = mouseY;
+        Party.update(dt);
+        Enemies.update(dt);
+        Party.draw();
+    }
+});
+
+Acorn.addState({
+    stateId: 'settingsPage',
+    init: function(){
+        console.log('Initializing settings page');
+        document.body.style.cursor = 'default';
+        Graphics.clear();
+        
+        this.mute = new PIXI.Text('MUTE: ' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.mute.position.x = (Graphics.width / 2);
+        this.mute.position.y = 100;
+        this.mute.anchor.x = 0.5;
+        this.mute.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.mute);
+
+        this.muteX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
+        this.muteX.position.x = (Graphics.width / 2 + 150);
+        this.muteX.position.y = 100;
+        this.muteX.anchor.x = 0.5;
+        this.muteX.anchor.y = 0.5;
+        this.muteX.interactive = true;
+        this.muteX.buttonMode = true;
+        Graphics.uiContainer.addChild(this.muteX);
+        this.muteX.on('click', function onClick(){
+            Settings.toggleMute();
+        });
+        this.muteX.on('tap', function onClick(){
+            Settings.toggleMute();
+        });
+
+        this.master = new PIXI.Text('Master Volume' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.master.position.x = (Graphics.width / 2);
+        this.master.position.y = 175;
+        this.master.anchor.x = 0.5;
+        this.master.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.master);
+
+        this.masterBar = new PIXI.Text('____________________' , {font: '40px Verdana', fill: 'hsla(93, 100%, 50%, 0)', align: 'left'});
+        this.masterBar.position.x = (Graphics.width / 2);
+        this.masterBar.position.y = 225;
+        this.masterBar.anchor.x = 0.5;
+        this.masterBar.anchor.y = 0.5;
+        this.masterBar.interactive = true;
+        this.masterBar.buttonMode = true;
+        this.masterBar.clicked = false;
+        this.masterBar.percent = Settings.masterVolume;
+        Graphics.uiContainer.addChild(this.masterBar);
+        setSlideBar(this.masterBar,Settings.setMasterVolume);
+        this.masterBar.on('mousemove', function onClick(e){
+            var bar = Acorn.states['settingsPage'].masterBar;
+            if (bar.clicked){
+                var position = e.data.getLocalPosition(e.target);
+                var start =  -1 * bar._width/2;
+                var percent = (position.x - start) / bar._width;
+                if (percent < 0){percent = 0;}
+                if (percent > 1){percent = 1;}
+                Settings.setMasterVolume(percent);
+                bar.percent = percent;
+            }
+        });
+        this.masterBar.on('touchmove', function onClick(e){
+            var bar = Acorn.states['settingsPage'].masterBar;
+            if (bar.clicked){
+                var position = e.data.getLocalPosition(e.target);
+                var start =  -1 * bar._width/2;
+                var percent = (position.x - start) / bar._width;
+                if (percent < 0){percent = 0;}
+                if (percent > 1){percent = 1;}
+                Settings.setMasterVolume(percent);
+                bar.percent = percent;
+            }
+        });
+
+        this.music = new PIXI.Text('Music Volume' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.music.position.x = (Graphics.width / 2);
+        this.music.position.y = 300;
+        this.music.anchor.x = 0.5;
+        this.music.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.music);
+
+        this.musicBar = new PIXI.Text('____________________' , {font: '40px Verdana', fill: 'hsla(93, 100%, 50%, 0)', align: 'left'});
+        this.musicBar.position.x = (Graphics.width / 2);
+        this.musicBar.position.y = 350;
+        this.musicBar.anchor.x = 0.5;
+        this.musicBar.anchor.y = 0.5;
+        this.musicBar.interactive = true;
+        this.musicBar.buttonMode = true;
+        this.musicBar.clicked = false;
+        this.musicBar.percent = Settings.musicVolume;
+        Graphics.uiContainer.addChild(this.musicBar);
+        setSlideBar(this.musicBar,Settings.setMusicVolume);
+        this.musicBar.on('mousemove', function onClick(e){
+            var bar = Acorn.states['settingsPage'].musicBar;
+            if (bar.clicked){
+                var position = e.data.getLocalPosition(e.target);
+                var start =  -1 * bar._width/2;
+                var percent = (position.x - start) / bar._width;
+                if (percent < 0){percent = 0;}
+                if (percent > 1){percent = 1;}
+                Settings.setMusicVolume(percent);
+                bar.percent = percent;
+            }
+        });
+        this.musicBar.on('touchmove', function onClick(e){
+            var bar = Acorn.states['settingsPage'].musicBar;
+            if (bar.clicked){
+                var position = e.data.getLocalPosition(e.target);
+                var start =  -1 * bar._width/2;
+                var percent = (position.x - start) / bar._width;
+                if (percent < 0){percent = 0;}
+                if (percent > 1){percent = 1;}
+                Settings.setMusicVolume(percent);
+                bar.percent = percent;
+            }
+        });
+
+        this.SFX = new PIXI.Text('SFX Volume' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.SFX.position.x = (Graphics.width / 2);
+        this.SFX.position.y = 425;
+        this.SFX.anchor.x = 0.5;
+        this.SFX.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.SFX);
+
+        this.SFXBar = new PIXI.Text('____________________' , {font: '40px Verdana', fill: 'hsla(93, 100%, 50%, 0)', align: 'left'});
+        this.SFXBar.position.x = (Graphics.width / 2);
+        this.SFXBar.position.y = 475;
+        this.SFXBar.anchor.x = 0.5;
+        this.SFXBar.anchor.y = 0.5;
+        this.SFXBar.interactive = true;
+        this.SFXBar.buttonMode = true;
+        this.SFXBar.clicked = false;
+        this.SFXBar.percent = Settings.sfxVolume;
+        Graphics.uiContainer.addChild(this.SFXBar);
+        setSlideBar(this.SFXBar,Settings.setSFXVolume);
+        this.SFXBar.on('mousemove', function onClick(e){
+            var bar = Acorn.states['settingsPage'].SFXBar;
+            if (bar.clicked){
+                var position = e.data.getLocalPosition(e.target);
+                var start =  -1 * bar._width/2;
+                var percent = (position.x - start) / bar._width;
+                if (percent < 0){percent = 0;}
+                if (percent > 1){percent = 1;}
+                Settings.setSFXVolume(percent);
+                bar.percent = percent;
+            }
+        });
+        this.SFXBar.on('touchmove', function onClick(e){
+            var bar = Acorn.states['settingsPage'].SFXBar;
+            if (bar.clicked){
+                var position = e.data.getLocalPosition(e.target);
+                var start =  -1 * bar._width/2;
+                var percent = (position.x - start) / bar._width;
+                if (percent < 0){percent = 0;}
+                if (percent > 1){percent = 1;}
+                Settings.setSFXVolume(percent);
+                bar.percent = percent;
+            }
+        });
+
+        //set up the back button
+        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'red', align: 'left'});
+        this.backButton.position.x = 100;
+        this.backButton.position.y = 24;
+        this.backButton.anchor.x = 0.5;
+        this.backButton.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.backButton);
+        this.backButton.interactive = true;
+        this.backButton.buttonMode = true;
+        this.backButton.on('click', function onClick(){
+            Acorn.changeState('mainMenu');
+        });
+        this.backButton.on('tap', function onClick(){
+            Acorn.changeState('mainMenu');
+        });
+
+        //stop playing music if returning from in game
+        Acorn.Sound.stop('flim');
+    },
+    update: function(dt){
+        Graphics.worldPrimitives.clear();
+        Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.muteX,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.masterBar,Graphics.worldPrimitives);
+        Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
+        Graphics.worldPrimitives.drawRect(this.masterBar.position.x - this.masterBar._width/2,
+                                  this.masterBar.position.y - this.masterBar._height/2,
+                                  this.masterBar.percent*this.masterBar._width,
+                                  this.masterBar._height);
+        Graphics.worldPrimitives.endFill();
+        Graphics.drawBoxAround(this.musicBar,Graphics.worldPrimitives);
+        Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
+        Graphics.worldPrimitives.drawRect(this.musicBar.position.x - this.musicBar._width/2,
+                                  this.musicBar.position.y - this.musicBar._height/2,
+                                  this.musicBar.percent*this.musicBar._width,
+                                  this.musicBar._height);
+        Graphics.worldPrimitives.endFill();
+        Graphics.drawBoxAround(this.SFXBar,Graphics.worldPrimitives);
+        Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
+        Graphics.worldPrimitives.drawRect(this.SFXBar.position.x - this.SFXBar._width/2,
+                                  this.SFXBar.position.y - this.SFXBar._height/2,
+                                  this.SFXBar.percent*this.SFXBar._width,
+                                  this.SFXBar._height);
+        Graphics.worldPrimitives.endFill();
+        if (Settings.mute){
+            this.muteX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
+        }else{
+            this.muteX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
+        }
+        ChatConsole.update(dt);
     }
 });
 
 Acorn.Input.onMouseMove(function(e) {
-    if (Acorn.currentState == 'mainMenu'){
-    }else{
-        mouseX = e.layerX/Graphics.actualRatio[0];
-        mouseY = e.layerY/Graphics.actualRatio[1];
+    mouseX = e.layerX/Graphics.actualRatio[0];
+    mouseY = e.layerY/Graphics.actualRatio[1];
+    try{
         Player.updateLoc(mouseX, mouseY);
         Acorn.Net.socket_.emit('playerUpdate',{newMouseLoc: [mouseX,mouseY]});
-    }
+    }catch(e){}
 });
 
 Acorn.Input.onTouchEvent(function(e) {
-    if (Acorn.currentState == 'mainMenu'){
-    }else{
-        var position = e.data.getLocalPosition(e.target);
+    var position = e.data.getLocalPosition(e.target);
+    mouseX = position.x;
+    mouseY = position.y;
+    try{
         Player.updateLoc(position.x, position.y);
         Acorn.Net.socket_.emit('playerUpdate',{newMouseLoc: [position.x,position.y]});
-    }
+    }catch(e){}
 });
+
+function setSlideBar(bar,func){
+    bar.on('mousedown', function onClick(){
+        bar.clicked = true;
+    });
+    bar.on('mouseup', function onClick(e){
+        bar.clicked = false;
+        if (bar.clicked){
+            var position = e.data.getLocalPosition(e.target);
+            var start =  -1 * bar._width/2;
+            var percent = (position.x - start) / bar._width;
+            if (percent < 0){percent = 0;}
+            if (percent > 1){percent = 1;}
+            func(percent);
+            bar.percent = percent;
+        }
+    });
+    bar.on('mouseupoutside', function onClick(){
+        bar.clicked = false;
+    });
+    bar.on('touchstart', function onClick(){
+        bar.clicked = true;
+    });
+    bar.on('touchend', function onClick(e){
+        bar.clicked = false;
+        if (bar.clicked){
+            var position = e.data.getLocalPosition(e.target);
+            var start =  -1 * bar._width/2;
+            var percent = (position.x - start) / bar._width;
+            if (percent < 0){percent = 0;}
+            if (percent > 1){percent = 1;}
+            func(percent);
+            bar.percent = percent;
+        }
+    });
+    bar.on('touchendoutside', function onClick(){
+        bar.clicked = false;
+    });
+}

@@ -6,6 +6,7 @@ var Behaviour = function() {};
 var behaviourEnums = {
     BasicMoveTowards: 'basicMoveTowards',
     Square: 'square',
+    Square2: 'square2',
     Hexagon: 'hexagon',
     Star: 'star',
     Chaos: 'chaos',
@@ -42,7 +43,7 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
                 }
             }
         }
-        if (!target.kill){
+        if (!target.kill && target){
             xDist = target.loc.x - enemy.sprite.position.x;
             yDist = target.loc.y - enemy.sprite.position.y;
             if (!enemy.moveVector){
@@ -60,13 +61,13 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
             var hyp = Math.sqrt(xDist*xDist+yDist*yDist);
             enemy.sprite.rotation = Math.atan2(yDist,xDist)+1.5;
         }
-        //move
-        enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
-        enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
     }catch(e){
         //console.log('Error with basic move behaviour');
         //console.log(e);
     }
+    //move
+    enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
+    enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
 Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
@@ -83,7 +84,7 @@ Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
         }
         var xDist;
         var yDist;
-        if (!target.kill){
+        if (!target.kill && target){
             xDist = target.loc.x - enemy.sprite.position.x;
             yDist = target.loc.y - enemy.sprite.position.y;
             if (!enemy.moveVector){
@@ -92,10 +93,10 @@ Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
                 enemy.moveVector = new SAT.Vector(xDist,yDist).normalize();
             }
         }
-        //move
-        enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
-        enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
     }catch(e){}
+    //move
+    enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
+    enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
 
@@ -110,6 +111,51 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
         data.alphaTicker = 1;
     }
     data.alphaTicker += (deltaTime/2);
+};
+
+Behaviour.prototype.square2 = function(enemy, deltaTime, data){
+    if (typeof data.alphaTicker == 'undefined'){
+        data.alphaTicker = 0.0;
+    }
+    if (data.alphaTicker < 1){
+        enemy.sprite.alpha = data.alphaTicker;
+    }else{
+        data.alphaTicker = 1;
+    }
+    data.alphaTicker += (deltaTime/2);
+
+    if (!enemy.moveVector){
+        enemy.moveVector = new SAT.Vector(data.startMove[0] -enemy.sprite.position.x, data.startMove[1] -enemy.sprite.position.y).normalize();
+    }
+    if (typeof data.inPlay == 'undefined'){
+        data.inPlay = false;
+    }
+    if (data.inPlay){
+        var radius = 20;
+        if (enemy.sprite.position.x <= 0){
+            enemy.sprite.position.x = 0;
+            enemy.moveVector.x = enemy.moveVector.x * -1;
+        }
+        if (enemy.sprite.position.y <= 0){
+            enemy.sprite.position.y = 0;
+            enemy.moveVector.y = enemy.moveVector.y * -1;
+        }
+        if (enemy.sprite.position.x >= 1920){
+            enemy.sprite.position.x = 1920;
+            enemy.moveVector.x = enemy.moveVector.x * -1;
+        }
+        if (enemy.sprite.position.y >= 1080){
+            enemy.sprite.position.y = 1080;
+            enemy.moveVector.y = enemy.moveVector.y * -1;
+        }
+    }else{
+        if (enemy.sprite.position.x < 1920 && enemy.sprite.position.x >0 && enemy.sprite.position.y < 1080 && enemy.sprite.position.y > 0){
+            data.inPlay = true;
+        }
+    }
+    //move
+    enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
+    enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
 Behaviour.prototype.star = function(enemy, deltaTime, data){
@@ -229,6 +275,9 @@ Behaviour.prototype.getBehaviour = function(actionStr){
             break;
         case behaviourEnums.Square:
             return Behaviour.square;
+            break;
+        case behaviourEnums.Square2:
+            return Behaviour.square2;
             break;
         case behaviourEnums.Star:
             return Behaviour.star;

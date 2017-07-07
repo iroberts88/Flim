@@ -80,17 +80,17 @@ GameSession.prototype.init = function (data) {
         case 'secret':
             this.maxPlayers = 10;
             this.gameModeManager.init({
-                timePerEvent: 40,
-                timeBetweenEvents: 5,
-                warningTime: 3,
+                timePerEvent: 35,
+                timeBetweenEvents: .5,
+                warningTime: .4,
                 maxSquares: 4
             });
+            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayersCoop;
             this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
-            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
             this.level = 1111;
             break;
         case 'vs':
@@ -296,6 +296,26 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = false;
             eData.hitBoxSize = [60,60];
             eData.pos = [200 + Math.round(Math.random()*1520), 200 + Math.round(Math.random()*680)];
+            eData.scoreBase = 1;
+            break;
+        case "sq2":
+            //square
+            eData.speed = 150;
+            eData.killToStartNextEvent = false;
+            eData.hitBoxSize = [60,60];
+            eData.pos = [200 + Math.round(Math.random()*1520), 200 + Math.round(Math.random()*680)];
+            var x,y;
+            if (eData.pos[0] < 950) {
+                x = 1000 + Math.round(Math.random() * 900);
+            } else {
+                x = Math.round(Math.random() * 900);
+            }
+            if (eData.pos[1] < 500) {
+                y = 550 + Math.round(Math.random() * 500);
+            } else {
+                y = Math.round(Math.random() * 500);
+            }
+            eData.behaviour = {name: 'square2', startMove: [x,y]};
             eData.scoreBase = 1;
             break;
         case "trap":

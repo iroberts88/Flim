@@ -46,7 +46,7 @@ GameEngine.prototype.tick = function() {
         }
         if (self.sessions[i].playerCount + self.sessions[i].playersToAdd.length <= 0){
             self.sessions[i].emptyFor += deltaTime;
-            if (self.sessions[i].emptyFor > 5.0){
+            if (self.sessions[i].emptyFor > 0.1){
                 console.log("deleting session " + self.sessions[i].id);
                 delete self.sessions[i];
             }
@@ -64,6 +64,7 @@ GameEngine.prototype.tick = function() {
                     if (self.openSessions[session].gameModeManager.betweenEvents && self.openSessions[session].playerCount + self.openSessions[session].playersToAdd.length <= self.openSessions[session].maxPlayers){
                         self.openSessions[session].playersToAdd.push(p);
                         p.tryingToJoinGame = false;
+                        p.tryingToJoinSession = self.openSessions[session];
                     }
                 }
             }

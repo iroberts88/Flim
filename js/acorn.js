@@ -26,7 +26,7 @@
                 this.states[stateId].init();
                 this.currentState = stateId;
             }catch(e){
-                console.log('failed to change to state ' + '"stateId"');
+                console.log('failed to change to state ' + stateId);
                 console.log(e);
             }
         },
@@ -130,9 +130,13 @@
     
     Acorn.Sound= {
         _sounds: [],
+        ready: false,
+        required: null, //number of sounds that need to be pre-loaded
+        requiredCurrent: null,
 
         init: function() {
-
+            this.required = 0;
+            this.requiredCurrent = 0;
         },
         addSound: function(sound) {
             // url + id
@@ -153,9 +157,11 @@
             }
             //set optional property volume
             if (typeof sound.volume == 'undefined'){
+                newSound.volumeBase = 1.0;
                 newSound.volume = 1.0;
             }else{
                 newSound.volume = sound.volume;
+                newSound.volumeBase = sound.volume;
             }
             //set optional property type
             if (typeof sound.type == 'undefined'){
@@ -168,8 +174,9 @@
             if (typeof sound.onEnd !== 'undefined'){
                 newSound._sound.onended = sound.onEnd;
             }
-            if (sound.preload){
-                newSound._sound.preload = 'audio';
+            if (sound.preload && !newSound.multi){
+                newSound._sound.oncanplaythrough = Acorn.Sound.isReady;
+                this.required += 1;
             }
             this._sounds.push(newSound);
         },
@@ -178,13 +185,20 @@
                 if(this._sounds[i].id == id) {
                     var snd = this._sounds[i];
                     if(snd.multi) {
-                        
+                        //TODO
                     } else {
                         snd._sound.pause();
                         snd._sound.currentTime = 0;
                     }
                     break;
                 }
+            }
+        },
+        isReady: function(){
+            Acorn.Sound.requiredCurrent += 1;
+            if (Acorn.Sound.requiredCurrent==Acorn.Sound.required){
+                Acorn.Sound.ready = true;
+                mainObj.checkReady();
             }
         },
         play: function(id,loc) {

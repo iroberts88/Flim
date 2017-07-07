@@ -15,6 +15,7 @@ var Behaviour = function() {};
 var behaviourEnums = {
     BasicMoveTowards: 'basicMoveTowards',
     Square: 'square',
+    Square2: 'square2',
     Star: 'star',
     Hexagon: 'hexagon',
     Chaos: 'chaos',
@@ -94,6 +95,7 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
         enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
         enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
     }catch(e){
+        data.noTarget = true;
     }
 };
 
@@ -128,6 +130,7 @@ Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
         enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
         enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
     }catch(e){
+        data.notarget = true;
     }
 };
 
@@ -142,7 +145,7 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
     for (var i in enemy.gameSession.enemies){
         var e = enemy.gameSession.enemies[i];
         var kill = false;
-        if (e.type !== 'sq'){
+        if (e.type !== 'sq' && e.type !== 'sq2'){
             //collide?
             if (SAT.testPolygonPolygon(enemy.hitData, e.hitData)){
                 kill = true;
@@ -151,6 +154,69 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
         if (kill){
             e.kill = true;
         }
+    }
+};
+
+Behaviour.prototype.square2 = function(enemy, deltaTime, data){
+    if (typeof data.ticker == 'undefined'){
+        data.ticker = 0;
+    }
+    data.ticker += deltaTime;
+    if (data.ticker >= 2.0){
+        enemy.active = true;
+    }
+    for (var i in enemy.gameSession.enemies){
+        var e = enemy.gameSession.enemies[i];
+        var kill = false;
+        if (e.type !== 'sq' && e.type !== 'sq2'){
+            //collide?
+            if (SAT.testPolygonPolygon(enemy.hitData, e.hitData)){
+                kill = true;
+            }
+        }
+        if (kill){
+            e.kill = true;
+        }
+    }
+    var update = false;
+    if (!enemy.moveVector){
+        enemy.moveVector = new SAT.Vector(data.startMove[0] - enemy.hitData.pos.x, data.startMove[1] - enemy.hitData.pos.y).normalize();
+    }
+    if (typeof data.inPlay == 'undefined'){
+        data.inPlay = false;
+    }
+    if (data.inPlay){
+        var radius = 20;
+        if (enemy.hitData.pos.x <= 0){
+            enemy.hitData.pos.x = 0;
+            enemy.moveVector.x = enemy.moveVector.x * -1;
+            update = true;
+        }
+        if (enemy.hitData.pos.y <= 0){
+            enemy.hitData.pos.y = 0;
+            enemy.moveVector.y = enemy.moveVector.y * -1;
+            update = true;
+        }
+        if (enemy.hitData.pos.x >= 1920){
+            enemy.hitData.pos.x = 1920;
+            enemy.moveVector.x = enemy.moveVector.x * -1;
+            update = true;
+        }
+        if (enemy.hitData.pos.y >= 1080){
+            enemy.hitData.pos.y = 1080;
+            enemy.moveVector.y = enemy.moveVector.y * -1;
+            update = true;
+        }
+    }else{
+        if (enemy.hitData.pos.x < 1920 && enemy.hitData.pos.x > 0 && enemy.hitData.pos.y < 1080 && enemy.hitData.pos.y > 0){
+            data.inPlay = true;
+        }
+    }
+    //move
+    enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
+    enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    if (update){
+        enemy.gameSession.queueData('updateEnemyLoc',{id: enemy.id,newPos: [enemy.hitData.pos.x,enemy.hitData.pos.y],newDir: [enemy.moveVector.x,enemy.moveVector.y]});
     }
 };
 
@@ -291,6 +357,9 @@ Behaviour.prototype.getBehaviour = function(actionStr){
             break;
         case behaviourEnums.Square:
             return Behaviour.square;
+            break;
+        case behaviourEnums.Square2:
+            return Behaviour.square2;
             break;
         case behaviourEnums.Star:
             return Behaviour.star;

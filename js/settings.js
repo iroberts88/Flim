@@ -1,5 +1,7 @@
 (function(window) {
 
+//TODO put this into Acorn???
+
     Settings = {
         scaleToFit: null,
         viewBumpSpeed: null,
@@ -21,8 +23,6 @@
         init: function() {
         	//Working
             this.scaleToFit = false; //scale to fit screen size
-            this.viewBumpSpeed = 60; //set to 0 to turn off
-            this.oldViewBump = this.viewBumpSpeed; //save old speed when toggling
             this.mute = false;
             this.masterVolume = 1.0;
             this.musicVolume = 1.0;
@@ -65,14 +65,7 @@
             }else{
                 this.mute = true;
                 for (var i = 0; i < Acorn.Sound._sounds.length;i++){
-                    var snd = Acorn.Sound._sounds[i];
-                    if (snd.multi){
-                        for(var j = 0; j < snd._sound.length; j++) {
-                            snd._sound[j].volume = 0;
-                        }
-                    }else{
-                        snd._sound.volume = 0;
-                    }
+                    Acorn.Sound._sounds[i].volume = 0;
                 }
             }
         },
@@ -84,13 +77,7 @@
                 for (var i = 0; i < Acorn.Sound._sounds.length;i++){
                     var snd = Acorn.Sound._sounds[i];
                     if (snd.type == 'sfx'){
-                        if (snd.multi){
-                             for(var j = 0; j < snd._sound.length; j++) {
-                                snd._sound[j].volume = snd.volume*Settings.masterVolume*this.sfxVolume;
-                            }
-                        }else{
-                            snd._sound.volume = snd.volume*Settings.masterVolume*this.sfxVolume;
-                        }
+                        snd.volume = snd.volumeBase*Settings.masterVolume*this.musicVolume;
                     }
                 }
             }
@@ -103,13 +90,7 @@
                 for (var i = 0; i < Acorn.Sound._sounds.length;i++){
                     var snd = Acorn.Sound._sounds[i];
                     if (snd.type == 'music'){
-                        if (snd.multi){
-                            for(var j = 0; j < snd._sound.length; j++) {
-                                snd._sound[j].volume = snd.volume*Settings.masterVolume*this.musicVolume;
-                            }
-                        }else{
-                            snd._sound.volume = snd.volume*Settings.masterVolume*this.musicVolume;
-                        }
+                        snd.volume = snd.volumeBase*Settings.masterVolume*this.musicVolume;
                     }
                 }
             }

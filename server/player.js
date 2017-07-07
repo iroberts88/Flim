@@ -27,6 +27,7 @@ Player = function(){
     player.vectorHitbox = null;
 
     player.tryingToJoinGame = null;
+    player.tryingToJoinSession = null;
 
     player.kill = null;
     player.revive = null;
@@ -148,10 +149,26 @@ Player = function(){
                             that.god = true;
                         }
                         break;
-                    case 'chaos':
+                    case 'how':
+                        commandBool = true;
+                        if (commands[1] == 'do'){
+                            if (commands[2] == 'you'){
+                                if (commands[3] == 'turn'){
+                                    if (commands[4] == 'this'){
+                                        if (commands[5] == 'on'){
+                                            if (!that.gameSession){
+                                                that.tryingToJoinGame = 'chaos';
+                                            }
+                                        }   
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 'test':
                         commandBool = true;
                         if (!that.gameSession){
-                            that.tryingToJoinGame = 'chaos';
+                            that.tryingToJoinGame = 'secret';
                         }
                         break;
                     case 'stars':
@@ -205,14 +222,24 @@ Player = function(){
             if (!that.gameSession){
                 if (data.solo){
                     that.gameEngine.singlePlayerSession(that);
-                }else if (data.secret){
-                    that.tryingToJoinGame = 'secret';
                 }else if (data.coop){
                     that.tryingToJoinGame = 'coop';
                 }else if (data.vs){
                     that.tryingToJoinGame = 'vs';
                 }else if (data.stars){
                     that.gameEngine.singlePlayerSession(that, 'star');
+                }
+            }
+        });
+
+        this.socket.on('cancelJoin', function (data) {
+            that.tryingToJoinGame = false;
+            if (that.tryingToJoinSession){
+                for (var i = 0; i < that.tryingToJoinSession.playersToAdd.length; i++){
+                    if (that.tryingToJoinSession.playersToAdd[i] === that){
+                        that.tryingToJoinSession.playersToAdd.splice(i,1);
+                        break;
+                    }
                 }
             }
         });

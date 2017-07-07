@@ -27,9 +27,11 @@
                 warning: null,
 
                 kill: null,
+
+                tint: null,
                     
                 init: function(data) {
-                    this.maxPathLength = 10;
+                    this.maxPathLength = 8;
                     this.kill = false;
                     if (typeof data.x != 'undefined'){
                         this.loc = new SAT.Vector(data.x,data.y);
@@ -45,6 +47,13 @@
                     }else{
                         this.speed = 1000;
                     }
+
+                    if (typeof data.tint != 'undefined'){
+                        this.tint = data.tint;
+                    }else{
+                        this.tint = 0xFFFFFF;
+                    }
+
 
                     this.rRotation = 0.067;
                     this.rDivider = 1.5;
@@ -64,6 +73,9 @@
                     this.r2 = Graphics.getSprite('circle');
                     this.r2.anchor.x = 0.5;
                     this.r2.anchor.y = 0.5;
+                    this.sprite.tint = this.tint;
+                    this.r2.tint = this.tint;
+                    this.r1.tint = this.tint;
 
                     if (typeof data.radius != 'undefined'){
                         this.setScale(data.radius/30);
@@ -78,13 +90,7 @@
                 },
 
                 update: function(dt) {
-                    if (!this.moved){
-                        if (this.path.length > 0){
-                            this.path.splice(0,1);
-                        }
-                    }else{
-                        this.moved = false;
-                    }
+
                     //Move closer to target Loc
                     //Move Closer to targetPosition
                     var x,y;
@@ -160,11 +166,11 @@
                             var start = [this.loc.x+(this.radius*newVec.x),this.loc.y+(this.radius*newVec.y)];
                             newVec.rotate(3.14);
                             var end = [this.loc.x+(this.radius*newVec.x),this.loc.y+(this.radius*newVec.y)];
-                            Graphics.worldPrimitives.lineStyle(1,0xFFFFFF,.3); 
-                            Graphics.worldPrimitives.beginFill(0xffffff, .3);
+                            Graphics.worldPrimitives.lineStyle(2,this.tint,.3); 
+                            Graphics.worldPrimitives.beginFill(this.tint, .3);
                             Graphics.worldPrimitives.moveTo(start[0], start[1]);
                             for (var i = this.path.length-2; i >=0; i--){
-                                var newVec = new SAT.Vector((this.path[i][0] - this.path[i+1][0]),
+                                newVec = new SAT.Vector((this.path[i][0] - this.path[i+1][0]),
                                                         this.path[i][1] - this.path[i+1][1])
                                 newVec.rotate(1.5708);
                                 newVec.normalize();
@@ -173,7 +179,7 @@
                             }
 
                             for (var i = 1; i <this.path.length-1; i++){
-                                var newVec = new SAT.Vector((this.path[i][0] - this.path[i-1][0]),
+                                newVec = new SAT.Vector((this.path[i][0] - this.path[i-1][0]),
                                                         this.path[i][1] - this.path[i-1][1])
                                 newVec.rotate(1.5708);
                                 newVec.normalize();
