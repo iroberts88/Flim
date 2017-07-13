@@ -98,8 +98,8 @@ $(function() {
 
     // Load Sounds
     Acorn.Sound.init();
-    Acorn.Sound.addSound({url: 'sounds/my_sound.mp3', id: 'item', volume: 0.75, preload: true});
-    Acorn.Sound.addSound({url: 'sounds/Flim.mp3', multi:false, id: 'flim', volume: 0.5,type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('flim');}});
+    Acorn.Sound.addSound({url: 'sounds/my_sound.mp3', id: 'item', volume: 1, preload: true});
+    Acorn.Sound.addSound({url: 'sounds/Flim.mp3', multi:false, id: 'flim', volume: 1,type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('flim');}});
     //Acorn.Sound.addSound({url: 'sounds/cafo.ogg', id: 'music2', multi:false, type: 'music',preload: true});
     //Acorn.Sound.addSound({url: 'sounds/cafo1.mp3', id: 'cafo1', multi:false, type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('cafo2');}});
     //Acorn.Sound.addSound({url: 'sounds/cafo2.mp3', id: 'cafo2', multi:false, type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('cafo3');}});
@@ -354,6 +354,8 @@ function update(){
     stats.end();
 }
 
+//Set up all states
+//Main Menu State
 Acorn.addState({
     stateId: 'mainMenu',
     init: function(){
@@ -501,7 +503,7 @@ Acorn.addState({
         this.waiting.anchor.y = 0.0;
         Graphics.uiContainer.addChild(this.waiting);
 
-        //set up the about button
+        //set up the cancel button
         this.cancel = new PIXI.Text('Cancel' , {font: '24px Orbitron', fill: 'red', align: 'left'});
         this.cancel.position.x = (Graphics.width / 2);
         this.cancel.position.y = (Graphics.height / 2 + 150);
@@ -589,7 +591,7 @@ Acorn.addState({
         }else if (rand == 4){
             Enemies.addEnemy({id:'test',type: 'c3',x:0,y:0,behaviour: {name: 'basicMoveTowards', spring: 5, targetId: 'test'}});
         }else if (rand == 5){
-            Enemies.addEnemy({id:'test',type: 'hex',x:0,y:0,behaviour: {name: 'hexagon', targetId: 'test'}});
+            Enemies.addEnemy({id:'test',type: 'hex',x:0,y:0,behaviour: {name: 'basicMoveTowards', spring: 20, targetId: 'test'}});
         }else if (rand == 6){
             Enemies.addEnemy({id:'test',type: 'chaos',x:0,y:0,behaviour: {name: 'chaos', spring: 2+ Math.floor(Math.random()*4), targetId: 'test',speed: 400+(100*Math.floor(Math.random()*6))}});
         }else if (rand == 7){
@@ -883,7 +885,7 @@ Acorn.addState({
     update: function(dt){
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
-        Graphics.drawBoxAround(this.muteX,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.muteX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.masterBar,Graphics.worldPrimitives);
         Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
         Graphics.worldPrimitives.drawRect(this.masterBar.position.x - this.masterBar._width/2,

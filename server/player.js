@@ -190,8 +190,7 @@ Player = function(){
                         //toggle god mode
                         commandBool = true
                         try{
-                            that.gameSession.level = 25;
-                            that.gameSession.eventHandler.eventEnemyArray = ['c1','c2','c3','tri'];
+                            that.gameSession.level = 666;
                         }catch(e){
                             
                         }

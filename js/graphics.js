@@ -200,15 +200,18 @@
                 console.log('-- Graphics resource not found' )
             }
 		},
-        drawBoxAround: function(sprite,g){
-            //draws a box around sprite in 
+        drawBoxAround: function(sprite,g, ybuffer){
+            //draws a box around sprite in
             //g = graphics container
+            if (typeof ybuffer == 'undefined'){
+                ybuffer = 0;
+            }
             g.lineStyle(2,0xFFFFFF,1);
-            g.moveTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2);
-            g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y - sprite.height/2);
-            g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y + sprite.height/2);
-            g.lineTo(sprite.position.x - sprite.width/2,sprite.position.y + sprite.height/2);
-            g.lineTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2);
+            g.moveTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
+            g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
+            g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y + sprite.height/2 - ybuffer);
+            g.lineTo(sprite.position.x - sprite.width/2,sprite.position.y + sprite.height/2 - ybuffer);
+            g.lineTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
         }
     };
 

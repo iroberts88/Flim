@@ -74,7 +74,7 @@
                     break;
                 case "c1":
                     //slow circle
-                    newEnemy.speed = 400;
+                    newEnemy.speed = 450;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('circle');
                     newEnemy.sprite.scale.x = (16/64);
@@ -100,7 +100,7 @@
                     break;
                 case "c3":
                     //fast circle
-                    newEnemy.speed = 800;
+                    newEnemy.speed = 750;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('circle');
                     newEnemy.sprite.scale.x = (16/64);

@@ -4,20 +4,12 @@
 
     Settings = {
         scaleToFit: null,
-        viewBumpSpeed: null,
-        oldViewBump: null,
-        globalTint: null,
-        textPop: null, 
-        textPopFont: null,
-        textPopColor: null,
-        textPopBGColor: null,
-        damageText: null, 
-        damageTextFont: null,
-        aimHelper: null,
         mute: null,
         masterVolume: null,
         musicVolume: null,
-        sfxVolume: null, 
+        sfxVolume: null,
+        dust: null,
+        trail: null,
         
 
         init: function() {
@@ -28,16 +20,22 @@
             this.musicVolume = 1.0;
             this.sfxVolume = 1.0;
 
-            //TODO
-            this.globalTint = null;
-            this.textPop = true; //toggle textPop on and off
-	        this.textPopFont = null;
-	        this.textPopColor = null;
-	        this.textPopBGColor = null;
-	        this.damageText = null; //toggle damageText on and off
-            this.nameDisplay = 'all'; //how to display names? allays on / always off / mouseover
-	        this.damageTextFont = null;
-	        this.aimHelper = false; //toggle aim helper on and off
+            this.dust = true;
+            this.trail = true;
+        },
+        toggleDust: function(){
+            if (this.dust){
+                this.dust = false;
+            }else{
+                this.dust = true;
+            }
+        },
+        toggleTrail: function(){
+            if (this.trail){
+                this.trail = false;
+            }else{
+                this.trail = true;
+            }
         },
         toggleViewBump: function(){
         	if (this.viewBumpSpeed > 0){

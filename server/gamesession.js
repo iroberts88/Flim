@@ -67,8 +67,8 @@ GameSession.prototype.init = function (data) {
             this.minPlayers = 2;
             this.gameModeManager.init({
                 timePerEvent: 40,
-                timeBetweenEvents: 5,
-                warningTime: 3,
+                timeBetweenEvents: 3,
+                warningTime: 2,
                 maxSquares: 4
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
@@ -85,7 +85,7 @@ GameSession.prototype.init = function (data) {
                 warningTime: .4,
                 maxSquares: 4
             });
-            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
+            this.gameModeManager.eventEnemyArray = ['hex'];
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
@@ -98,8 +98,8 @@ GameSession.prototype.init = function (data) {
             this.minPlayers = 2;
             this.gameModeManager.init({
                 timePerEvent: 35,
-                timeBetweenEvents: 5,
-                warningTime: 3,
+                timeBetweenEvents: 3,
+                warningTime: 2,
                 maxSquares: 4
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
@@ -247,7 +247,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
         case 'hex':
             //hexagon
             eData.speed = 800;
-            eData.behaviour = {name: 'hexagon', targetId: data.target};
+            eData.behaviour = {name: 'basicMoveTowards', spring: 20, targetId: data.target};
             eData.radius = 20;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos();
@@ -264,7 +264,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             break;
         case "c1":
             //slow circle
-            eData.speed = 400;
+            eData.speed = 450;
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
@@ -282,7 +282,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             break;
         case "c3":
             //fast circle
-            eData.speed = 800;
+            eData.speed = 750;
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
