@@ -46,6 +46,7 @@ GameModeManager.prototype.init = function (data) {
     this.maxSquares = data.maxSquares;
     this.betweenEvents = true;
     this.trapEvery = 8;
+    this.squaresEvery = data.squaresEvery;
     //stars game mode
     this.totalTime = 0;
     this.starsTicker = 0;
@@ -98,12 +99,12 @@ GameModeManager.prototype.normalTick = function(deltaTime){
         this.timePerEventTicker += deltaTime;
         if (this.timePerEventTicker >= this.timePerEvent){
             //NEW EVENT - Took too long to finish the level!
-            this.eventFunc();
-            this.timeBetweenEventsTicker = 0;
-            this.timePerEventTicker = 0;
             for (var i in this.session.enemies){
                 this.session.enemies[i].scoreBase = 0;
             }
+            this.eventFunc();
+            this.timeBetweenEventsTicker = 0;
+            this.timePerEventTicker = 0;
         }
     }
     //warning if new event is near
@@ -121,7 +122,7 @@ GameModeManager.prototype.starsTick = function(deltaTime){
         //add star
         if (this.starsCurrent < this.starsMax){
             var enemiesAdded = [];
-            var e = this.session.addEnemy('star');
+            var e = this.session.addEnemy('star',{});
             enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             this.session.queueData('addEnemies', {data: enemiesAdded});
             this.starsTicker -= 1.0;
@@ -147,9 +148,15 @@ GameModeManager.prototype.starsTick = function(deltaTime){
 
 GameModeManager.prototype.newEvent = function() {
     var enemiesAdded = [];
+    var data = {};
     var rand = Math.round(5 + this.session.level);
     if (rand > 100){
         rand = 100;
+    }
+    if (Math.round(Math.random())){
+        data.switchSides = true;
+    }else{
+        data.switchSides = false;
     }
     if (this.session.level % 25 == 0){
         //parallellogram event!!!
@@ -164,7 +171,7 @@ GameModeManager.prototype.newEvent = function() {
             num = 8;
         }
         for (var i = 0; i < num; i++){
-            var e = this.session.addEnemy('star');
+            var e = this.session.addEnemy('star',data);
             enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
         }
         //add parallelograms
@@ -175,17 +182,18 @@ GameModeManager.prototype.newEvent = function() {
         for (var player in this.session.players){
             for (var i = 0; i < rand;i++){
                 var type = 'chaos';
-                var e = this.session.addEnemy(type,{target: player});
+                data.target = player;
+                var e = this.session.addEnemy(type,data);
                 enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
         }
         for (var i = 0; i < 5; i++){
-            var e = this.session.addEnemy('star');
+            var e = this.session.addEnemy('star',data);
             enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
         } 
     }else{
         //add squares every 4 levels
-        if (this.session.level%4 == 0 || this.squares.length == 0){
+        if (this.session.level%this.squaresEvery == 0 || this.squares.length == 0){
             if (this.squares.length >= this.maxSquares){
                 var r = (Math.floor(Math.random()*this.squares.length));
                 var randomSquare = this.squares[r];
@@ -197,11 +205,11 @@ GameModeManager.prototype.newEvent = function() {
                 chance = 0;
             }
             if (Math.random()*100 < chance){
-                var e = this.session.addEnemy('sq2');
+                var e = this.session.addEnemy('sq2',data);
                 enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
                 this.squares.push(e);
             }else{
-                var e = this.session.addEnemy('sq');
+                var e = this.session.addEnemy('sq',data);
                 enemiesAdded.push({type: 'sq', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
                 this.squares.push(e);
             }
@@ -224,25 +232,29 @@ GameModeManager.prototype.newEvent = function() {
             var positions = [[64,-32],[192,-32],[320,-32],[448,-32],[576,-32],[704,-32],[832,-32],[960,-32],[1088,-32],
                             [1216,-32],[1344,-32],[1472,-32],[1600,-32],[1728,-32],[1856,-32]];
             for (var i = 0; i < positions.length; i++){
-                var e = this.session.addEnemy('trap',{pos: positions[i]});
+                data.pos = positions[i];
+                var e = this.session.addEnemy('trap',data);
                 enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
                 e.hitData.rotate(3.14);
             }
             positions = [[64,1112],[192,1112],[320,1112],[448,1112],[576,1112],[704,1112],[832,1112],[960,1112],[1088,1112],
                             [1216,1112],[1344,1112],[1472,1112],[1600,1112],[1728,1112],[1856,1112]];
             for (var i = 0; i < positions.length; i++){
-                var e = this.session.addEnemy('trap',{pos: positions[i]});
+                data.pos = positions[i];
+                var e = this.session.addEnemy('trap',data);
                 enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
             }
             positions = [[-32,192],[-32,320],[-32,448],[-32,576],[-32,704],[-32,832],[-32,960]];
             for (var i = 0; i < positions.length; i++){
-                var e = this.session.addEnemy('trap',{pos: positions[i]});
+                data.pos = positions[i];
+                var e = this.session.addEnemy('trap',data);
                 enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
                 e.hitData.rotate(-1.57);
             }
             positions = [[1952,192],[1952,320],[1952,448],[1952,576],[1952,704],[1952,832],[1952,960]];
             for (var i = 0; i < positions.length; i++){
-                var e = this.session.addEnemy('trap',{pos: positions[i]});
+                data.pos = positions[i];
+                var e = this.session.addEnemy('trap',data);
                 enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
                 e.hitData.rotate(1.57);
             }
@@ -251,7 +263,8 @@ GameModeManager.prototype.newEvent = function() {
         for (var player in this.session.players){
             for (var i = 0; i < rand;i++){
                 var type = this.eventEnemyArray[Math.floor(Math.random()*this.eventEnemyArray.length)];
-                var e = this.session.addEnemy(type,{target: player});
+                data.target = player;
+                var e = this.session.addEnemy(type,data);
                 enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
         }
@@ -261,12 +274,13 @@ GameModeManager.prototype.newEvent = function() {
         }
         if (this.session.level >= 15){
             for (var i = 0; i < stars; i++){
-                var e = this.session.addEnemy('star');
+                var e = this.session.addEnemy('star',data);
                 enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
         }
         if (this.session.level >= 20 && this.session.level%3 == 0){
-            var e = this.session.addEnemy('hex',{target: player});
+                data.target = player;
+            var e = this.session.addEnemy('hex',data);
             enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
         }
     }
@@ -277,19 +291,20 @@ GameModeManager.prototype.newEvent = function() {
 
 GameModeManager.prototype.chaosEvent = function() {
     var enemiesAdded = [];
+    var data = {};
     var rand = Math.round(5 + this.session.level);
     if (rand > 100){
         rand = 100;
     }
     //add squares every 4 levels
-    if (this.session.level%4 == 0 || this.squares.length == 0){
+    if (this.session.level%this.squaresEvery == 0 || this.squares.length == 0){
         if (this.squares.length >= this.maxSquares){
             var r = (Math.floor(Math.random()*this.squares.length));
             var randomSquare = this.squares[r];
             randomSquare.kill = true;
             this.squares.splice(r,1);
         }
-        var e = this.session.addEnemy('sq2');
+        var e = this.session.addEnemy('sq2',data);
         enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
         this.squares.push(e);
     }
@@ -297,12 +312,15 @@ GameModeManager.prototype.chaosEvent = function() {
     for (var player in this.session.players){
         for (var i = 0; i < rand;i++){
             var type = this.eventEnemyArray[Math.floor(Math.random()*this.eventEnemyArray.length)];
-            var e = this.session.addEnemy(type,{target: player,pos:this.getRandomPos(true)});
+            data.target = player;
+            data.pos = this.getRandomPos(true,false);
+            var e = this.session.addEnemy(type,data);
             enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
         }
     }
     for (var p = 0; p < Math.round(Math.random()*8); p++){
-        var e = this.session.addEnemy('par', {pos:this.getRandomPos(true)});
+        data.pos = this.getRandomPos(true,false);
+        var e = this.session.addEnemy('par', data);
         enemiesAdded.push({type: 'par', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
     }
     this.session.queueData('addEnemies', {data: enemiesAdded});
@@ -463,28 +481,31 @@ GameModeManager.prototype.tickEnemiesCoop = function(deltaTime){
 /////////////////////////////////////////////////////////////////
 //                Utility/other functions                      //
 ////////////////////////////////////////////////////////////////
-GameModeManager.prototype.getRandomPos = function(canBeTopOrBottom) {
+GameModeManager.prototype.getRandomPos = function(canBeTopOrBottom,swap) {
     //get a random position outside the map 
     var h = 1080;
     var w = 1920;
     var p = [0,0];
+    var side = Math.floor(Math.random()*2);
     if (canBeTopOrBottom){
-        var side = Math.floor(Math.random()*4);
-    }else{
-        var side = Math.floor(Math.random()*2);
+        side = Math.floor(Math.random()*4);
     }
+    if (swap){
+        side = 2+Math.round(Math.random());
+    }
+
     if (side == 0){ //left
-        p[0] = -20 + Math.round(Math.random()*-80);
-        p[1] = -100 + Math.round(Math.random()*(h+200));
+        p[0] = -100 + Math.round(Math.random()*-100);
+        p[1] = -200 + Math.round(Math.random()*(h+400));
     }else if (side == 1){ //right
-        p[0] = w + 20 + Math.round(Math.random()*80);
-        p[1] = -100 + Math.round(Math.random()*(h+200));
+        p[0] = w + 100 + Math.round(Math.random()*100);
+        p[1] = -200 + Math.round(Math.random()*(h+400));
     }else if (side == 2){ //top
-        p[0] = -100 + Math.round(Math.random()*(w+200));
-        p[1] = -20 + Math.round(Math.random()*-80);
+        p[0] = 200 + Math.round(Math.random()*(w-400));
+        p[1] = -100 + Math.round(Math.random()*-100);
     }else if (side == 3){
-        p[0] = -100 + Math.round(Math.random()*(w+200));
-        p[1] = h + 20 + Math.round(Math.random()*80);
+        p[0] = 200 + Math.round(Math.random()*(w-400));
+        p[1] = h + 100 + Math.round(Math.random()*100);
     }
     return p;
 }

@@ -54,7 +54,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 4
+                maxSquares: 4,
+                squaresEvery: 4
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -69,7 +70,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 40,
                 timeBetweenEvents: 3,
                 warningTime: 2,
-                maxSquares: 4
+                maxSquares: 4,
+                squaresEvery: 2
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -83,9 +85,10 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 4
+                maxSquares: 4,
+                squaresEvery: 4
             });
-            this.gameModeManager.eventEnemyArray = ['hex'];
+            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
@@ -100,7 +103,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: 3,
                 warningTime: 2,
-                maxSquares: 4
+                maxSquares: 4,
+                squaresEvery: 1
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -114,7 +118,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 0
+                maxSquares: 0,
+                squaresEvery: 1
             });
             this.gameModeManager.tickFunc = this.gameModeManager.starsTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -128,7 +133,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 8
+                maxSquares: 8,
+                squaresEvery: 1
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.chaosEvent;
@@ -207,6 +213,9 @@ GameSession.prototype.removePlayer = function(p) {
 GameSession.prototype.addEnemy = function(eCode, data) {
     var e = Enemy();
     //Data to initialize enemy
+    if (typeof data.switchSides == 'undefined'){
+        data.switchSides = false;
+    }
     var eData = {
         speed: null,
         behaviour: null,
@@ -221,13 +230,13 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'chaos', spring: 2+ Math.floor(Math.random()*4), targetId: data.target,speed: 400+(100*Math.floor(Math.random()*6))};
             eData.radius = 10;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 10;
             break;
         case 'star':
             //bouncing star
             var x, y = 0;
-            eData.pos = this.gameModeManager.getRandomPos(true);
+            eData.pos = this.gameModeManager.getRandomPos(true,false);
             if (eData.pos[0] < 950) {
                 x = 1000 + Math.round(Math.random() * 900);
             } else {
@@ -250,7 +259,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 20, targetId: data.target};
             eData.radius = 20;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 5;
             break;
         case "tri":
@@ -259,7 +268,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 2, targetId: data.target};
             eData.radius = 30;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 4;
             break;
         case "c1":
@@ -268,7 +277,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 1;
             break;
         case "c2":
@@ -277,7 +286,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 2;
             break;
         case "c3":
@@ -286,7 +295,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.behaviour = {name: 'basicMoveTowards', spring: 5, targetId: data.target};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos();
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 3;
             break;
         case "sq":

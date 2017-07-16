@@ -4,14 +4,59 @@
 
     Enemies = {
         enemyList: null,
-
+        triSize: null,
         init: function() {
             this.enemyList = {};
+            this.triSize = 32;
         },
         update: function(dt){
             for(var i in this.enemyList){
                 var enemy = this.enemyList[i];
+                //red triangle visible if enemy is outside map?
+                if (enemy.sprite.position.y < -20){
+                    enemy.outsideScreenTri.alpha = 1;
+                    enemy.outsideScreenTri.position.x = enemy.sprite.position.x;
+                    enemy.outsideScreenTri.position.y = this.triSize/2;
+                }else if (enemy.sprite.position.y > Graphics.height+20){
+                    enemy.outsideScreenTri.alpha = 1;
+                    enemy.outsideScreenTri.position.x = enemy.sprite.position.x;
+                    enemy.outsideScreenTri.position.y = Graphics.height - this.triSize/2;
+                    enemy.outsideScreenTri.rotation = 3.14;
+                }else if(enemy.sprite.position.x < -20){
+                    enemy.outsideScreenTri.alpha = 1;
+                    enemy.outsideScreenTri.position.x = this.triSize/2;
+                    enemy.outsideScreenTri.position.y = enemy.sprite.position.y;
+                    enemy.outsideScreenTri.rotation = -1.5708;
+                }else if(enemy.sprite.position.x > Graphics.width +20){
+                    enemy.outsideScreenTri.alpha = 1;
+                    enemy.outsideScreenTri.position.x = Graphics.width- this.triSize/2;
+                    enemy.outsideScreenTri.position.y = enemy.sprite.position.y;
+                    enemy.outsideScreenTri.rotation = 1.5708;
+                }else{
+                    enemy.outsideScreenTri.alpha = 0;
+                }
+                Enemies.onScreen(enemy.outsideScreenTri,enemy.sprite);
                 enemy.bFunc(enemy, dt, enemy.behaviour);
+            }
+        },
+        onScreen: function(triangle,sprite){
+            console.log(triangle);
+            if (sprite.position.x < this.triSize/2 && sprite.position.y < this.triSize/2){
+                triangle.position.x = this.triSize/2;
+                triangle.position.y = this.triSize/2;
+                triangle.rotation = -0.785398;
+            }else if (sprite.position.x < this.triSize/2 && sprite.position.y > Graphics.height - this.triSize/2){
+                triangle.position.x = this.triSize/2;
+                triangle.position.y = Graphics.height -this.triSize/2;
+                triangle.rotation = -2.35619;
+            }else if (sprite.position.x > Graphics.width - this.triSize/2 && sprite.position.y >Graphics.height - this.triSize/2){
+                triangle.position.x = Graphics.width - this.triSize/2;
+                triangle.position.y = Graphics.height - this.triSize/2;
+                triangle.rotation = 2.35619;
+            }else if (sprite.position.x > Graphics.width - this.triSize/2  && sprite.position.y < this.triSize/2){
+                triangle.position.x = Graphics.width - this.triSize/2 ;
+                triangle.position.y = this.triSize/2;
+                triangle.rotation = 0.785398;
             }
         },
         alterEnemy: function(data){
@@ -164,14 +209,23 @@
                     newEnemy.sprite.tint = 0x993333;
                     break;
             }
+            newEnemy.outsideScreenTri = Graphics.getSprite('triangle');
+            newEnemy.outsideScreenTri.scale.x = this.triSize/64;
+            newEnemy.outsideScreenTri.scale.y = this.triSize/64;
+            newEnemy.outsideScreenTri.anchor.x = 0.5;
+            newEnemy.outsideScreenTri.anchor.y = 0.5;
+            newEnemy.outsideScreenTri.tint = 0xFF0000;
+            newEnemy.outsideScreenTri.alpha = 0;
             newEnemy.bFunc = Behaviour.getBehaviour(newEnemy.behaviour.name);
             Graphics.worldContainer.addChild(newEnemy.sprite);
+            Graphics.worldContainer.addChild(newEnemy.outsideScreenTri);
             this.enemyList[newEnemy.id] = newEnemy;
         },
 
         killEnemy: function(id){
             try{
                 Graphics.worldContainer.removeChild(this.enemyList[id].sprite);
+                Graphics.worldContainer.removeChild(this.enemyList[id].outsideScreenTri);
                 var dustAmount = Math.ceil(Math.random()*10) + 10;
                 for (var i = 0; i < dustAmount; i ++){
                     if (this.enemyList[id].type == 'sq' || this.enemyList[id].type == 'par' || this.enemyList[id].type == 'trap'){
