@@ -13,34 +13,36 @@
             for(var i in this.enemyList){
                 var enemy = this.enemyList[i];
                 //red triangle visible if enemy is outside map?
-                if (enemy.sprite.position.y < -20){
-                    enemy.outsideScreenTri.alpha = 1;
-                    enemy.outsideScreenTri.position.x = enemy.sprite.position.x;
-                    enemy.outsideScreenTri.position.y = this.triSize/2;
-                }else if (enemy.sprite.position.y > Graphics.height+20){
-                    enemy.outsideScreenTri.alpha = 1;
-                    enemy.outsideScreenTri.position.x = enemy.sprite.position.x;
-                    enemy.outsideScreenTri.position.y = Graphics.height - this.triSize/2;
-                    enemy.outsideScreenTri.rotation = 3.14;
-                }else if(enemy.sprite.position.x < -20){
-                    enemy.outsideScreenTri.alpha = 1;
-                    enemy.outsideScreenTri.position.x = this.triSize/2;
-                    enemy.outsideScreenTri.position.y = enemy.sprite.position.y;
-                    enemy.outsideScreenTri.rotation = -1.5708;
-                }else if(enemy.sprite.position.x > Graphics.width +20){
-                    enemy.outsideScreenTri.alpha = 1;
-                    enemy.outsideScreenTri.position.x = Graphics.width- this.triSize/2;
-                    enemy.outsideScreenTri.position.y = enemy.sprite.position.y;
-                    enemy.outsideScreenTri.rotation = 1.5708;
-                }else{
-                    enemy.outsideScreenTri.alpha = 0;
+                if (enemy.type != 'par'){
+                    if (enemy.sprite.position.y < -20){
+                        enemy.outsideScreenTri.alpha = 1;
+                        enemy.outsideScreenTri.position.x = enemy.sprite.position.x;
+                        enemy.outsideScreenTri.position.y = this.triSize/2;
+                        enemy.outsideScreenTri.rotation = 0;
+                    }else if (enemy.sprite.position.y > Graphics.height+20){
+                        enemy.outsideScreenTri.alpha = 1;
+                        enemy.outsideScreenTri.position.x = enemy.sprite.position.x;
+                        enemy.outsideScreenTri.position.y = Graphics.height - this.triSize/2;
+                        enemy.outsideScreenTri.rotation = 3.14;
+                    }else if(enemy.sprite.position.x < -20){
+                        enemy.outsideScreenTri.alpha = 1;
+                        enemy.outsideScreenTri.position.x = this.triSize/2;
+                        enemy.outsideScreenTri.position.y = enemy.sprite.position.y;
+                        enemy.outsideScreenTri.rotation = -1.5708;
+                    }else if(enemy.sprite.position.x > Graphics.width +20){
+                        enemy.outsideScreenTri.alpha = 1;
+                        enemy.outsideScreenTri.position.x = Graphics.width- this.triSize/2;
+                        enemy.outsideScreenTri.position.y = enemy.sprite.position.y;
+                        enemy.outsideScreenTri.rotation = 1.5708;
+                    }else{
+                        enemy.outsideScreenTri.alpha = 0;
+                    }
                 }
                 Enemies.onScreen(enemy.outsideScreenTri,enemy.sprite);
                 enemy.bFunc(enemy, dt, enemy.behaviour);
             }
         },
         onScreen: function(triangle,sprite){
-            console.log(triangle);
             if (sprite.position.x < this.triSize/2 && sprite.position.y < this.triSize/2){
                 triangle.position.x = this.triSize/2;
                 triangle.position.y = this.triSize/2;
@@ -226,7 +228,7 @@
             try{
                 Graphics.worldContainer.removeChild(this.enemyList[id].sprite);
                 Graphics.worldContainer.removeChild(this.enemyList[id].outsideScreenTri);
-                var dustAmount = Math.ceil(Math.random()*10) + 10;
+                var dustAmount = Math.ceil(Math.random()*5) + 5;
                 for (var i = 0; i < dustAmount; i ++){
                     if (this.enemyList[id].type == 'sq' || this.enemyList[id].type == 'par' || this.enemyList[id].type == 'trap'){
                         var vec = [1,0];

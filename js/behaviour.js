@@ -18,11 +18,23 @@ Behaviour.prototype.chaos = function(enemy, deltaTime, data){
     if (typeof data.changedSpeed == 'undefined'){
         data.changedSpeed = false;
     }
+    if (typeof data.colorShift == 'undefined'){
+        data.colorShift = {
+            r: 255,
+            g: 0,
+            b: 0,
+            phase: 1,
+            speed: 10.0
+        };
+    }
     if (!data.changedSpeed){
         enemy.speed = data.speed;
         data.changedSpeed = true;
     }
-    enemy.sprite.tint = Utils.getRandomTint();
+    Utils.colorShifter(data.colorShift);
+    var c = '0x' + Utils.componentToHex(Math.round(data.colorShift.r)) + Utils.componentToHex(Math.round(data.colorShift.g)) + Utils.componentToHex(Math.round(data.colorShift.b));
+    parseInt(c);
+    enemy.sprite.tint = c;
     Behaviour.basicMoveTowards(enemy,deltaTime, data);
 }
 

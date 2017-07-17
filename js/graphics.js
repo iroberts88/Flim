@@ -8,12 +8,19 @@
         loader: null,
         resources: null,
         resourcesReady: null,
+        colorShift: null,
         
 
 
         init: function(w,h) {
 
-
+            this.colorShift = {
+                r: 255,
+                g: 0,
+                b: 0,
+                phase: 1,
+                speed: 0.05
+            }
             this.width = w;
             this.height = h;
             this.diameter = Math.sqrt(w*w+h*h);
@@ -91,15 +98,15 @@
             var w;
             var h;
             if (Settings.scaleToFit){
-                h = window.innerHeight - offset;
-                w = window.innerWidth - offset;
+                h = screen.availHeight - offset;
+                w = screen.availWidth - offset;
             }else{
-                if (window.innerWidth/window.innerHeight > this.width/this.height){
-                    h = window.innerHeight - offset;
-                    w = window.innerHeight * (this.width/this.height) - offset;
+                if (screen.availWidth/screen.availHeight > this.width/this.height){
+                    h = screen.availHeight - offset;
+                    w = screen.availHeight * (this.width/this.height) - offset;
                 }else{
-                    w = window.innerWidth - offset;
-                    h = window.innerWidth * (this.height/this.width) - offset;
+                    w = screen.availWidth - offset;
+                    h = screen.availWidth * (this.height/this.width) - offset;
                 }
             }
             this.renderer.view.style.width = w + 'px';
@@ -206,7 +213,10 @@
             if (typeof ybuffer == 'undefined'){
                 ybuffer = 0;
             }
-            g.lineStyle(2,0xFFFFFF,1);
+            Utils.colorShifter(this.colorShift);
+            var c = '0x' + Utils.componentToHex(Math.round(this.colorShift.r)) + Utils.componentToHex(Math.round(this.colorShift.g)) + Utils.componentToHex(Math.round(this.colorShift.b));
+            parseInt(c);
+            g.lineStyle(2,c,1);
             g.moveTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
             g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
             g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y + sprite.height/2 - ybuffer);

@@ -2,6 +2,73 @@
 (function(window) {
     //A collection of utility functions
     Utils = {
+        colorShifter: function(data){
+            //data.r = 255;
+            //data.g = 0;
+            //data.b = 0;
+            //data.phase = 1;
+            //data.speed = 1.5;
+            switch(data.phase){
+                case 1:
+                    if (data.g >= 255){
+                        data.phase = 2;
+                        data.r -= data.speed;
+                        data.g = 255;
+                    }else{
+                        data.g += data.speed;
+                    }
+                    break;
+                case 2:
+                    if (data.r <= 0){
+                        data.phase = 3;
+                        data.b += data.speed;
+                        data.r = 0;
+                    }else{
+                        data.r -= data.speed;
+                    }
+                    break;
+                case 3:
+                    if (data.b >= 255){
+                        data.phase = 4;
+                        data.g -= data.speed;
+                        data.b = 255;
+                    }else{
+                        data.b += data.speed;
+                    }
+                    break;
+                case 4:
+                    if (data.g <= 0){
+                        data.phase = 5;
+                        data.r += data.speed;
+                        data.g = 0;
+                    }else{
+                        data.g -= data.speed;
+                    }
+                    break;
+                case 5:
+                    if (data.r >= 255){
+                        data.phase = 6;
+                        data.b -= data.speed;
+                        data.r = 255;
+                    }else{
+                        data.r += data.speed;
+                    }
+                    break;
+                case 6:
+                    if (data.b <= 0){
+                        data.phase = 1;
+                        data.g += data.speed;
+                        data.b = 0;
+                    }else{
+                        data.b -= data.speed;
+                    }
+                    break;
+            }
+        },
+        componentToHex: function(c){
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        },
         getRandomTint: function(){
             try{
                 return (0x1000000+(Math.random())*0xffffff);

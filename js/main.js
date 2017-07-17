@@ -20,6 +20,7 @@ var requestAnimFrame = (function(){
         };
 })();
 
+
 var mainObj = this;
 mainObj.playerId = 'none';
 
@@ -27,7 +28,7 @@ $(function() {
 
     WebFontConfig = {
       google: {
-        families: [ 'Snippet', 'Arvo', 'Podkova:700' , 'Electrolize', 'Orbitron', 'Sigmar One','Audiowide']
+        families: [ 'Audiowide', 'Arvo', 'Podkova:700' , 'Electrolize', 'Orbitron', 'Sigmar One','Audiowide']
       },
 
       active: function() {
@@ -51,6 +52,8 @@ $(function() {
         setupSocket();
         checkReady();
         document.body.appendChild(Graphics.renderer.view);
+        //Graphics.renderer.view.addEventListener('click',Settings.requestFullScreen);
+        //Graphics.renderer.view.addEventListener('touchstart',Settings.requestFullScreen);
     });
     Graphics.resize();
     window.onresize = function(event) {
@@ -64,7 +67,12 @@ $(function() {
         }
         ChatConsole.keyPress(e.which);
     });
-
+    var fsModes = ['webkitfullscreenchange', 'fullscreenchange','msfullscreenchange', 'mozfullscreenchange'];
+    for (var i = 0; i < fsModes.length;i++){
+        document.addEventListener(fsModes[i],function(e){
+            Settings.toggleScaleToFit();
+        });
+    }
     // Set up keyboard bindings
     $(document).keydown(function(e) {
         var key = e.which;
@@ -73,7 +81,6 @@ $(function() {
         if (!ChatConsole.active) {
             Acorn.Input.keyDown(key);
         }
-
         // Prevent system wide stops
         if (
                 key === 8 || // Backspace
@@ -158,14 +165,14 @@ function setupSocket() {
     Acorn.Net.on('youLose', function (data) {
         if (!ended) {
             ended = true;
-            var uLost = new PIXI.Text('You Lose :(', { font: '100px Snippet', fill: 'red', align: 'left' });
+            var uLost = new PIXI.Text('You Lose', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
             uLost.anchor.x = 0.5;
             uLost.anchor.y = 0.5;
             Graphics.uiContainer.addChild(uLost);
             if (data.score){
-                var score = new PIXI.Text('Final Score: ' + data.score, { font: '100px Snippet', fill: 'red', align: 'left' });
+                var score = new PIXI.Text('Final Score: ' + data.score, { font: '100px Audiowide', fill: 'white', align: 'left' });
                 score.position.x = (Graphics.width / 2);
                 score.position.y = (Graphics.height / 4 + 100);
                 score.anchor.x = 0.5;
@@ -178,7 +185,7 @@ function setupSocket() {
      Acorn.Net.on('youLasted', function (data) {
         if (!ended) {
             ended = true;
-            var uLost = new PIXI.Text('You Lasted ' + data.time + ' Seconds', { font: '100px Snippet', fill: 'red', align: 'left' });
+            var uLost = new PIXI.Text('You Lasted ' + data.time + ' Seconds', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
             uLost.anchor.x = 0.5;
@@ -190,7 +197,7 @@ function setupSocket() {
     Acorn.Net.on('youWin', function (data) {
         if (!ended) {
             ended = true;
-            var uLost = new PIXI.Text('You Win! :)', { font: '100px Snippet', fill: 'red', align: 'left' });
+            var uLost = new PIXI.Text('You Win!', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
             uLost.anchor.x = 0.5;
@@ -202,7 +209,7 @@ function setupSocket() {
     Acorn.Net.on('disconnect', function (data) {
         if (!ended) {
             ended = true;
-            var uLost = new PIXI.Text('Disconnect', { font: '100px Snippet', fill: 'red', align: 'left' });
+            var uLost = new PIXI.Text('Disconnect', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
             uLost.anchor.x = 0.5;
@@ -317,9 +324,8 @@ function init() {
     stats.domElement.style.top = '0px';
     stats.domElement.style.x = 0;
     stats.domElement.style.y = 0;
-    document.body.appendChild( stats.domElement );
+    //document.body.appendChild( stats.domElement );
     console.log(stats.domElement.style);
-    
     //Init Console
     ChatConsole.init(Acorn.Net.socket_);
 
@@ -355,6 +361,33 @@ function update(){
 }
 
 //Set up all states
+
+//Initial State
+Acorn.addState({
+    stateId: 'initialScreen',
+    init: function(){
+        console.log('Initializing initial screen');
+        document.body.style.cursor = 'default';
+        Graphics.clear();
+        ended = false;
+        this.wispLogo = new PIXI.Text('W.I.S.P.' , {font: '200px Orbitron', fill: 'white', align: 'left'});
+        this.wispLogo.position.x = (Graphics.width / 2);
+        this.wispLogo.position.y = (Graphics.height / 4);
+        this.wispLogo.anchor.x = 0.5;
+        this.wispLogo.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.wispLogo);
+
+        this.clickText = new PIXI.Text('click/tap to begin' , {font: '100px Orbitron', fill: 'white', align: 'left'});
+        this.clickText.position.x = (Graphics.width / 2);
+        this.clickText.position.y = (Graphics.height / 2);
+        this.clickText.anchor.x = 0.5;
+        this.clickText.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.clickText);
+    },
+    update: function(dt){
+        ChatConsole.update(dt);
+    }
+});
 //Main Menu State
 Acorn.addState({
     stateId: 'mainMenu',
@@ -363,7 +396,7 @@ Acorn.addState({
         document.body.style.cursor = 'default';
         Graphics.clear();
         ended = false;
-        this.wispLogo = new PIXI.Text('F-L-I-M' , {font: '200px Orbitron', fill: 'white', align: 'left'});
+        this.wispLogo = new PIXI.Text('W.I.S.P.' , {font: '200px Orbitron', fill: 'white', align: 'left'});
         this.wispLogo.position.x = (Graphics.width / 2);
         this.wispLogo.position.y = (Graphics.height / 4);
         this.wispLogo.anchor.x = 0.5;
@@ -371,7 +404,7 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.wispLogo);
         
         //set up the Solo button
-        this.singlePlayerButton = new PIXI.Text('SOLO' , {font: '64px Audiowide', fill: 'red', align: 'center'});
+        this.singlePlayerButton = new PIXI.Text('SOLO' , {font: '64px Audiowide', fill: 'white', align: 'center'});
         this.singlePlayerButton.anchor.x = .5;
         this.singlePlayerButton.anchor.y = .5;
         this.singlePlayerButton.position.x = Graphics.width/2;
@@ -389,7 +422,7 @@ Acorn.addState({
         });
 
         //set up the Co-op button
-        this.multiPlayerButton = new PIXI.Text('CO-OP' , {font: '64px Audiowide', fill: 'red', align: 'center'});
+        this.multiPlayerButton = new PIXI.Text('CO-OP' , {font: '64px Audiowide', fill: 'white', align: 'center'});
         this.multiPlayerButton.anchor.x = .5;
         this.multiPlayerButton.anchor.y = .5;
         this.multiPlayerButton.position.x = Graphics.width/2;
@@ -407,7 +440,7 @@ Acorn.addState({
         });
 
         //set up the Co-op button
-        this.versusButton = new PIXI.Text('VERSUS' , {font: '64px Audiowide', fill: 'red', align: 'center'});
+        this.versusButton = new PIXI.Text('VERSUS' , {font: '64px Audiowide', fill: 'white', align: 'center'});
         this.versusButton.anchor.x = .5;
         this.versusButton.anchor.y = .5;
         this.versusButton.position.x = Graphics.width/2;
@@ -425,7 +458,7 @@ Acorn.addState({
         });
 
         //set up the settings button
-        this.settingsButton = new PIXI.Text('settings' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.settingsButton = new PIXI.Text('settings' , {font: '24px Orbitron', fill: 'white', align: 'left'});
         this.settingsButton.position.x = 100;
         this.settingsButton.position.y = 24;
         this.settingsButton.anchor.x = 0.5;
@@ -459,7 +492,7 @@ Acorn.addState({
         });
 
         //set up the about button
-        this.aboutButton = new PIXI.Text('about' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.aboutButton = new PIXI.Text('about' , {font: '24px Orbitron', fill: 'white', align: 'left'});
         this.aboutButton.position.x = 1800;
         this.aboutButton.position.y = 24;
         this.aboutButton.anchor.x = 0.5;
@@ -473,7 +506,6 @@ Acorn.addState({
         this.aboutButton.on('tap', function onClick(){
             Acorn.changeState('aboutPage');
         });
-
         //stop playing music if returning from in game
         Acorn.Sound.stop('flim');
     },
@@ -504,7 +536,7 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.waiting);
 
         //set up the cancel button
-        this.cancel = new PIXI.Text('Cancel' , {font: '24px Orbitron', fill: 'red', align: 'left'});
+        this.cancel = new PIXI.Text('Cancel' , {font: '24px Orbitron', fill: 'white', align: 'left'});
         this.cancel.position.x = (Graphics.width / 2);
         this.cancel.position.y = (Graphics.height / 2 + 150);
         this.cancel.anchor.x = 0.5;
@@ -625,14 +657,14 @@ Acorn.addState({
             }
             Enemies.addEnemy({id:'test',type: 'star',x:p[0],y:p[1],behaviour: {name: 'star', startMove: [x,y]}});
         }
-        this.wispLogo = new PIXI.Text('About Flim' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.wispLogo = new PIXI.Text('About Flim' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.wispLogo.position.x = (Graphics.width / 2);
         this.wispLogo.position.y = 40;
         this.wispLogo.anchor.x = 0.5;
         this.wispLogo.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.wispLogo);
 
-        this.welcome = new PIXI.Text('Welcome to Flim! The shitty game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
+        this.welcome = new PIXI.Text('Welcome to WISP! The amazing game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
         this.welcome.position.x = (Graphics.width / 2);
         this.welcome.position.y = (100);
         this.welcome.anchor.x = 0.5;
@@ -646,7 +678,7 @@ Acorn.addState({
         this.nameDrop.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.nameDrop);
 
-        this.controls = new PIXI.Text('Controls: Use your mouse dummy' , {font: '48px Verdana', fill: 'white', align: 'left'});
+        this.controls = new PIXI.Text('Controls: Use your mouse' , {font: '48px Verdana', fill: 'white', align: 'left'});
         this.controls.position.x = (Graphics.width / 2);
         this.controls.position.y = (250);
         this.controls.anchor.x = 0.5;
@@ -675,7 +707,7 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.vsMode);
 
         //set up the back button
-        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'red', align: 'left'});
+        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'white', align: 'left'});
         this.backButton.position.x = 1800;
         this.backButton.position.y = 24;
         this.backButton.anchor.x = 0.5;
@@ -712,7 +744,7 @@ Acorn.addState({
         document.body.style.cursor = 'default';
         Graphics.clear();
         
-        this.mute = new PIXI.Text('MUTE: ' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.mute = new PIXI.Text('MUTE: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.mute.position.x = (Graphics.width / 2);
         this.mute.position.y = 100;
         this.mute.anchor.x = 0.5;
@@ -720,7 +752,7 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.mute);
 
         this.muteX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
-        this.muteX.position.x = (Graphics.width / 2 + 150);
+        this.muteX.position.x = (Graphics.width / 2 + this.mute.width/2 + 5 + this.muteX.width/2);
         this.muteX.position.y = 100;
         this.muteX.anchor.x = 0.5;
         this.muteX.anchor.y = 0.5;
@@ -734,7 +766,7 @@ Acorn.addState({
             Settings.toggleMute();
         });
 
-        this.master = new PIXI.Text('Master Volume' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.master = new PIXI.Text('Master Volume' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.master.position.x = (Graphics.width / 2);
         this.master.position.y = 175;
         this.master.anchor.x = 0.5;
@@ -777,7 +809,7 @@ Acorn.addState({
             }
         });
 
-        this.music = new PIXI.Text('Music Volume' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.music = new PIXI.Text('Music Volume' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.music.position.x = (Graphics.width / 2);
         this.music.position.y = 300;
         this.music.anchor.x = 0.5;
@@ -820,7 +852,7 @@ Acorn.addState({
             }
         });
 
-        this.SFX = new PIXI.Text('SFX Volume' , {font: '40px Orbitron', fill: 'red', align: 'left'});
+        this.SFX = new PIXI.Text('SFX Volume' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.SFX.position.x = (Graphics.width / 2);
         this.SFX.position.y = 425;
         this.SFX.anchor.x = 0.5;
@@ -863,8 +895,74 @@ Acorn.addState({
             }
         });
 
+        this.FS = new PIXI.Text('Auto FullScreen: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.FS.position.x = (Graphics.width / 2);
+        this.FS.position.y = 550;
+        this.FS.anchor.x = 0.5;
+        this.FS.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.FS);
+
+        this.FSX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
+        this.FSX.position.x = (Graphics.width / 2 + 5 + this.FS.width/2 + this.FSX.width/2);
+        this.FSX.position.y = 550;
+        this.FSX.anchor.x = 0.5;
+        this.FSX.anchor.y = 0.5;
+        this.FSX.interactive = true;
+        this.FSX.buttonMode = true;
+        Graphics.uiContainer.addChild(this.FSX);
+        this.FSX.on('click', function onClick(){
+            Settings.toggleAutoFullScreen();
+        });
+        this.FSX.on('tap', function onClick(){
+            Settings.toggleAutoFullScreen();
+        });
+
+        this.dust = new PIXI.Text('Dust: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.dust.position.x = (Graphics.width / 2);
+        this.dust.position.y = 625;
+        this.dust.anchor.x = 0.5;
+        this.dust.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.dust);
+
+        this.dustX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
+        this.dustX.position.x = (Graphics.width / 2 + 5 + this.dust.width/2 + this.dustX.width/2);
+        this.dustX.position.y = 625;
+        this.dustX.anchor.x = 0.5;
+        this.dustX.anchor.y = 0.5;
+        this.dustX.interactive = true;
+        this.dustX.buttonMode = true;
+        Graphics.uiContainer.addChild(this.dustX);
+        this.dustX.on('click', function onClick(){
+            Settings.toggleDust();
+        });
+        this.dustX.on('tap', function onClick(){
+            Settings.toggleDust();
+        });
+
+        this.trails = new PIXI.Text('Wisp Trails: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.trails.position.x = (Graphics.width / 2);
+        this.trails.position.y = 700;
+        this.trails.anchor.x = 0.5;
+        this.trails.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.trails);
+
+        this.trailsX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
+        this.trailsX.position.x = (Graphics.width / 2 + 5 + this.trails.width/2 + this.trailsX.width/2);
+        this.trailsX.position.y = 700;
+        this.trailsX.anchor.x = 0.5;
+        this.trailsX.anchor.y = 0.5;
+        this.trailsX.interactive = true;
+        this.trailsX.buttonMode = true;
+        Graphics.uiContainer.addChild(this.trailsX);
+        this.trailsX.on('click', function onClick(){
+            Settings.toggleTrails();
+        });
+        this.trailsX.on('tap', function onClick(){
+            Settings.toggleTrails();
+        });
+
         //set up the back button
-        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'red', align: 'left'});
+        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'white', align: 'left'});
         this.backButton.position.x = 100;
         this.backButton.position.y = 24;
         this.backButton.anchor.x = 0.5;
@@ -886,6 +984,9 @@ Acorn.addState({
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.muteX,Graphics.worldPrimitives, 14);
+        Graphics.drawBoxAround(this.FSX,Graphics.worldPrimitives, 14);
+        Graphics.drawBoxAround(this.dustX,Graphics.worldPrimitives, 14);
+        Graphics.drawBoxAround(this.trailsX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.masterBar,Graphics.worldPrimitives);
         Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
         Graphics.worldPrimitives.drawRect(this.masterBar.position.x - this.masterBar._width/2,
@@ -911,6 +1012,21 @@ Acorn.addState({
             this.muteX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
         }else{
             this.muteX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
+        }
+        if (Settings.autoFullScreen){
+            this.FSX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
+        }else{
+            this.FSX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
+        }
+        if (Settings.dust){
+            this.dustX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
+        }else{
+            this.dustX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
+        }
+        if (Settings.trails){
+            this.trailsX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
+        }else{
+            this.trailsX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
         }
         ChatConsole.update(dt);
     }

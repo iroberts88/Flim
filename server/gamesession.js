@@ -227,7 +227,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
         case "chaos":
             //slow circle
             eData.speed = 0;
-            eData.behaviour = {name: 'chaos', spring: 2+ Math.floor(Math.random()*4), targetId: data.target,speed: 400+(100*Math.floor(Math.random()*6))};
+            eData.behaviour = {name: 'chaos', spring: 2+ Math.random()*6, targetId: data.target,speed: 400+(100*Math.random()*6)};
             eData.radius = 10;
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);

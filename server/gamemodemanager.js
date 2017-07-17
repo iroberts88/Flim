@@ -176,21 +176,6 @@ GameModeManager.prototype.newEvent = function() {
         }
         //add parallelograms
         enemiesAdded = this.getParallelograms(enemiesAdded);
-    }else if (this.session.level == 666){
-         //Chaos event
-        rand = Math.ceil(rand/this.session.playerCount);
-        for (var player in this.session.players){
-            for (var i = 0; i < rand;i++){
-                var type = 'chaos';
-                data.target = player;
-                var e = this.session.addEnemy(type,data);
-                enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-            }
-        }
-        for (var i = 0; i < 5; i++){
-            var e = this.session.addEnemy('star',data);
-            enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-        } 
     }else{
         //add squares every 4 levels
         if (this.session.level%this.squaresEvery == 0 || this.squares.length == 0){
@@ -259,10 +244,17 @@ GameModeManager.prototype.newEvent = function() {
                 e.hitData.rotate(1.57);
             }
         }
+        var chaos = false;
+        if (Math.random()<0.01){
+            chaos = true;
+        }
         rand = Math.ceil(rand/this.session.playerCount);
         for (var player in this.session.players){
             for (var i = 0; i < rand;i++){
                 var type = this.eventEnemyArray[Math.floor(Math.random()*this.eventEnemyArray.length)];
+                if (chaos){
+                    type = 'chaos';
+                }
                 data.target = player;
                 var e = this.session.addEnemy(type,data);
                 enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
@@ -278,7 +270,7 @@ GameModeManager.prototype.newEvent = function() {
                 enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
         }
-        if (this.session.level >= 20 && this.session.level%3 == 0){
+        if (this.session.level >= 20 && this.session.level%3 == 0 && !chaos){
                 data.target = player;
             var e = this.session.addEnemy('hex',data);
             enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});

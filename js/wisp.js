@@ -155,41 +155,43 @@
 
                 draw: function(){
                     try{
-                        var xDist = this.path[0][0] - this.loc.x;
-                        var yDist = this.path[0][1] - this.loc.y;
-                        var hyp = Math.sqrt(xDist*xDist+yDist*yDist);
-                        if (this.path.length > 1 && (hyp > this.radius)){
-                            var newVec = new SAT.Vector((this.path[this.path.length-1][0] - this.path[this.path.length-2][0]),
-                                                        this.path[this.path.length-1][1] - this.path[this.path.length-2][1])
-                            newVec.rotate(-1.5708);
-                            newVec.normalize();
-                            var start = [this.loc.x+(this.radius*newVec.x),this.loc.y+(this.radius*newVec.y)];
-                            newVec.rotate(3.14);
-                            var end = [this.loc.x+(this.radius*newVec.x),this.loc.y+(this.radius*newVec.y)];
-                            Graphics.worldPrimitives.lineStyle(2,this.tint,.3); 
-                            Graphics.worldPrimitives.beginFill(this.tint, .3);
-                            Graphics.worldPrimitives.moveTo(start[0], start[1]);
-                            for (var i = this.path.length-2; i >=0; i--){
-                                newVec = new SAT.Vector((this.path[i][0] - this.path[i+1][0]),
-                                                        this.path[i][1] - this.path[i+1][1])
-                                newVec.rotate(1.5708);
+                        if (Settings.Trail){
+                            var xDist = this.path[0][0] - this.loc.x;
+                            var yDist = this.path[0][1] - this.loc.y;
+                            var hyp = Math.sqrt(xDist*xDist+yDist*yDist);
+                            if (this.path.length > 1 && (hyp > this.radius)){
+                                var newVec = new SAT.Vector((this.path[this.path.length-1][0] - this.path[this.path.length-2][0]),
+                                                            this.path[this.path.length-1][1] - this.path[this.path.length-2][1])
+                                newVec.rotate(-1.5708);
                                 newVec.normalize();
-                                Graphics.worldPrimitives.lineTo(this.path[i][0]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.x), 
-                                                            this.path[i][1]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.y));
-                            }
+                                var start = [this.loc.x+(this.radius*newVec.x),this.loc.y+(this.radius*newVec.y)];
+                                newVec.rotate(3.14);
+                                var end = [this.loc.x+(this.radius*newVec.x),this.loc.y+(this.radius*newVec.y)];
+                                Graphics.worldPrimitives.lineStyle(2,this.tint,.3); 
+                                Graphics.worldPrimitives.beginFill(this.tint, .3);
+                                Graphics.worldPrimitives.moveTo(start[0], start[1]);
+                                for (var i = this.path.length-2; i >=0; i--){
+                                    newVec = new SAT.Vector((this.path[i][0] - this.path[i+1][0]),
+                                                            this.path[i][1] - this.path[i+1][1])
+                                    newVec.rotate(1.5708);
+                                    newVec.normalize();
+                                    Graphics.worldPrimitives.lineTo(this.path[i][0]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.x), 
+                                                                this.path[i][1]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.y));
+                                }
 
-                            for (var i = 1; i <this.path.length-1; i++){
-                                newVec = new SAT.Vector((this.path[i][0] - this.path[i-1][0]),
-                                                        this.path[i][1] - this.path[i-1][1])
-                                newVec.rotate(1.5708);
-                                newVec.normalize();
-                                Graphics.worldPrimitives.lineTo(this.path[i][0]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.x), 
-                                                            this.path[i][1]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.y));
-                            }
+                                for (var i = 1; i <this.path.length-1; i++){
+                                    newVec = new SAT.Vector((this.path[i][0] - this.path[i-1][0]),
+                                                            this.path[i][1] - this.path[i-1][1])
+                                    newVec.rotate(1.5708);
+                                    newVec.normalize();
+                                    Graphics.worldPrimitives.lineTo(this.path[i][0]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.x), 
+                                                                this.path[i][1]+(Math.ceil(this.radius*(1/this.path.length)*i)*newVec.y));
+                                }
 
-                            Graphics.worldPrimitives.lineTo(end[0], end[1]);
-                            Graphics.worldPrimitives.lineTo(start[0], start[1]);
-                            Graphics.worldPrimitives.endFill();
+                                Graphics.worldPrimitives.lineTo(end[0], end[1]);
+                                Graphics.worldPrimitives.lineTo(start[0], start[1]);
+                                Graphics.worldPrimitives.endFill();
+                            }
                         }
                     }catch(e){
                         console.log("ERROR: wisp draw error");
@@ -258,14 +260,14 @@
                         Graphics.worldContainer.removeChild(this.warning.lText);
                         this.warning = null;
                     }
-                    var newText = new PIXI.Text(''+time,{font:"50px Electrolize", fill:'red'});
+                    var newText = new PIXI.Text(''+time,{font:"50px Electrolize", fill:'white'});
                     newText.anchor.x = 0.5;
                     newText.anchor.y = 0;
                     newText.position.x = Graphics.width/2;
                     newText.position.y = Graphics.height/3;
                     newText.alpha = 0.5;
                     //Graphics.worldContainer.addChild(newText);
-                    var newText2 = new PIXI.Text('level '+level,{font:"50px Electrolize", fill:'red'});
+                    var newText2 = new PIXI.Text('level '+level,{font:"50px Electrolize", fill:'white'});
                     newText2.anchor.x = 0.5;
                     newText2.anchor.y = 0;
                     newText2.position.x = Graphics.width/2;

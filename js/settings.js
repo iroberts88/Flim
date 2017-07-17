@@ -9,8 +9,8 @@
         musicVolume: null,
         sfxVolume: null,
         dust: null,
-        trail: null,
-        
+        trails: null,
+        autoFullScreen: null,
 
         init: function() {
         	//Working
@@ -20,8 +20,10 @@
             this.musicVolume = 1.0;
             this.sfxVolume = 1.0;
 
+            this.autoFullScreen = false;
+
             this.dust = true;
-            this.trail = true;
+            this.trails = true;
         },
         toggleDust: function(){
             if (this.dust){
@@ -30,11 +32,11 @@
                 this.dust = true;
             }
         },
-        toggleTrail: function(){
-            if (this.trail){
-                this.trail = false;
+        toggleTrails: function(){
+            if (this.trails){
+                this.trails = false;
             }else{
-                this.trail = true;
+                this.trails = true;
             }
         },
         toggleViewBump: function(){
@@ -47,6 +49,32 @@
         	}else{
         		this.viewBumpSpeed = this.oldViewBump;
         	}
+        },
+        toggleAutoFullScreen: function(){
+            if (this.autoFullScreen){
+                this.autoFullScreen = false;
+                Graphics.renderer.view.removeEventListener('click',Settings.requestFullScreen);
+                Graphics.renderer.view.removeEventListener('touchstart',Settings.requestFullScreen);
+            }else{
+                this.autoFullScreen = true;
+                Graphics.renderer.view.addEventListener('click',Settings.requestFullScreen);
+                Graphics.renderer.view.addEventListener('touchstart',Settings.requestFullScreen);
+            }
+        },
+        requestFullScreen: function(){
+            if (!document.fullscreenElement){
+                var c = Graphics.renderer.view;
+                if (c.webkitRequestFullScreen){
+                    c.webkitRequestFullScreen();
+                }else if (c.webkitRequestFullScreen){
+                    c.mozRequestFullScreen();
+                }else if (c.requestFullScreen){
+                    c.requestFullScreen();
+                }
+            }
+            if (Acorn.currentState == 'initialScreen'){
+                Acorn.changeState('mainMenu');
+            }
         },
         toggleScaleToFit: function(){
             if (this.scaleToFit){
