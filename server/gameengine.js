@@ -14,6 +14,7 @@ var GameEngine = function() {
     this.players = {}; //List of players that do not have a gameSession
     this.openSessions = null;
 
+    this.playerCount = 0;
     //variables for ID's
     this.ids = {};
     this.possibleIDChars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -128,6 +129,7 @@ GameEngine.prototype.loadEnemies = function(arr) {
 GameEngine.prototype.newConnection = function(socket) {
     console.log('New Player Connected');
     console.log('Socket ID: ' + socket.id);
+    self.playerCount += 1;
     //Initialize new player and add to the proper session
     var p = Player();
     p.id = self.getID();

@@ -63,17 +63,31 @@
         },
         requestFullScreen: function(){
             if (!document.fullscreenElement){
-                var c = Graphics.renderer.view;
+                var c = document.body;
                 if (c.webkitRequestFullScreen){
                     c.webkitRequestFullScreen();
                 }else if (c.webkitRequestFullScreen){
                     c.mozRequestFullScreen();
-                }else if (c.requestFullScreen){
-                    c.requestFullScreen();
+                }else if (c.requestFullscreen){
+                    c.requestFullscreen();
+                }else if (c.msRequestFullscreen){
+                    c.msRequestFullscreen()
                 }
             }
             if (Acorn.currentState == 'initialScreen'){
                 Acorn.changeState('mainMenu');
+            }
+        },
+        exitFullScreen: function(){
+            var c = document.body;
+            if (c.webkitExitFullscreen){
+                c.webkitExitFullscreen();
+            }else if (c.mozCancelFullScreen){
+                c.mozCancelFullScreen();
+            }else if (c.exitFullscreen){
+                c.exitFullscreen();
+            }else if (c.msExitFullscreen){
+                c.msExitFullscreen()
             }
         },
         toggleScaleToFit: function(){

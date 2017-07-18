@@ -5,10 +5,6 @@ var stats;
 
 var now, dt, lastTime;
 
-var pixels = [];
-
-var ended = false;
-
 var requestAnimFrame = (function(){
     return window.requestAnimationFrame       ||
         window.webkitRequestAnimationFrame ||
@@ -45,6 +41,7 @@ $(function() {
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(wf, s);
       })();
+    // initialize Graphics
     Graphics.init(1920, 1080);
     Graphics.onReady(function() {
         Graphics.resourcesReady = true;
@@ -52,8 +49,6 @@ $(function() {
         setupSocket();
         checkReady();
         document.body.appendChild(Graphics.renderer.view);
-        //Graphics.renderer.view.addEventListener('click',Settings.requestFullScreen);
-        //Graphics.renderer.view.addEventListener('touchstart',Settings.requestFullScreen);
     });
     Graphics.resize();
     window.onresize = function(event) {
@@ -67,6 +62,7 @@ $(function() {
         }
         ChatConsole.keyPress(e.which);
     });
+
     var fsModes = ['webkitfullscreenchange', 'fullscreenchange','msfullscreenchange', 'mozfullscreenchange'];
     for (var i = 0; i < fsModes.length;i++){
         document.addEventListener(fsModes[i],function(e){
@@ -107,10 +103,6 @@ $(function() {
     Acorn.Sound.init();
     Acorn.Sound.addSound({url: 'sounds/my_sound.mp3', id: 'item', volume: 1, preload: true});
     Acorn.Sound.addSound({url: 'sounds/Flim.mp3', multi:false, id: 'flim', volume: 1,type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('flim');}});
-    //Acorn.Sound.addSound({url: 'sounds/cafo.ogg', id: 'music2', multi:false, type: 'music',preload: true});
-    //Acorn.Sound.addSound({url: 'sounds/cafo1.mp3', id: 'cafo1', multi:false, type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('cafo2');}});
-    //Acorn.Sound.addSound({url: 'sounds/cafo2.mp3', id: 'cafo2', multi:false, type: 'music',preload: true,onEnd: function(){Acorn.Sound.play('cafo3');}});
-    //Acorn.Sound.addSound({url: 'sounds/cafo3.mp3', id: 'cafo3', multi:false, type: 'music',preload: true});
 });
 
 function setupSocket() {
@@ -163,8 +155,8 @@ function setupSocket() {
     });
 
     Acorn.Net.on('youLose', function (data) {
-        if (!ended) {
-            ended = true;
+        if (!Player.gameEnded) {
+            Player.gameEnded = true;
             var uLost = new PIXI.Text('You Lose', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
@@ -183,8 +175,8 @@ function setupSocket() {
     });
 
      Acorn.Net.on('youLasted', function (data) {
-        if (!ended) {
-            ended = true;
+        if (!Player.gameEnded) {
+            Player.gameEnded = true;
             var uLost = new PIXI.Text('You Lasted ' + data.time + ' Seconds', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
@@ -195,8 +187,8 @@ function setupSocket() {
     });
 
     Acorn.Net.on('youWin', function (data) {
-        if (!ended) {
-            ended = true;
+        if (!Player.gameEnded) {
+            Player.gameEnded = true;
             var uLost = new PIXI.Text('You Win!', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
@@ -207,8 +199,8 @@ function setupSocket() {
     });
 
     Acorn.Net.on('disconnect', function (data) {
-        if (!ended) {
-            ended = true;
+        if (!Player.gameEnded) {
+            Player.gameEnded = true;
             var uLost = new PIXI.Text('Disconnect', { font: '100px Audiowide', fill: 'white', align: 'left' });
             uLost.position.x = (Graphics.width / 2);
             uLost.position.y = (Graphics.height / 4);
@@ -265,6 +257,13 @@ function setupSocket() {
       }
     });
 
+    Acorn.Net.on('updatePlayerCount', function(data) {
+        try{
+            Player.playerCount = data.p;
+        }catch(e){
+            console.log(e);
+        }
+    });
     Acorn.Net.on('say', function (data) {
       if (data.playerId == mainObj.playerId){
         Player.addSayBubble(data.text);
@@ -278,7 +277,7 @@ function setupSocket() {
     });
 
     Acorn.Net.on('addEnemies', function (data) {
-        if (!ended){
+        if (!Player.gameEnded){
           for (var i = 0; i < data.data.length; i++){
             Enemies.addEnemy(data.data[i]);
           }
@@ -341,14 +340,6 @@ function init() {
     update();
 }
 
-function drawTarget(){
-    Graphics.worldPrimitives.lineStyle(3,0xFFFFFF,1); 
-    Graphics.worldPrimitives.moveTo(Player.targetLoc.x - 10, Player.targetLoc.y);
-    Graphics.worldPrimitives.lineTo(Player.targetLoc.x + 10, Player.targetLoc.y);
-    Graphics.worldPrimitives.moveTo(Player.targetLoc.x, Player.targetLoc.y - 10);
-    Graphics.worldPrimitives.lineTo(Player.targetLoc.x, Player.targetLoc.y + 10);
-}
-
 function update(){
     requestAnimFrame(update);
     stats.begin();
@@ -361,15 +352,19 @@ function update(){
 }
 
 //Set up all states
+//-----------------------------------------------------------------------------------------------|
+//                              Game States (Acorn.states)
+//-----------------------------------------------------------------------------------------------|
 
 //Initial State
+//TODO might not use this?
 Acorn.addState({
     stateId: 'initialScreen',
     init: function(){
         console.log('Initializing initial screen');
         document.body.style.cursor = 'default';
         Graphics.clear();
-        ended = false;
+        Player.gameEnded = false;
         this.wispLogo = new PIXI.Text('W.I.S.P.' , {font: '200px Orbitron', fill: 'white', align: 'left'});
         this.wispLogo.position.x = (Graphics.width / 2);
         this.wispLogo.position.y = (Graphics.height / 4);
@@ -388,21 +383,21 @@ Acorn.addState({
         ChatConsole.update(dt);
     }
 });
-//Main Menu State
+
+//Main Menu
 Acorn.addState({
     stateId: 'mainMenu',
     init: function(){
         console.log('Initializing main menu');
         document.body.style.cursor = 'default';
         Graphics.clear();
-        ended = false;
+        Player.gameEnded = false;
         this.wispLogo = new PIXI.Text('W.I.S.P.' , {font: '200px Orbitron', fill: 'white', align: 'left'});
         this.wispLogo.position.x = (Graphics.width / 2);
         this.wispLogo.position.y = (Graphics.height / 4);
         this.wispLogo.anchor.x = 0.5;
         this.wispLogo.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.wispLogo);
-        
         //set up the Solo button
         this.singlePlayerButton = new PIXI.Text('SOLO' , {font: '64px Audiowide', fill: 'white', align: 'center'});
         this.singlePlayerButton.anchor.x = .5;
@@ -458,9 +453,9 @@ Acorn.addState({
         });
 
         //set up the settings button
-        this.settingsButton = new PIXI.Text('settings' , {font: '24px Orbitron', fill: 'white', align: 'left'});
-        this.settingsButton.position.x = 100;
-        this.settingsButton.position.y = 24;
+        this.settingsButton = new PIXI.Text('SETTINGS' , {font: '48px Orbitron', fill: 'white', align: 'left'});
+        this.settingsButton.position.x = this.settingsButton.width/2 + 5;
+        this.settingsButton.position.y = this.settingsButton.height/2 + 5;
         this.settingsButton.anchor.x = 0.5;
         this.settingsButton.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.settingsButton);
@@ -476,7 +471,7 @@ Acorn.addState({
         //set up the secret stars button
         this.starsButton = new PIXI.Text('...' , {font: '12px Orbitron', fill: 'black', align: 'left'});
         this.starsButton.position.x = 1900;
-        this.starsButton.position.y = 100;
+        this.starsButton.position.y = 300;
         this.starsButton.anchor.x = 0.5;
         this.starsButton.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.starsButton);
@@ -492,9 +487,9 @@ Acorn.addState({
         });
 
         //set up the about button
-        this.aboutButton = new PIXI.Text('about' , {font: '24px Orbitron', fill: 'white', align: 'left'});
-        this.aboutButton.position.x = 1800;
-        this.aboutButton.position.y = 24;
+        this.aboutButton = new PIXI.Text('ABOUT' , {font: '48px Orbitron', fill: 'white', align: 'left'});
+        this.aboutButton.position.x = Graphics.width - 5 - this.aboutButton.width/2;
+        this.aboutButton.position.y = this.aboutButton.height/2 + 5;
         this.aboutButton.anchor.x = 0.5;
         this.aboutButton.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.aboutButton);
@@ -506,6 +501,16 @@ Acorn.addState({
         this.aboutButton.on('tap', function onClick(){
             Acorn.changeState('aboutPage');
         });
+
+        //set up the playerCount
+        Player.playerCountCurrent = 0;
+        this.playerCount = new PIXI.Text('Players Online: ' + Player.playerCountCurrent , {font: '24px Orbitron', fill: 'white', align: 'left'});
+        this.playerCount.position.x = this.playerCount.width/2 + 5;
+        this.playerCount.position.y = Graphics.height - this.playerCount.height/2 - 5;
+        this.playerCount.anchor.x = 0.5;
+        this.playerCount.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.playerCount);
+        this.reqTicker = 5;
         //stop playing music if returning from in game
         Acorn.Sound.stop('flim');
     },
@@ -517,6 +522,18 @@ Acorn.addState({
         Graphics.drawBoxAround(this.aboutButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.settingsButton,Graphics.worldPrimitives);
         ChatConsole.update(dt);
+        //request player count every 5 seconds
+        this.reqTicker += dt;
+        if (this.reqTicker >= 5.0){
+            this.reqTicker -= 5.0;
+            requestPlayerCount();
+        }
+        if (Player.playerCountCurrent < Player.playerCount){
+            Player.playerCountCurrent += Math.ceil((Player.playerCount - Player.playerCountCurrent)*0.1);
+        }else{
+            Player.playerCountCurrent = Player.playerCount;
+        }
+        this.playerCount.text = 'Players Online: ' + Player.playerCountCurrent;
     }
 });
 
@@ -524,7 +541,7 @@ Acorn.addState({
     stateId: 'joiningGame',
     init: function(){
         Graphics.clear();
-        ended = false;
+        Player.gameEnded = false;
         this.waitingTextBase = 'Finding a game';
         this.waitingTicker = 0;
         this.dotz = 3;
@@ -536,7 +553,7 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.waiting);
 
         //set up the cancel button
-        this.cancel = new PIXI.Text('Cancel' , {font: '24px Orbitron', fill: 'white', align: 'left'});
+        this.cancel = new PIXI.Text('CANCEL' , {font: '72px Orbitron', fill: 'white', align: 'left'});
         this.cancel.position.x = (Graphics.width / 2);
         this.cancel.position.y = (Graphics.height / 2 + 150);
         this.cancel.anchor.x = 0.5;
@@ -553,7 +570,15 @@ Acorn.addState({
             Acorn.Net.socket_.emit('cancelJoin',{});
         });
 
-        
+        //set up the playerCount
+        Player.playerCountCurrent = 0;
+        this.playerCount = new PIXI.Text('Players Online: ' + Player.playerCountCurrent , {font: '24px Orbitron', fill: 'white', align: 'left'});
+        this.playerCount.position.x = this.playerCount.width/2 + 5;
+        this.playerCount.position.y = Graphics.height - this.playerCount.height/2 - 5;
+        this.playerCount.anchor.x = 0.5;
+        this.playerCount.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.playerCount);
+        this.reqTicker = 5;
     },
     update: function(dt){
         this.waitingTicker += dt;
@@ -574,6 +599,19 @@ Acorn.addState({
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.cancel,Graphics.worldPrimitives);
         ChatConsole.update(dt);
+
+        //request player count every 5 seconds
+        this.reqTicker += dt;
+        if (this.reqTicker >= 5.0){
+            this.reqTicker -= 5.0;
+            requestPlayerCount();
+        }
+        if (Player.playerCountCurrent < Player.playerCount){
+            Player.playerCountCurrent += Math.ceil((Player.playerCount - Player.playerCountCurrent)*0.1);
+        }else{
+            Player.playerCountCurrent = Player.playerCount;
+        }
+        this.playerCount.text = 'Players Online: ' + Player.playerCountCurrent;
     }
 });
 
@@ -666,21 +704,21 @@ Acorn.addState({
 
         this.welcome = new PIXI.Text('Welcome to WISP! The amazing game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
         this.welcome.position.x = (Graphics.width / 2);
-        this.welcome.position.y = (100);
+        this.welcome.position.y = 125;
         this.welcome.anchor.x = 0.5;
         this.welcome.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.welcome);
 
         this.nameDrop = new PIXI.Text('By Ian Roberts' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left'});
         this.nameDrop.position.x = (Graphics.width / 2);
-        this.nameDrop.position.y = (150);
+        this.nameDrop.position.y = (175);
         this.nameDrop.anchor.x = 0.5;
         this.nameDrop.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.nameDrop);
 
         this.controls = new PIXI.Text('Controls: Use your mouse' , {font: '48px Verdana', fill: 'white', align: 'left'});
         this.controls.position.x = (Graphics.width / 2);
-        this.controls.position.y = (250);
+        this.controls.position.y = (275);
         this.controls.anchor.x = 0.5;
         this.controls.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.controls);
@@ -707,9 +745,9 @@ Acorn.addState({
         Graphics.uiContainer.addChild(this.vsMode);
 
         //set up the back button
-        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'white', align: 'left'});
-        this.backButton.position.x = 1800;
-        this.backButton.position.y = 24;
+        this.backButton = new PIXI.Text('BACK' , {font: '72px Verdana', fill: 'white', align: 'left'});
+        this.backButton.position.x = Graphics.width - 5 - this.backButton.width/2;
+        this.backButton.position.y = this.backButton.height/2 + 5;
         this.backButton.anchor.x = 0.5;
         this.backButton.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.backButton);
@@ -962,9 +1000,9 @@ Acorn.addState({
         });
 
         //set up the back button
-        this.backButton = new PIXI.Text('back' , {font: '24px Verdana', fill: 'white', align: 'left'});
-        this.backButton.position.x = 100;
-        this.backButton.position.y = 24;
+        this.backButton = new PIXI.Text('BACK' , {font: '72px Verdana', fill: 'white', align: 'left'});
+        this.backButton.position.x = this.backButton.width/2 + 5;
+        this.backButton.position.y = this.backButton.height/2 + 5;
         this.backButton.anchor.x = 0.5;
         this.backButton.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.backButton);
@@ -1050,6 +1088,18 @@ Acorn.Input.onTouchEvent(function(e) {
         Acorn.Net.socket_.emit('playerUpdate',{newMouseLoc: [position.x,position.y]});
     }catch(e){}
 });
+
+function drawTarget(){
+    Graphics.worldPrimitives.lineStyle(3,0xFFFFFF,1); 
+    Graphics.worldPrimitives.moveTo(Player.targetLoc.x - 10, Player.targetLoc.y);
+    Graphics.worldPrimitives.lineTo(Player.targetLoc.x + 10, Player.targetLoc.y);
+    Graphics.worldPrimitives.moveTo(Player.targetLoc.x, Player.targetLoc.y - 10);
+    Graphics.worldPrimitives.lineTo(Player.targetLoc.x, Player.targetLoc.y + 10);
+}
+
+function requestPlayerCount(){
+    Acorn.Net.socket_.emit('playerUpdate',{requestPlayerCount: true});
+}
 
 function setSlideBar(bar,func){
     bar.on('mousedown', function onClick(){

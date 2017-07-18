@@ -27,7 +27,7 @@
                 warning: null,
 
                 kill: null,
-
+                playerCount: null,
                 tint: null,
                     
                 init: function(data) {
@@ -155,7 +155,7 @@
 
                 draw: function(){
                     try{
-                        if (Settings.Trail){
+                        if (Settings.trails){
                             var xDist = this.path[0][0] - this.loc.x;
                             var yDist = this.path[0][1] - this.loc.y;
                             var hyp = Math.sqrt(xDist*xDist+yDist*yDist);

@@ -116,6 +116,8 @@ Player = function(){
                     that.targetPosition.x = data.newMouseLoc[0];
                     that.targetPosition.y= data.newMouseLoc[1];
                 }
+            }else if (data.requestPlayerCount){
+                that.gameEngine.queuePlayer(that,'updatePlayerCount', {p: that.gameEngine.playerCount});
             }
         });
 
@@ -178,7 +180,6 @@ Player = function(){
                         }
                         break;
                     case 'setlevel':
-                        //toggle god mode
                         commandBool = true;
                         try{
                             that.gameSession.level = parseInt(commands[1]);
@@ -187,13 +188,16 @@ Player = function(){
                         }
                         break;
                     case 't':
-                        //toggle god mode
-                        commandBool = true
+                        commandBool = true;
                         try{
                             that.gameSession.level = 666;
                         }catch(e){
                             
                         }
+                        break;
+                    case 'log':
+                        commandBool = true;
+                        console.log('log');
                         break;
                 }
                 if (!commandBool && c != ''){
@@ -210,6 +214,7 @@ Player = function(){
                 that.gameSession.queueData('removePlayer', that.id);
                 that.gameSession.removePlayer(that);
             }
+            that.gameEngine.playerCount -= 1;
             // If callback exists, call it
             if(that.onDisconnectHandler != null && typeof that.onDisconnectHandler == 'function' ) {
                     that.onDisconnectHandler();
