@@ -42,6 +42,7 @@ $(function() {
         s.parentNode.insertBefore(wf, s);
       })();
     // initialize Graphics
+    document.body.style.margin = "0px 0px 0px 0px";
     Graphics.init(1920, 1080);
     Graphics.onReady(function() {
         Graphics.resourcesReady = true;
@@ -316,15 +317,15 @@ function init() {
     //do some stuff after Graphics and network are initialized
     lastTime = Date.now();
     
-    stats = new Stats();
+    /*stats = new Stats();
     stats.setMode(0);
     stats.domElement.style.position = 'top';
     stats.domElement.style.left = '0px';
     stats.domElement.style.top = '0px';
     stats.domElement.style.x = 0;
     stats.domElement.style.y = 0;
-    //document.body.appendChild( stats.domElement );
-    console.log(stats.domElement.style);
+    document.body.appendChild( stats.domElement );*/
+
     //Init Console
     ChatConsole.init(Acorn.Net.socket_);
 
@@ -342,13 +343,13 @@ function init() {
 
 function update(){
     requestAnimFrame(update);
-    stats.begin();
+    //stats.begin();
     now = Date.now();
     dt = (now - lastTime) / 1000.0;
     Acorn.states[Acorn.currentState].update(dt); //update the current state
     Graphics.renderer.render(Graphics.stage);
     lastTime = now;
-    stats.end();
+    //stats.end();
 }
 
 //Set up all states
@@ -702,7 +703,7 @@ Acorn.addState({
         this.wispLogo.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.wispLogo);
 
-        this.welcome = new PIXI.Text('Welcome to WISP! The amazing game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
+        this.welcome = new PIXI.Text('Welcome to WISP! The game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
         this.welcome.position.x = (Graphics.width / 2);
         this.welcome.position.y = 125;
         this.welcome.anchor.x = 0.5;
@@ -933,7 +934,7 @@ Acorn.addState({
             }
         });
 
-        this.FS = new PIXI.Text('Auto FullScreen: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.FS = new PIXI.Text('FullScreen: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.FS.position.x = (Graphics.width / 2);
         this.FS.position.y = 550;
         this.FS.anchor.x = 0.5;

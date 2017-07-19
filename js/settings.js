@@ -54,14 +54,17 @@
             if (this.autoFullScreen){
                 this.autoFullScreen = false;
                 Graphics.renderer.view.removeEventListener('click',Settings.requestFullScreen);
-                Graphics.renderer.view.removeEventListener('touchstart',Settings.requestFullScreen);
+                Graphics.renderer.view.removeEventListener('touchend',Settings.requestFullScreen, {passive: false});
+                Settings.exitFullScreen();
             }else{
                 this.autoFullScreen = true;
                 Graphics.renderer.view.addEventListener('click',Settings.requestFullScreen);
-                Graphics.renderer.view.addEventListener('touchstart',Settings.requestFullScreen);
+                Graphics.renderer.view.addEventListener('touchend',Settings.requestFullScreen, {passive: false});
             }
         },
-        requestFullScreen: function(){
+        requestFullScreen: function(e){
+            e.preventDefault();
+            document.body.style.overflow = 'visible';
             if (!document.fullscreenElement){
                 var c = document.body;
                 if (c.webkitRequestFullScreen){
@@ -71,7 +74,7 @@
                 }else if (c.requestFullscreen){
                     c.requestFullscreen();
                 }else if (c.msRequestFullscreen){
-                    c.msRequestFullscreen()
+                    c.msRequestFullscreen();
                 }
             }
             if (Acorn.currentState == 'initialScreen'){
@@ -79,16 +82,18 @@
             }
         },
         exitFullScreen: function(){
-            var c = document.body;
-            if (c.webkitExitFullscreen){
-                c.webkitExitFullscreen();
-            }else if (c.mozCancelFullScreen){
-                c.mozCancelFullScreen();
-            }else if (c.exitFullscreen){
-                c.exitFullscreen();
-            }else if (c.msExitFullscreen){
-                c.msExitFullscreen()
+            if (document.webkitExitFullscreen){
+                document.webkitExitFullscreen();
+            }else if (document.mozCancelFullScreen){
+                document.mozCancelFullScreen();
+            }else if (document.exitFullscreen){
+                document.exitFullscreen();
+            }else if (document.msExitFullscreen){
+                document.msExitFullscreen()
             }
+            document.body.style.overflow = 'hidden';
+            this.scaleToFit = true;
+            Graphics.resize();
         },
         toggleScaleToFit: function(){
             if (this.scaleToFit){

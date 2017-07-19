@@ -93,20 +93,22 @@
             ChatConsole.reset();
         },
 
-        resize: function(){
-            var offset = 25;
+        resize: function(offset){
+            if (typeof offset == 'undefined'){
+                offset = 0;
+            }
             var w;
             var h;
             if (Settings.scaleToFit){
-                h = screen.availHeight - offset;
-                w = screen.availWidth - offset;
+                h = window.innerHeight - offset;
+                w = window.innerWidth - offset;
             }else{
-                if (screen.availWidth/screen.availHeight > this.width/this.height){
-                    h = screen.availHeight - offset;
-                    w = screen.availHeight * (this.width/this.height) - offset;
+                if (window.innerWidth/window.innerHeight > this.width/this.height){
+                    h = window.innerHeight - offset;
+                    w = window.innerHeight * (this.width/this.height) - offset;
                 }else{
-                    w = screen.availWidth - offset;
-                    h = screen.availWidth * (this.height/this.width) - offset;
+                    w = window.innerWidth - offset;
+                    h = window.innerWidth * (this.height/this.width) - offset;
                 }
             }
             this.renderer.view.style.width = w + 'px';
