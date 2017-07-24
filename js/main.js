@@ -1,8 +1,6 @@
 var mouseX, mouseY;
 var buttons = [0,0,0];
 
-var stats;
-
 var now, dt, lastTime;
 
 var requestAnimFrame = (function(){
@@ -64,12 +62,12 @@ $(function() {
         ChatConsole.keyPress(e.which);
     });
 
-    var fsModes = ['webkitfullscreenchange', 'fullscreenchange','msfullscreenchange', 'mozfullscreenchange'];
+    /*var fsModes = ['webkitfullscreenchange', 'fullscreenchange','msfullscreenchange', 'mozfullscreenchange'];
     for (var i = 0; i < fsModes.length;i++){
         document.addEventListener(fsModes[i],function(e){
             Settings.toggleScaleToFit();
         });
-    }
+    }*/
     // Set up keyboard bindings
     $(document).keydown(function(e) {
         var key = e.which;
@@ -301,6 +299,10 @@ function setupSocket() {
       console.log(data);
     });
 
+    Acorn.Net.on('ping', function (data) {
+      Settings.stats.pingReturn();
+    });
+
     console.log("network ready!");
 }
 
@@ -316,15 +318,6 @@ function checkReady() {
 function init() {
     //do some stuff after Graphics and network are initialized
     lastTime = Date.now();
-    
-    /*stats = new Stats();
-    stats.setMode(0);
-    stats.domElement.style.position = 'top';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
-    stats.domElement.style.x = 0;
-    stats.domElement.style.y = 0;
-    document.body.appendChild( stats.domElement );*/
 
     //Init Console
     ChatConsole.init(Acorn.Net.socket_);
@@ -343,13 +336,17 @@ function init() {
 
 function update(){
     requestAnimFrame(update);
-    //stats.begin();
+    Settings.stats.begin();
     now = Date.now();
     dt = (now - lastTime) / 1000.0;
     Acorn.states[Acorn.currentState].update(dt); //update the current state
     Graphics.renderer.render(Graphics.stage);
+    if (Acorn.Input.isPressed(Acorn.Input.Key.TOGGLESTATS)){
+        Settings.toggleStats();
+        Acorn.Input.setValue(Acorn.Input.Key.TOGGLESTATS, false);
+    }
     lastTime = now;
-    //stats.end();
+    Settings.stats.end();
 }
 
 //Set up all states
@@ -506,7 +503,7 @@ Acorn.addState({
         //set up the playerCount
         Player.playerCountCurrent = 0;
         this.playerCount = new PIXI.Text('Players Online: ' + Player.playerCountCurrent , {font: '24px Orbitron', fill: 'white', align: 'left'});
-        this.playerCount.position.x = this.playerCount.width/2 + 5;
+        this.playerCount.position.x = Graphics.width - this.playerCount.width/2 - 5;
         this.playerCount.position.y = Graphics.height - this.playerCount.height/2 - 5;
         this.playerCount.anchor.x = 0.5;
         this.playerCount.anchor.y = 0.5;
@@ -703,7 +700,7 @@ Acorn.addState({
         this.wispLogo.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.wispLogo);
 
-        this.welcome = new PIXI.Text('Welcome to WISP! The game about avoiding shapes with your mouse!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
+        this.welcome = new PIXI.Text('Welcome to WISP! The game about avoiding shapes!' , {font: '40px Orbitron', fill: 0xd9b73, align: 'left'});
         this.welcome.position.x = (Graphics.width / 2);
         this.welcome.position.y = 125;
         this.welcome.anchor.x = 0.5;
@@ -717,7 +714,7 @@ Acorn.addState({
         this.nameDrop.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.nameDrop);
 
-        this.controls = new PIXI.Text('Controls: Use your mouse' , {font: '48px Verdana', fill: 'white', align: 'left'});
+        this.controls = new PIXI.Text('Controls: Use your mouse/touchscreen to guide the wisp' , {font: '48px Verdana', fill: 'white', align: 'left'});
         this.controls.position.x = (Graphics.width / 2);
         this.controls.position.y = (275);
         this.controls.anchor.x = 0.5;
@@ -956,16 +953,38 @@ Acorn.addState({
             Settings.toggleAutoFullScreen();
         });
 
+        this.fitWindow = new PIXI.Text('Fill Window: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.fitWindow.position.x = (Graphics.width / 2);
+        this.fitWindow.position.y = 625;
+        this.fitWindow.anchor.x = 0.5;
+        this.fitWindow.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.fitWindow);
+
+        this.fitWindowX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
+        this.fitWindowX.position.x = (Graphics.width / 2 + 5 + this.fitWindow.width/2 + this.fitWindowX.width/2);
+        this.fitWindowX.position.y = 625;
+        this.fitWindowX.anchor.x = 0.5;
+        this.fitWindowX.anchor.y = 0.5;
+        this.fitWindowX.interactive = true;
+        this.fitWindowX.buttonMode = true;
+        Graphics.uiContainer.addChild(this.fitWindowX);
+        this.fitWindowX.on('click', function onClick(){
+            Settings.toggleScaleToFit();
+        });
+        this.fitWindowX.on('tap', function onClick(){
+            Settings.toggleScaleToFit();
+        });
+
         this.dust = new PIXI.Text('Dust: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.dust.position.x = (Graphics.width / 2);
-        this.dust.position.y = 625;
+        this.dust.position.y = 700;
         this.dust.anchor.x = 0.5;
         this.dust.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.dust);
 
         this.dustX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
         this.dustX.position.x = (Graphics.width / 2 + 5 + this.dust.width/2 + this.dustX.width/2);
-        this.dustX.position.y = 625;
+        this.dustX.position.y = 700;
         this.dustX.anchor.x = 0.5;
         this.dustX.anchor.y = 0.5;
         this.dustX.interactive = true;
@@ -980,14 +999,14 @@ Acorn.addState({
 
         this.trails = new PIXI.Text('Wisp Trails: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.trails.position.x = (Graphics.width / 2);
-        this.trails.position.y = 700;
+        this.trails.position.y = 775;
         this.trails.anchor.x = 0.5;
         this.trails.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.trails);
 
         this.trailsX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
         this.trailsX.position.x = (Graphics.width / 2 + 5 + this.trails.width/2 + this.trailsX.width/2);
-        this.trailsX.position.y = 700;
+        this.trailsX.position.y = 775;
         this.trailsX.anchor.x = 0.5;
         this.trailsX.anchor.y = 0.5;
         this.trailsX.interactive = true;
@@ -998,6 +1017,28 @@ Acorn.addState({
         });
         this.trailsX.on('tap', function onClick(){
             Settings.toggleTrails();
+        });
+
+        this.stats = new PIXI.Text('Show Stats: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.stats.position.x = (Graphics.width / 2);
+        this.stats.position.y = 850;
+        this.stats.anchor.x = 0.5;
+        this.stats.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.stats);
+
+        this.statsX = new PIXI.Text('X' , {font: '40px Verdana', fill: 'black', align: 'left'});
+        this.statsX.position.x = (Graphics.width / 2 + 5 + this.stats.width/2 + this.statsX.width/2);
+        this.statsX.position.y = 850;
+        this.statsX.anchor.x = 0.5;
+        this.statsX.anchor.y = 0.5;
+        this.statsX.interactive = true;
+        this.statsX.buttonMode = true;
+        Graphics.uiContainer.addChild(this.statsX);
+        this.statsX.on('click', function onClick(){
+            Settings.toggleStats();
+        });
+        this.statsX.on('tap', function onClick(){
+            Settings.toggleStats();
         });
 
         //set up the back button
@@ -1023,9 +1064,11 @@ Acorn.addState({
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.muteX,Graphics.worldPrimitives, 14);
+        Graphics.drawBoxAround(this.fitWindowX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.FSX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.dustX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.trailsX,Graphics.worldPrimitives, 14);
+        Graphics.drawBoxAround(this.statsX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.masterBar,Graphics.worldPrimitives);
         Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
         Graphics.worldPrimitives.drawRect(this.masterBar.position.x - this.masterBar._width/2,
@@ -1057,6 +1100,11 @@ Acorn.addState({
         }else{
             this.FSX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
         }
+        if (Settings.scaleToFit){
+            this.fitWindowX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
+        }else{
+            this.fitWindowX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
+        }
         if (Settings.dust){
             this.dustX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
         }else{
@@ -1066,6 +1114,11 @@ Acorn.addState({
             this.trailsX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
         }else{
             this.trailsX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
+        }
+        if (Settings.statsOn){
+            this.statsX.style = {font: '64px Orbitron', fill: 'white', align: 'left'};
+        }else{
+            this.statsX.style = {font: '64px Orbitron', fill: 'black', align: 'left'}
         }
         ChatConsole.update(dt);
     }

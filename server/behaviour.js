@@ -17,7 +17,9 @@ var behaviourEnums = {
     Square: 'square',
     Square2: 'square2',
     Star: 'star',
-    Hexagon: 'hexagon',
+    Pentagon: 'pentagon',
+    Pentagon2: 'pentagon2',
+    PentagonKill: 'pentagonKill',
     Chaos: 'chaos',
     Trapezoid: 'trapezoid',
     Parallelogram: 'parallelogram'
@@ -99,7 +101,7 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
     }
 };
 
-Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
+Behaviour.prototype.pentagon = function(enemy, deltaTime, data){
     if (typeof data.noTarget == 'undefined'){
         data.noTarget = false;
     }
@@ -134,6 +136,57 @@ Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
     }
 };
 
+Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
+    data.update = false;
+    if (!enemy.moveVector){
+        enemy.moveVector = new V(data.moveVec[0],data.moveVec[1]);
+    }
+    if (typeof data.ticker == 'undefined'){
+        data.ticker = 0;
+    }
+    if (typeof data.inPlay == 'undefined'){
+        data.inPlay = false;
+    }
+    data.ticker += deltaTime;
+    if (data.ticker > 1 && !data.inPlay){
+        enemy.squareKill = true;
+        data.inPlay = true;
+        data.update = true;
+    }
+    if (data.inPlay){
+        var Behaviour = require('./behaviour.js').Behaviour;
+        Behaviour.basicMoveTowards(enemy,deltaTime,data);
+    }else{
+        //move
+        enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
+        enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    }
+    if (data.update){
+        enemy.gameSession.queueData('updateEnemyLoc',{id: enemy.id,newPos: [enemy.hitData.pos.x,enemy.hitData.pos.y],newDir: [enemy.moveVector.x,enemy.moveVector.y]});
+    }
+};
+
+Behaviour.prototype.pentagonKill = function(enemy, deltaTime, data){
+    var enemiesAdded = [];
+    var pos = [enemy.hitData.pos.x, enemy.hitData.pos.y];
+    if (data.stage == 1){
+        var vec = new V(0,1);
+        for (var i = 0; i < 12;i++){
+            var e = enemy.gameSession.addEnemy('pent2',{pos:pos, moveVec:[vec.x,vec.y], target: enemy.behaviour.targetId});
+            enemiesAdded.push({type: 'pent2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            vec.rotate(0.523599);
+        }
+    }else if (data.stage == 2){
+        var vec = new V(0,1);
+        for (var i = 0; i < 6;i++){
+            var e = enemy.gameSession.addEnemy('pent3',{pos:pos, moveVec:[vec.x,vec.y], target: enemy.behaviour.targetId});
+            enemiesAdded.push({type: 'pent3', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            vec.rotate(1.0472);
+        }
+    }
+    enemy.gameSession.queueData('addEnemies', {data: enemiesAdded});
+}
+
 Behaviour.prototype.square = function(enemy, deltaTime, data){
     if (typeof data.ticker == 'undefined'){
         data.ticker = 0;
@@ -145,7 +198,7 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
     for (var i in enemy.gameSession.enemies){
         var e = enemy.gameSession.enemies[i];
         var kill = false;
-        if (e.type !== 'sq' && e.type !== 'sq2'){
+        if (e.squareKill){
             //collide?
             if (SAT.testPolygonPolygon(enemy.hitData, e.hitData)){
                 kill = true;
@@ -158,26 +211,8 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
 };
 
 Behaviour.prototype.square2 = function(enemy, deltaTime, data){
-    if (typeof data.ticker == 'undefined'){
-        data.ticker = 0;
-    }
-    data.ticker += deltaTime;
-    if (data.ticker >= 2.0){
-        enemy.active = true;
-    }
-    for (var i in enemy.gameSession.enemies){
-        var e = enemy.gameSession.enemies[i];
-        var kill = false;
-        if (e.type !== 'sq' && e.type !== 'sq2'){
-            //collide?
-            if (SAT.testPolygonPolygon(enemy.hitData, e.hitData)){
-                kill = true;
-            }
-        }
-        if (kill){
-            e.kill = true;
-        }
-    }
+    var Behaviour = require('./behaviour.js').Behaviour;
+    Behaviour.square(enemy,deltaTime, data);
     var update = false;
     if (!enemy.moveVector){
         enemy.moveVector = new SAT.Vector(data.startMove[0] - enemy.hitData.pos.x, data.startMove[1] - enemy.hitData.pos.y).normalize();
@@ -364,8 +399,14 @@ Behaviour.prototype.getBehaviour = function(actionStr){
         case behaviourEnums.Star:
             return Behaviour.star;
             break;
-        case behaviourEnums.Hexagon:
-            return Behaviour.hexagon;
+        case behaviourEnums.Pentagon:
+            return Behaviour.pentagon;
+            break;
+        case behaviourEnums.Pentagon2:
+            return Behaviour.pentagon2;
+            break;
+        case behaviourEnums.PentagonKill:
+            return Behaviour.pentagonKill;
             break;
         case behaviourEnums.Chaos:
             return Behaviour.chaos;

@@ -7,7 +7,8 @@ var behaviourEnums = {
     BasicMoveTowards: 'basicMoveTowards',
     Square: 'square',
     Square2: 'square2',
-    Hexagon: 'hexagon',
+    Pentagon: 'pentagon',
+    Pentagon2: 'pentagon2',
     Star: 'star',
     Chaos: 'chaos',
     Trapezoid: 'trapezoid',
@@ -42,6 +43,9 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
     if (typeof data.acceleration == 'undefined'){
         data.acceleration = new SAT.Vector(0,0);
     }
+    if (typeof data.rotate == 'undefined'){
+        data.rotate = true;
+    }
     try{    
         var xDist;
         var yDist;
@@ -71,7 +75,9 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
 
             //point towards target
             var hyp = Math.sqrt(xDist*xDist+yDist*yDist);
-            enemy.sprite.rotation = Math.atan2(yDist,xDist)+1.5;
+            if (data.rotate){
+                enemy.sprite.rotation = Math.atan2(yDist,xDist)+1.5;
+            }
         }
     }catch(e){
         //console.log('Error with basic move behaviour');
@@ -82,7 +88,21 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
-Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
+Behaviour.prototype.pentagon = function(enemy, deltaTime, data){
+    if (typeof data.colorShift == 'undefined'){
+        data.colorShift = {
+            r: 255,
+            g: 0,
+            b: 0,
+            phase: 1,
+            speed: 3.0
+        };
+    }
+    Utils.colorShifter2(data.colorShift);
+    var c = '0x' + Utils.componentToHex(Math.round(data.colorShift.r)) + Utils.componentToHex(Math.round(data.colorShift.g)) + Utils.componentToHex(Math.round(data.colorShift.b));
+    parseInt(c);
+    enemy.sprite.tint = c;
+
     try{
         var target;
         if (data.targetId == Player.id){
@@ -111,7 +131,38 @@ Behaviour.prototype.hexagon = function(enemy, deltaTime, data){
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
 };
 
+Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
+    if (typeof data.colorShift == 'undefined'){
+        data.colorShift = {
+            r: 255,
+            g: 0,
+            b: 0,
+            phase: 1,
+            speed: 3.0
+        };
+    }
+    Utils.colorShifter2(data.colorShift);
+    var c = '0x' + Utils.componentToHex(Math.round(data.colorShift.r)) + Utils.componentToHex(Math.round(data.colorShift.g)) + Utils.componentToHex(Math.round(data.colorShift.b));
+    parseInt(c);
+    enemy.sprite.tint = c;
 
+    if (!enemy.moveVector){
+        enemy.moveVector = new SAT.Vector(data.moveVec[0],data.moveVec[1]);
+    }
+    if (typeof data.ticker == 'undefined'){
+        data.ticker = 0;
+    }
+    data.ticker += deltaTime;
+    if (data.ticker > 1){
+        data.rotate = false;
+        Behaviour.basicMoveTowards(enemy,deltaTime,data);
+    }else{
+        //move
+        enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
+        enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    }
+    
+};
 
 Behaviour.prototype.square = function(enemy, deltaTime, data){
     if (typeof data.alphaTicker == 'undefined'){
@@ -123,18 +174,25 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
         data.alphaTicker = 1;
     }
     data.alphaTicker += (deltaTime/2);
+
+    /*
+    for (var i in Enemies.enemyList){
+        var e = enemy.gameSession.enemies[i];
+        var kill = false;
+        if (e.type !== 'sq' && e.type !== 'sq2'){
+            //collide?
+            if (SAT.testPolygonPolygon(enemy.hitData, e.hitData)){
+                kill = true;
+            }
+        }
+        if (kill){
+            e.kill = true;
+        }
+    }*/
 };
 
 Behaviour.prototype.square2 = function(enemy, deltaTime, data){
-    if (typeof data.alphaTicker == 'undefined'){
-        data.alphaTicker = 0.0;
-    }
-    if (data.alphaTicker < 1){
-        enemy.sprite.alpha = data.alphaTicker;
-    }else{
-        data.alphaTicker = 1;
-    }
-    data.alphaTicker += (deltaTime/2);
+    Behaviour.square(enemy, deltaTime, data);
 
     if (!enemy.moveVector){
         enemy.moveVector = new SAT.Vector(data.startMove[0] -enemy.sprite.position.x, data.startMove[1] -enemy.sprite.position.y).normalize();
@@ -294,8 +352,11 @@ Behaviour.prototype.getBehaviour = function(actionStr){
         case behaviourEnums.Star:
             return Behaviour.star;
             break;
-        case behaviourEnums.Hexagon:
-            return Behaviour.hexagon;
+        case behaviourEnums.Pentagon:
+            return Behaviour.pentagon;
+            break;
+        case behaviourEnums.Pentagon2:
+            return Behaviour.pentagon2;
             break;
         case behaviourEnums.Chaos:
             return Behaviour.chaos;

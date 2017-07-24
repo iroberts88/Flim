@@ -210,6 +210,45 @@
                     newEnemy.sprite.position.y = data.y;
                     newEnemy.sprite.tint = 0x993333;
                     break;
+                case "pent":
+                    //pentagon
+                    newEnemy.speed = 500;
+                    newEnemy.behaviour = data.behaviour;
+                    newEnemy.sprite = Graphics.getSprite('pentagon');
+                    newEnemy.sprite.scale.x = (48/64);
+                    newEnemy.sprite.scale.y = (48/64);
+                    newEnemy.sprite.anchor.x = 0.5;
+                    newEnemy.sprite.anchor.y = 0.5;
+                    newEnemy.sprite.position.x = data.x;
+                    newEnemy.sprite.position.y = data.y;
+                    newEnemy.sprite.tint = 0xFFFFFF;
+                    break;
+                case "pent2":
+                    //pentagon2
+                    newEnemy.speed = 450;
+                    newEnemy.behaviour = data.behaviour;
+                    newEnemy.sprite = Graphics.getSprite('pentagon');
+                    newEnemy.sprite.scale.x = (32/64);
+                    newEnemy.sprite.scale.y = (32/64);
+                    newEnemy.sprite.anchor.x = 0.5;
+                    newEnemy.sprite.anchor.y = 0.5;
+                    newEnemy.sprite.position.x = data.x;
+                    newEnemy.sprite.position.y = data.y;
+                    newEnemy.sprite.tint = 0xFFFFFF;
+                    break;
+                case "pent3":
+                    //pentagon3
+                    newEnemy.speed = 400;
+                    newEnemy.behaviour = data.behaviour;
+                    newEnemy.sprite = Graphics.getSprite('pentagon');
+                    newEnemy.sprite.scale.x = (16/64);
+                    newEnemy.sprite.scale.y = (16/64);
+                    newEnemy.sprite.anchor.x = 0.5;
+                    newEnemy.sprite.anchor.y = 0.5;
+                    newEnemy.sprite.position.x = data.x;
+                    newEnemy.sprite.position.y = data.y;
+                    newEnemy.sprite.tint = 0xFFFFFF;
+                    break;
             }
             newEnemy.outsideScreenTri = Graphics.getSprite('triangle');
             newEnemy.outsideScreenTri.scale.x = this.triSize/64;

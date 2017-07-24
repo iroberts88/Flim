@@ -24,12 +24,17 @@ Enemy = function(){
             this.active = false;
             this.kill = false;
             this.scoreBase = data.scoreBase;
-
+            this.squareKill = data.squareKill;
             this.speed = data.speed;
             this.behaviour = data.behaviour;
             this.bFunc = Behaviour.getBehaviour(this.behaviour.name);
             this.killToStartNextEvent = data.killToStartNextEvent;
             this.type = data.type;
+            if (data.killFunc){
+                this.killFunc = data.killFunc;
+            }else{
+                this.killFunc = null;
+            }
             if (data.radius){
                 this.hitData = new P(new V(data.pos[0], data.pos[1]),   [new V(Math.round(-.8*data.radius),Math.round(-.8*data.radius)),
                                                                          new V(Math.round(-.8*data.radius),Math.round(.8*data.radius)),

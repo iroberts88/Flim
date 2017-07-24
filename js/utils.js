@@ -65,6 +65,26 @@
                     break;
             }
         },
+        colorShifter2: function(data){
+            switch(data.phase){
+                case 1:
+                    if (data.g >= 255){
+                        data.phase = 2;
+                        data.g = 255;
+                    }else{
+                        data.g += data.speed;
+                    }
+                    break;
+                case 2:
+                    if (data.g <= 0){
+                        data.phase = 1;
+                        data.g = 0;
+                    }else{
+                        data.g -= data.speed;
+                    }
+                    break;
+            }
+        },
         componentToHex: function(c){
             var hex = c.toString(16);
             return hex.length == 1 ? "0" + hex : hex;

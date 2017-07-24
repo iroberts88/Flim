@@ -199,6 +199,14 @@ Player = function(){
                         commandBool = true;
                         console.log('log');
                         break;
+                    case 'ping':
+                        commandBool = true;
+                        if (!that.gameSession){
+                            that.gameEngine.queuePlayer(that,"ping", {});
+                        }else{
+                            that.gameSession.queuePlayer(that,"ping", {});
+                        }
+                        break;
                 }
                 if (!commandBool && c != ''){
                     that.gameSession.queueData("say", {playerId: that.id,text: c});

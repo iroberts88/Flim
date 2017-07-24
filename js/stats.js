@@ -7,12 +7,13 @@ var Stats = function () {
     var startTime = Date.now(), prevTime = startTime;
     var ms = 0, msMin = Infinity, msMax = 0;
     var fps = 0, fpsMin = Infinity, fpsMax = 0;
+    var ping = 0, pingTimeStart = 0, pingTotal = 0, pingTotalNum = 0, pingAvg = 0, pingMin = Infinity, pingMax = 0;
     var frames = 0, mode = 0;
 
     var container = document.createElement( 'div' );
     container.id = 'stats';
-    container.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); setMode( ++ mode % 2 ) }, false );
-    container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer';
+    container.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); modeSwitch( ++ mode % 4 ) }, false );
+    container.style.cssText = 'width:120px;opacity:0.9;cursor:pointer';
 
     var fpsDiv = document.createElement( 'div' );
     fpsDiv.id = 'fps';
@@ -27,16 +28,16 @@ var Stats = function () {
 
     var fpsGraph = document.createElement( 'div' );
     fpsGraph.id = 'fpsGraph';
-    fpsGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#0ff';
+    fpsGraph.style.cssText = 'position:relative;width:114px;height:30px;background-color:#0ff';
     fpsDiv.appendChild( fpsGraph );
 
-    while ( fpsGraph.children.length < 74 ) {
+    while ( fpsGraph.children.length < 114 ) {
 
         var bar = document.createElement( 'span' );
         bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#113';
         fpsGraph.appendChild( bar );
 
-    }
+    };
 
     var msDiv = document.createElement( 'div' );
     msDiv.id = 'ms';
@@ -51,18 +52,43 @@ var Stats = function () {
 
     var msGraph = document.createElement( 'div' );
     msGraph.id = 'msGraph';
-    msGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#0f0';
+    msGraph.style.cssText = 'position:relative;width:114px;height:30px;background-color:#0f0';
     msDiv.appendChild( msGraph );
 
-    while ( msGraph.children.length < 74 ) {
+    while ( msGraph.children.length < 114 ) {
 
         var bar = document.createElement( 'span' );
         bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#131';
         msGraph.appendChild( bar );
 
-    }
+    };
 
-    var setMode = function ( value ) {
+    var pingDiv = document.createElement( 'div' );
+    pingDiv.id = 'ping';
+    pingDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#200;display:none';
+    container.appendChild( pingDiv );
+
+    var pingText = document.createElement( 'div' );
+    pingText.id = 'pingText';
+    pingText.style.cssText = 'color:#f00;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+    pingText.innerHTML = 'PING';
+    pingDiv.appendChild( pingText );
+
+    var pingGraph = document.createElement( 'div' );
+    pingGraph.id = 'pingGraph';
+    pingGraph.style.cssText = 'position:relative;width:114px;height:30px;background-color:#f00';
+    pingDiv.appendChild( pingGraph );
+
+    while ( pingGraph.children.length < 114 ) {
+
+        var bar = document.createElement( 'span' );
+        bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#311';
+        pingGraph.appendChild( bar );
+
+    };
+
+
+    var modeSwitch = function ( value ) {
 
         mode = value;
 
@@ -71,10 +97,22 @@ var Stats = function () {
             case 0:
                 fpsDiv.style.display = 'block';
                 msDiv.style.display = 'none';
+                pingDiv.style.display = 'none';
                 break;
             case 1:
                 fpsDiv.style.display = 'none';
+                msDiv.style.display = 'none';
+                pingDiv.style.display = 'block';
+                break;
+            case 2:
+                fpsDiv.style.display = 'none';
                 msDiv.style.display = 'block';
+                pingDiv.style.display = 'none';
+                break;
+            case 3:
+                fpsDiv.style.display = 'block';
+                msDiv.style.display = 'block';
+                pingDiv.style.display = 'block';
                 break;
         }
 
@@ -93,7 +131,7 @@ var Stats = function () {
 
         domElement: container,
 
-        setMode: setMode,
+        modeSwitch: modeSwitch,
 
         begin: function () {
 
@@ -115,7 +153,7 @@ var Stats = function () {
             frames ++;
 
             if ( time > prevTime + 1000 ) {
-
+                //update FPS
                 fps = Math.round( ( frames * 1000 ) / ( time - prevTime ) );
                 fpsMin = Math.min( fpsMin, fps );
                 fpsMax = Math.max( fpsMax, fps );
@@ -126,12 +164,32 @@ var Stats = function () {
                 prevTime = time;
                 frames = 0;
 
-            }
+                //update PING
+                Acorn.Net.socket_.emit('clientCommand',{command: 'ping'});
+                pingTimeStart = Date.now();
+                pingMin = Math.min( pingMin, ping );
+                pingMax = Math.max( pingMax, ping );
+
+                pingText.textContent = ping + ' PING (' + pingMin + '-' + pingMax + ')(' + pingAvg + ')';
+                updateGraph( pingGraph, Math.min( 30, 30 - ( ping / 200 ) * 30 ) );
+            };
 
             return time;
 
         },
 
+        pingReturn: function(){
+            ping = Math.round(Date.now()-pingTimeStart);
+            pingTotal += ping;
+            pingTotalNum += 1;
+            pingAvg = Math.round(pingTotal/pingTotalNum);
+        },
+        getMode: function(){
+            return mode;
+        },
+        setMode: function(m){
+            mode = m;
+        },
         update: function () {
 
             startTime = this.end();

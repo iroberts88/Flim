@@ -111,6 +111,8 @@
                     h = window.innerWidth * (this.height/this.width) - offset;
                 }
             }
+            var pos = Math.round(window.innerWidth/2 - (parseInt(Settings.stats.domElement.style.width.substring(0,3))/2));
+            Settings.stats.domElement.style.left = pos + 'px';
             this.renderer.view.style.width = w + 'px';
             this.renderer.view.style.height = h + 'px';
             this.actualRatio = [w/this.baseWidth,h/this.baseHeight];
@@ -171,7 +173,8 @@
                 'triangle',
                 'hexagon',
                 'trapezoid',
-                'parallelogram'
+                'parallelogram',
+                'pentagon'
             ];
 
             //add all textures to resources

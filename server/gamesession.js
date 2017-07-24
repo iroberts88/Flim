@@ -64,7 +64,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
             break;
         case 'coop':
-            this.maxPlayers = 4;
+            this.maxPlayers = 2;
             this.minPlayers = 2;
             this.gameModeManager.init({
                 timePerEvent: 40,
@@ -94,7 +94,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayerCoop;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayersCoop;
             this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
-            this.level = 1111;
+            this.level = 303;
             break;
         case 'vs':
             this.maxPlayers = 2;
@@ -232,6 +232,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 10;
+            eData.squareKill = true;
             break;
         case 'star':
             //bouncing star
@@ -252,6 +253,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.radius = 20;
             eData.killToStartNextEvent = false;
             eData.scoreBase = 0;
+            eData.squareKill = false;
             break;
         case 'hex':
             //hexagon
@@ -261,6 +263,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 5;
+            eData.squareKill = true;
             break;
         case "tri":
             //slow circle
@@ -270,6 +273,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 4;
+            eData.squareKill = true;
             break;
         case "c1":
             //slow circle
@@ -279,6 +283,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 1;
+            eData.squareKill = true;
             break;
         case "c2":
             //med circle
@@ -288,6 +293,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 2;
+            eData.squareKill = true;
             break;
         case "c3":
             //fast circle
@@ -297,6 +303,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
             eData.scoreBase = 3;
+            eData.squareKill = true;
             break;
         case "sq":
             //square
@@ -306,6 +313,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.hitBoxSize = [60,60];
             eData.pos = [200 + Math.round(Math.random()*1520), 200 + Math.round(Math.random()*680)];
             eData.scoreBase = 1;
+            eData.squareKill = false;
             break;
         case "sq2":
             //square
@@ -326,6 +334,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             }
             eData.behaviour = {name: 'square2', startMove: [x,y]};
             eData.scoreBase = 1;
+            eData.squareKill = false;
             break;
         case "trap":
             //trapezoid
@@ -334,6 +343,7 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = false;
             eData.hd = {pos: data.pos,points:[[-32,-32],[-64,32],[64,32],[32,-32]]};
             eData.scoreBase = 1;
+            eData.squareKill = true;
             break;
         case "par":
             //parallelogram
@@ -342,6 +352,41 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             eData.killToStartNextEvent = true;
             eData.hd = {pos: data.pos,points:[[-64,-64],[-128,64],[64,64],[128,-64]]};
             eData.scoreBase = 1;
+            eData.squareKill = true;
+            break;
+        case "pent":
+            //pentagon
+            eData.speed = 500;
+            eData.behaviour = {name: 'pentagon', targetId: data.target};
+            eData.killFunc = {name: 'pentagonKill', stage: 1};
+            eData.radius = 20;
+            eData.killToStartNextEvent = true;
+            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
+            eData.scoreBase = 5;
+            eData.squareKill = true;
+            break;
+        case "pent2":
+            //pentagon
+            eData.speed = 450;
+            eData.behaviour = {name: 'pentagon2', spring: 3.5, targetId: data.target,moveVec:data.moveVec};
+            eData.killFunc = {name: 'pentagonKill', stage: 2};
+            eData.radius = 12;
+            eData.killToStartNextEvent = true;
+            eData.pos = data.pos;
+            eData.moveVec = data.moveVec;
+            eData.scoreBase = 5;
+            eData.squareKill = false;
+            break;
+        case "pent3":
+            //pentagon
+            eData.speed = 400;
+            eData.behaviour = {name: 'pentagon2', spring: 3.5, targetId: data.target,moveVec:data.moveVec};
+            eData.radius = 8;
+            eData.killToStartNextEvent = true;
+            eData.pos = data.pos;
+            eData.moveVec = data.moveVec;
+            eData.scoreBase = 5;
+            eData.squareKill = false;
             break;
     }
     e.setGameSession(this);

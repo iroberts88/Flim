@@ -53,6 +53,7 @@
             INTERACT: 8,
             RELOAD: 9,
             TOGGLEMAP: 10,
+            TOGGLESTATS: 11
         },
         keysPressed: [],
         keyBindings: [],
@@ -80,7 +81,7 @@
             this.keyBindings[87] = Acorn.Input.Key.UP; //default W
             this.keyBindings[65] = Acorn.Input.Key.LEFT; //default D
             this.keyBindings[68] = Acorn.Input.Key.RIGHT; //default A
-            this.keyBindings[32] = Acorn.Input.Key.INVENTORY; //default Space
+            this.keyBindings[32] = Acorn.Input.Key.TOGGLESTATS; //default Space
             this.keyBindings[67] = Acorn.Input.Key.CHARSHEET; //default C
             this.keyBindings[69] = Acorn.Input.Key.INTERACT; //default E
             this.keyBindings[81] = Acorn.Input.Key.SWAPWEAP; //default Q

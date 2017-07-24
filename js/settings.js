@@ -11,10 +11,12 @@
         dust: null,
         trails: null,
         autoFullScreen: null,
+        stats: null,
+        statsOn: null,
 
         init: function() {
         	//Working
-            this.scaleToFit = false; //scale to fit screen size
+            this.scaleToFit = true; //scale to fit screen size
             this.mute = false;
             this.masterVolume = 1.0;
             this.musicVolume = 1.0;
@@ -22,6 +24,12 @@
 
             this.autoFullScreen = false;
 
+            this.stats = new Stats();
+            this.stats.setMode(0);
+            this.stats.domElement.style.position = 'absolute';
+            this.stats.domElement.style.left = '0px';
+            this.stats.domElement.style.top = '0px';
+            this.statsOn = false;
             this.dust = true;
             this.trails = true;
         },
@@ -37,6 +45,22 @@
                 this.trails = false;
             }else{
                 this.trails = true;
+            }
+        },
+        toggleStats: function(){
+            if (this.statsOn){
+                var mode = this.stats.getMode();
+                if (mode == 3){
+                    this.stats.setMode(0);
+                    this.statsOn = false;
+                    document.body.removeChild( this.stats.domElement );
+                }else{
+                    this.stats.modeSwitch( ++ mode % 4 );
+                    this.stats.setMode(mode);
+                }
+            }else{
+                this.statsOn = true;
+                document.body.appendChild( this.stats.domElement );
             }
         },
         toggleViewBump: function(){
@@ -69,7 +93,7 @@
                 var c = document.body;
                 if (c.webkitRequestFullScreen){
                     c.webkitRequestFullScreen();
-                }else if (c.webkitRequestFullScreen){
+                }else if (c.mozRequestFullScreen){
                     c.mozRequestFullScreen();
                 }else if (c.requestFullscreen){
                     c.requestFullscreen();
@@ -92,7 +116,6 @@
                 document.msExitFullscreen()
             }
             document.body.style.overflow = 'hidden';
-            this.scaleToFit = true;
             Graphics.resize();
         },
         toggleScaleToFit: function(){

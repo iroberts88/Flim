@@ -51,6 +51,9 @@
             if (key === 13){if (ChatConsole.active === true){
                     ChatConsole.active = false;
                     ChatConsole.textSprite.visible = false;
+                    if (ChatConsole.string == 'ping'){
+                        Player.pingTime = Date.now();
+                    }
                     Acorn.Net.socket_.emit('clientCommand',{command: ChatConsole.string});
                     ChatConsole.string = '';
                     ChatConsole.textSprite.text = '>';

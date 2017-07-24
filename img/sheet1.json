@@ -2,7 +2,7 @@
 
 "circle.png":
 {
-	"frame": {"x":588,"y":2,"w":62,"h":62},
+	"frame": {"x":654,"y":2,"w":62,"h":62},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":62,"h":62},
@@ -11,7 +11,7 @@
 },
 "heart.png":
 {
-	"frame": {"x":523,"y":2,"w":63,"h":62},
+	"frame": {"x":589,"y":2,"w":63,"h":62},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":63,"h":62},
@@ -34,6 +34,15 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":127,"h":64},
 	"sourceSize": {"w":128,"h":64},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"pentagon.png":
+{
+	"frame": {"x":523,"y":2,"w":64,"h":63},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":63},
+	"sourceSize": {"w":64,"h":64},
 	"pivot": {"x":0.5,"y":0.5}
 },
 "square.png":
@@ -77,8 +86,8 @@
 	"version": "1.0",
 	"image": "sheet1.png",
 	"format": "RGBA8888",
-	"size": {"w":652,"h":68},
+	"size": {"w":718,"h":68},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:7e8241d025b2584738bc7aacb2f6f9ca:dd413a4bfc63401f3125b72db9581ba9:81b8455959c6df0a71f2d78f10f487eb$"
+	"smartupdate": "$TexturePacker:SmartUpdate:ab448ee021676c16a27149861ed31945:b68c72697c33be0737b9750c2dd7cdf0:81b8455959c6df0a71f2d78f10f487eb$"
 }
 }
