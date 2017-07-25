@@ -16,23 +16,30 @@ function init() {
     // ----------------------------------------------------------
     // Start Database Connection
     // ----------------------------------------------------------
-    var url = 'mongodb://127.0.0.1/dungeon';
+    var url = 'mongodb://127.0.0.1/wisp';
     rc.ready();
     //TODO -- update to a new database
-    //rc.require('dbEnemies');
+    rc.require('dbHighScores','dbUsers');
 
-    // Use connect method to connect to the Server
-    /*mongo.connect(url, function(err, db) {
+    // Use connect method to connect to the DB
+    mongo.connect(url, function(err, db) {
         console.log("Connected to db");
         console.log("DB errors: " + err);
         
-        // ---- Load Enemies ----
-        var enemiesColl = db.collection('enemies');
-        enemiesColl.find().toArray(function(err, arr) {
-            ge.loadEnemies(arr);
-            rc.ready('dbEnemies');
+        // ---- Load HighScores ----
+        var HSColl = db.collection('highScores');
+        HSColl.find().toArray(function(err, arr) {
+            ge.loadHighScores(arr);
+            rc.ready('dbHighScores');
         });
-    });*/
+
+        // ---- Load Userbase ----
+        var usersColl = db.collection('users');
+        usersColl.find().toArray(function(err, arr) {
+            ge.loadUsers(arr);
+            rc.ready('dbUsers');
+        });
+    });
 }
 
 init();

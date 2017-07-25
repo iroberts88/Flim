@@ -52,6 +52,7 @@
                 var mode = this.stats.getMode();
                 if (mode == 3){
                     this.stats.setMode(0);
+                    this.stats.modeSwitch(0);
                     this.statsOn = false;
                     document.body.removeChild( this.stats.domElement );
                 }else{

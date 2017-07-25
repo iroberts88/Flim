@@ -2,8 +2,9 @@
 //player.js
 //----------------------------------------------------------------
 
-var SAT = require('./SAT.js'); //SAT POLYGON COLLISSION1
-var Unit = require('./unit.js').Unit;
+var SAT = require('./SAT.js'), //SAT POLYGON COLLISSION1
+    Unit = require('./unit.js').Unit,
+    mongo = require('mongodb').MongoClient;
 
 var P = SAT.Polygon;
 var V = SAT.Vector;
@@ -241,6 +242,76 @@ Player = function(){
                 }else if (data.stars){
                     that.gameEngine.singlePlayerSession(that, 'star');
                 }
+            }
+        });
+
+        this.socket.on('loginAttempt', function (data) {
+            console.log(data);
+            if (!that.gameSession){
+                var url = 'mongodb://127.0.0.1/wisp';
+                if (data.guest){
+                    that.gameEngine.queuePlayer(that,"loggedIn", {userInfo:{name: 'guest'}});
+                }else if (data.sn && data.pw){
+                    var url = 'mongodb://127.0.0.1/wisp'; 
+                    data.sn = data.sn.toLowerCase();
+                    mongo.connect(url, function(err, db) {
+                        // ---- Attemp to find existing user ----
+                        var query = { userName: data.sn };
+                        db.collection('users').find(query).toArray(function(err, arr) {
+                            if (arr.length == 1 && data.pw == arr[0].password){
+                                that.gameEngine.queuePlayer(that,"loggedIn", {userInfo:{name: data.sn}});
+                            }
+                        });
+                    });
+                }
+            }
+        });
+        //TODO - set player variable to show they are logged in
+        //on the client - catch "loggedIn" and move to the main menu, display stats, add logout button
+        this.socket.on('createUser', function (data) {
+            if (!that.gameSession && data.sn && data.pw){
+                var url = 'mongodb://127.0.0.1/wisp'; 
+                data.sn = data.sn.toLowerCase();
+                mongo.connect(url, function(err, db) {
+                    
+                    // ---- Attemp to create new user ----
+                    var query = { userName: data.sn };
+                    db.collection('users').find(query).toArray(function(err, arr) {
+                        if (err) throw err;
+                        //user does not exist
+                        if (data.sn.length >= 3 && data.sn.length <= 16 && data.pw.length >= 8 && data.pw.length <= 16 && arr.length == 0){
+                            console.log('valid account info - creating account');
+                            var u = {
+                                userName: data.sn,
+                                password: data.pw,
+                                stats: {
+                                    soloGamesPlayed : 0,
+                                    coopGamesPlayed : 0,
+                                    vsGamesPlayed : 0,
+                                    starsGamesPlayed : 0,
+                                    soloHighScore : 0,
+                                    coopHighScore : 0,
+                                    vsGamesWon : 0,
+                                    starsLongestGame : 0,
+                                    soloLevelRecord : 0
+                                },
+                                chatLog: [],
+                                admin: false,
+                                createDate: Date.now(),
+                                lastLogin: Date.now()
+                            };
+                            db.collection('users').insertOne(u, function(err, res) {
+                                if (err) throw err;
+                                console.log("added user: " + data.sn);
+                            });
+                            that.gameEngine.queuePlayer(that,"loggedIn", {userInfo:{name: data.sn}});
+                        }else{
+                            console.log('invalid account info');
+                        }
+                        db.close();
+                    });
+
+                });
             }
         });
 

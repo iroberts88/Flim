@@ -212,21 +212,24 @@
                 console.log('-- Graphics resource not found' )
             }
 		},
-        drawBoxAround: function(sprite,g, ybuffer){
+        drawBoxAround: function(sprite,g, ybuffer,xbuffer){
             //draws a box around sprite in
             //g = graphics container
             if (typeof ybuffer == 'undefined'){
                 ybuffer = 0;
             }
+            if (typeof xbuffer == 'undefined'){
+                xbuffer = 0;
+            }
             Utils.colorShifter(this.colorShift);
             var c = '0x' + Utils.componentToHex(Math.round(this.colorShift.r)) + Utils.componentToHex(Math.round(this.colorShift.g)) + Utils.componentToHex(Math.round(this.colorShift.b));
             parseInt(c);
             g.lineStyle(2,c,1);
-            g.moveTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
-            g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
-            g.lineTo(sprite.position.x + sprite.width/2,sprite.position.y + sprite.height/2 - ybuffer);
-            g.lineTo(sprite.position.x - sprite.width/2,sprite.position.y + sprite.height/2 - ybuffer);
-            g.lineTo(sprite.position.x - sprite.width/2,sprite.position.y - sprite.height/2 + ybuffer);
+            g.moveTo(sprite.position.x - sprite.width/2 + xbuffer,sprite.position.y - sprite.height/2 + ybuffer);
+            g.lineTo(sprite.position.x + sprite.width/2 - xbuffer,sprite.position.y - sprite.height/2 + ybuffer);
+            g.lineTo(sprite.position.x + sprite.width/2 - xbuffer,sprite.position.y + sprite.height/2 - ybuffer);
+            g.lineTo(sprite.position.x - sprite.width/2 + xbuffer,sprite.position.y + sprite.height/2 - ybuffer);
+            g.lineTo(sprite.position.x - sprite.width/2 + xbuffer,sprite.position.y - sprite.height/2 + ybuffer);
         }
     };
 

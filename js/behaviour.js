@@ -153,7 +153,7 @@ Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
         data.ticker = 0;
     }
     data.ticker += deltaTime;
-    if (data.ticker > 1){
+    if (data.ticker > .5){
         data.rotate = false;
         Behaviour.basicMoveTowards(enemy,deltaTime,data);
     }else{

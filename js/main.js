@@ -330,7 +330,7 @@ function init() {
 
     Graphics.showLoadingMessage(false);
     console.log('Loading Complete');
-    Acorn.changeState('mainMenu');
+    Acorn.changeState('loginScreen');
     update();
 }
 
@@ -355,11 +355,10 @@ function update(){
 //-----------------------------------------------------------------------------------------------|
 
 //Initial State
-//TODO might not use this?
 Acorn.addState({
-    stateId: 'initialScreen',
+    stateId: 'loginScreen',
     init: function(){
-        console.log('Initializing initial screen');
+        console.log('Initializing login screen');
         document.body.style.cursor = 'default';
         Graphics.clear();
         Player.gameEnded = false;
@@ -370,14 +369,68 @@ Acorn.addState({
         this.wispLogo.anchor.y = 0.5;
         Graphics.uiContainer.addChild(this.wispLogo);
 
-        this.clickText = new PIXI.Text('click/tap to begin' , {font: '100px Orbitron', fill: 'white', align: 'left'});
-        this.clickText.position.x = (Graphics.width / 2);
-        this.clickText.position.y = (Graphics.height / 2);
-        this.clickText.anchor.x = 0.5;
-        this.clickText.anchor.y = 0.5;
-        Graphics.uiContainer.addChild(this.clickText);
+        this.guestText = new PIXI.Text('PLAY AS GUEST', {font: '65px Orbitron', fill: 'white', align: 'left'});
+        this.guestText.position.x = (Graphics.width / 2 - this.guestText.width);
+        this.guestText.position.y = (Graphics.height * .75);
+        this.guestText.anchor.x = 0.5;
+        this.guestText.anchor.y = 0.5;
+        this.guestText.interactive = true;
+        this.guestText.buttonMode = true;
+        Graphics.uiContainer.addChild(this.guestText);
+
+        this.guestText.on('click', function onClick(){
+            Acorn.Net.socket_.emit('loginAttempt',{guest: true});
+        });
+        this.guestText.on('tap', function onClick(){
+            Acorn.Net.socket_.emit('loginAttempt',{guest: true});
+        });
+
+        this.loginText = new PIXI.Text('          LOGIN          ', {font: '65px Orbitron', fill: 'white', align: 'left'});
+        this.loginText.position.x = (Graphics.width / 2 + this.loginText.width);
+        this.loginText.position.y = (Graphics.height * .75);
+        this.loginText.anchor.x = 0.5;
+        this.loginText.anchor.y = 0.5;
+        this.loginText.interactive = true;
+        this.loginText.buttonMode = true;
+        Graphics.uiContainer.addChild(this.loginText);
+
+        this.newUser = new PIXI.Text('     New User     ', {font: '65px Orbitron', fill: 'white', align: 'left'});
+        this.newUser.position.x = (Graphics.width / 2);
+        this.newUser.position.y = (Graphics.height * .9);
+        this.newUser.anchor.x = 0.5;
+        this.newUser.anchor.y = 0.5;
+        this.newUser.interactive = true;
+        this.newUser.buttonMode = true;
+        Graphics.uiContainer.addChild(this.newUser);
+
+        this.loginClicked = false;
+
+        this.loginText.on('click', function onClick(){
+            var userName = window.prompt("Enter your Username: ",'');
+            var password = window.prompt("Enter your Password: ", '');
+            Acorn.Net.socket_.emit('loginAttempt',{sn: userName,pw:password});
+        });
+        this.loginText.on('tap', function onClick(){
+            var userName = window.prompt("Enter your Username: ",'');
+            var password = window.prompt("Enter your Password: ", '');
+            Acorn.Net.socket_.emit('loginAttempt',{sn: userName,pw:password});
+        });
+        this.newUser.on('click', function onClick(){
+            var userName = window.prompt("Enter a user name between 3 and 16 characters: ",'');
+            var password = window.prompt("Enter a password between 8 and 16 characters: ", '');
+            Acorn.Net.socket_.emit('createUser',{sn: userName,pw:password});
+        });
+        this.newUser.on('tap', function onClick(){
+            var userName = window.prompt("Enter a user name between 3 and 16 characters: ",'');
+            var password = window.prompt("Enter a password between 8 and 16 characters: ", '');
+            Acorn.Net.socket_.emit('createUser',{sn: userName,pw:password});
+        });
     },
     update: function(dt){
+        Graphics.worldPrimitives.clear();
+        Graphics.drawBoxAround(this.loginText,Graphics.worldPrimitives,-5,-5);
+        Graphics.drawBoxAround(this.guestText,Graphics.worldPrimitives,-5,-5);
+        Graphics.drawBoxAround(this.newUser,Graphics.worldPrimitives,-5,-5);
         ChatConsole.update(dt);
     }
 });
@@ -408,11 +461,14 @@ Acorn.addState({
         this.singlePlayerButton.on('click', function onClick(){
             Acorn.Net.socket_.emit('join',{solo: true});
             Acorn.changeState('joiningGame');
+            Acorn.Sound.play('flim');
         });
         this.singlePlayerButton.on('tap', function onClick(){
             Acorn.Net.socket_.emit('join',{solo: true});
             Acorn.changeState('joiningGame');
+            Acorn.Sound.play('flim');
         });
+
 
         //set up the Co-op button
         this.multiPlayerButton = new PIXI.Text('CO-OP' , {font: '64px Audiowide', fill: 'white', align: 'center'});
@@ -426,10 +482,12 @@ Acorn.addState({
         this.multiPlayerButton.on('click', function onClick(){
             Acorn.Net.socket_.emit('join',{coop: true});
             Acorn.changeState('joiningGame');
+            Acorn.Sound.play('flim');
         });
         this.multiPlayerButton.on('tap', function onClick(){
             Acorn.Net.socket_.emit('join',{coop: true});
             Acorn.changeState('joiningGame');
+            Acorn.Sound.play('flim');
         });
 
         //set up the Co-op button
@@ -444,10 +502,12 @@ Acorn.addState({
         this.versusButton.on('click', function onClick(){
             Acorn.Net.socket_.emit('join',{vs: true});
             Acorn.changeState('joiningGame');
+            Acorn.Sound.play('flim');
         });
         this.versusButton.on('tap', function onClick(){
             Acorn.Net.socket_.emit('join',{vs: true});
             Acorn.changeState('joiningGame');
+            Acorn.Sound.play('flim');
         });
 
         //set up the settings button
@@ -618,7 +678,6 @@ Acorn.addState({
     init: function(){
         document.body.style.cursor = 'none';
         Graphics.clear();
-        Acorn.Sound.play('flim');
     },
     update: function(dt){
         Player.setDeltaTime(dt);
@@ -1019,7 +1078,7 @@ Acorn.addState({
             Settings.toggleTrails();
         });
 
-        this.stats = new PIXI.Text('Show Stats: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
+        this.stats = new PIXI.Text('Toggle Stats: ' , {font: '40px Orbitron', fill: 'white', align: 'left'});
         this.stats.position.x = (Graphics.width / 2);
         this.stats.position.y = 850;
         this.stats.anchor.x = 0.5;

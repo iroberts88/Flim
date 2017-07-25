@@ -51,7 +51,7 @@ GameSession.prototype.init = function (data) {
         case 'solo':
             this.maxPlayers = 1;
             this.gameModeManager.init({
-                timePerEvent: 35,
+                timePerEvent: 50,
                 timeBetweenEvents: .5,
                 warningTime: .4,
                 maxSquares: 4,
@@ -67,7 +67,7 @@ GameSession.prototype.init = function (data) {
             this.maxPlayers = 2;
             this.minPlayers = 2;
             this.gameModeManager.init({
-                timePerEvent: 40,
+                timePerEvent: 50,
                 timeBetweenEvents: 3,
                 warningTime: 2,
                 maxSquares: 4,

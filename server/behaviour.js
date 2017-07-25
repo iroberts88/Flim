@@ -148,7 +148,7 @@ Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
         data.inPlay = false;
     }
     data.ticker += deltaTime;
-    if (data.ticker > 1 && !data.inPlay){
+    if (data.ticker > .5 && !data.inPlay){
         enemy.squareKill = true;
         data.inPlay = true;
         data.update = true;

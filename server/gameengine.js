@@ -7,7 +7,10 @@ var GameSession = require('./gamesession.js').GameSession
 var self = null;
 
 var GameEngine = function() {
-    this.DBINDEX = {};
+    this.soloHighScores = {};
+    this.coopHighScores = {};
+    this.users = {};
+    this._userIndex = {};
     this.gameTickInterval = 20;
     this.lastTime = Date.now();
     this.sessions = {}; //List of currently active gameSessions
@@ -113,13 +116,18 @@ GameEngine.prototype.getID = function() {
 // Data loading functions (from db etc)
 // ----------------------------------------------------------
 
-GameEngine.prototype.loadEnemies = function(arr) {
-    for (var i = 0; i < arr.length; i++){
-        this.enemies[arr[i]._id] = arr[i];
-        this.DBINDEX[arr[i]._dbIndex] = arr[i]._id;
-    }
+GameEngine.prototype.loadHighScores = function(arr) {
+    this.soloHighScores = arr[0].solo;
+    this.coopHighScores = arr[0].coop;
+    console.log('loaded High Scores from db');
+}
 
-    console.log("loaded " + (i+1) + ' enemies from db');
+GameEngine.prototype.loadUsers = function(arr) {
+    for (var i = 0;i < arr.length;i++){
+        this.users[arr[i]._id] = arr[i];
+        this._userIndex[arr[i].userName] = arr[i]._id;
+    }
+    console.log("loaded " + (i) + ' users from db');
 }
 
 // ----------------------------------------------------------

@@ -166,7 +166,7 @@ GameModeManager.prototype.newEvent = function() {
                 this.squares.splice(r,1);
             }
             var chance = 10+Math.sqrt(this.session.level*10);
-            if (this.session.level <=25){
+            if (this.session.level <=28){
                 chance = 0;
             }
             if (Math.random()*100 < chance){
@@ -292,7 +292,7 @@ GameModeManager.prototype.newEvent = function() {
                 var e = this.session.addEnemy('hex',data);
                 enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
             }
-            if (this.session.level >= 24 && this.session.level%3 == 0){
+            if (this.session.level >= 27 && this.session.level%3 == 0){
                 if (Math.round(Math.random())){
                     data.target = player;
                     var e = this.session.addEnemy('hex',data);
@@ -304,10 +304,7 @@ GameModeManager.prototype.newEvent = function() {
                 }
             }
         }
-        var stars = 3+Math.ceil(this.session.level/25);
-        if (stars > 10){
-            stars = 10;
-        }
+        var stars = Math.min(10,(Math.ceil(this.session.level/25)+this.session.level%2));
         if (this.session.level >= 15){
             for (var i = 0; i < stars; i++){
                 var e = this.session.addEnemy('star',data);
