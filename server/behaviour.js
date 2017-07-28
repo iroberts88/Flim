@@ -266,22 +266,22 @@ Behaviour.prototype.star = function(enemy, deltaTime, data){
     }
     if (data.inPlay){
         var radius = 20;
-        if (enemy.hitData.pos.x <= 0){
+        if (enemy.hitData.pos.x < 0){
             enemy.hitData.pos.x = 0;
             enemy.moveVector.x = enemy.moveVector.x * -1;
             update = true;
         }
-        if (enemy.hitData.pos.y <= 0){
+        if (enemy.hitData.pos.y < 0){
             enemy.hitData.pos.y = 0;
             enemy.moveVector.y = enemy.moveVector.y * -1;
             update = true;
         }
-        if (enemy.hitData.pos.x >= 1920){
+        if (enemy.hitData.pos.x > 1920){
             enemy.hitData.pos.x = 1920;
             enemy.moveVector.x = enemy.moveVector.x * -1;
             update = true;
         }
-        if (enemy.hitData.pos.y >= 1080){
+        if (enemy.hitData.pos.y > 1080){
             enemy.hitData.pos.y = 1080;
             enemy.moveVector.y = enemy.moveVector.y * -1;
             update = true;

@@ -14,10 +14,13 @@
         stats: null,
         statsOn: null,
 
+        credentials: null,
+        credentialsOn: null,
+
         init: function() {
         	//Working
             this.scaleToFit = true; //scale to fit screen size
-            this.mute = false;
+            this.mute = false; 
             this.masterVolume = 1.0;
             this.musicVolume = 1.0;
             this.sfxVolume = 1.0;
@@ -30,6 +33,9 @@
             this.stats.domElement.style.left = '0px';
             this.stats.domElement.style.top = '0px';
             this.statsOn = false;
+            this.credentials = new Credentials();
+            this.credentials.domElement.style.position = 'absolute';
+            this.credentialsOn = false;
             this.dust = true;
             this.trails = true;
         },
@@ -46,6 +52,19 @@
             }else{
                 this.trails = true;
             }
+        },
+        toggleCredentials: function(on){
+            try{
+                if (!on){
+                    this.credentialsOn = false;
+                    document.body.removeChild( this.credentials.domElement );
+                }else{
+                    this.credentialsOn = true;
+                    document.body.appendChild( this.credentials.domElement );
+                    document.getElementById('usrInput').value = '';
+                    document.getElementById('pwInput').value = '';
+                }
+            }catch(e){}
         },
         toggleStats: function(){
             if (this.statsOn){

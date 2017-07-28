@@ -5,5 +5,7 @@
     Player.playerCountCurrent = 0;
     Player.gameEnded = false;
     Player.pingTime = 0;
+    Player.userData = null;
+    Player.highScores = null;
     window.Player = Player;
 })(window);

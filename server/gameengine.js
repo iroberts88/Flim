@@ -2,13 +2,16 @@
 //gameengine.js
 //----------------------------------------------------------------
 
-var GameSession = require('./gamesession.js').GameSession
+var GameSession = require('./gamesession.js').GameSession,
+    mongo = require('mongodb').MongoClient
 
 var self = null;
 
 var GameEngine = function() {
-    this.soloHighScores = {};
-    this.coopHighScores = {};
+    this.soloHighScores = [];
+    this.coopHighScores = [];
+    this.vsHighScores = [];
+    this.starsHighScores = [];
     this.users = {};
     this._userIndex = {};
     this.gameTickInterval = 20;
@@ -39,7 +42,7 @@ GameEngine.prototype.start = function () {
 
 GameEngine.prototype.tick = function() {
     var now = Date.now();
-    var deltaTime = (now-this.lastTime) / 1000.0;
+    var deltaTime = (now-self.lastTime) / 1000.0;
     //update all sessions
     self.openSessions = [];
     for(var i in self.sessions) {
@@ -83,7 +86,7 @@ GameEngine.prototype.tick = function() {
     }
     self.emit();
     self.clearQueue();
-    this.lastTime = now;
+    self.lastTime = now;
 }
 
 GameEngine.prototype.singlePlayerSession = function(p, type){
@@ -119,6 +122,46 @@ GameEngine.prototype.getID = function() {
 GameEngine.prototype.loadHighScores = function(arr) {
     this.soloHighScores = arr[0].solo;
     this.coopHighScores = arr[0].coop;
+    this.vsHighScores = arr[0].vs;
+    this.starsHighScores = arr[0].stars;
+    if (typeof arr[0].solo[0] == 'undefined'){
+        //highscores database is uninitialized
+        //initialize it
+        for (var i = 1; i <= 100;i++){
+            this.soloHighScores.push({
+                name: 'guest',
+                score: (101-i)*100,
+                level: Math.ceil((101-i)/10)
+            });
+            this.coopHighScores.push({
+                name1: 'guest',
+                name2: 'guest',
+                score: (101-i)*100,
+                level: Math.ceil((101-i)/10)
+            });
+            this.vsHighScores.push({
+                name: 'guest',
+                gamesWon: 11-Math.round(i/10)
+            });
+            this.starsHighScores.push({
+                name: 'guest',
+                time: Math.round(50 - i/3) 
+            });
+        }
+        var s = this.soloHighScores;
+        var c = this.coopHighScores;
+        var v = this.vsHighScores;
+        var st = this.starsHighScores;
+        mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
+            db.collection('highScores').updateOne({},{$set: {
+                solo: s,
+                coop: c,
+                vs: v,
+                stars: st
+            }});
+            db.close();
+        });
+    }
     console.log('loaded High Scores from db');
 }
 
@@ -130,6 +173,149 @@ GameEngine.prototype.loadUsers = function(arr) {
     console.log("loaded " + (i) + ' users from db');
 }
 
+// ----------------------------------------------------------
+// checkHighScores Functions
+// ----------------------------------------------------------
+
+GameEngine.prototype.checkSoloHighScore = function(player,score,level){
+    if (score < this.soloHighScores[99].score){
+        return;
+    }
+    //you got a high score
+    if (score > this.soloHighScores[0].score){
+        this.soloHighScores.unshift({
+                name: player.user.userData.userName,
+                score: score,
+                level: level
+            });
+        this.soloHighScores.pop();
+    }else{
+        for (var i = 1; i < 100;i++){
+            if (score > this.soloHighScores[i].score){
+                console.log("score at: " + i)
+                this.soloHighScores.splice(i,0,{
+                    name: player.user.userData.userName,
+                    score: score,
+                    level: level
+                })
+                this.soloHighScores.pop();
+                break;
+            }
+        }
+    }
+    var s = this.soloHighScores;
+    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
+        db.collection('highScores').updateOne({},{$set: {
+            solo: s
+        }});
+        db.close();
+    });
+}
+
+GameEngine.prototype.checkCoopHighScore = function(players,score,level){
+    var gotHighScore = false;
+    if (score < this.coopHighScores[99].score){
+        return;
+    }
+    var p = [];
+    for (var player in players){
+        p.push(players[player].user.userData.userName);
+    }
+    //you got a high score
+    if (score > this.coopHighScores[0].score){
+        this.coopHighScores.unshift({
+                name1: p[0],
+                name2: p[1],
+                score: score,
+                level: level
+            });
+        this.coopHighScores.pop();
+    }else{
+        for (var i = 1; i < 100;i++){
+            if (score > this.coopHighScores[i].score){
+                this.coopHighScores.splice(i,0,{
+                    name1: p[0],
+                    name2: p[1],
+                    score: score,
+                    level: level
+                })
+                this.coopHighScores.pop();
+                break;
+            }
+        }
+    }
+    var s = this.coopHighScores;
+    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
+        db.collection('highScores').updateOne({},{$set: {
+            coop: s
+        }});
+        db.close();
+    });
+}   
+GameEngine.prototype.checkVSGamesWon = function(player,number){
+    if (number < this.vsHighScores[99].gamesWon){
+        return;
+    }
+    //you got a high score
+    if (number > this.vsHighScores[0].gamesWon){
+        this.vsHighScores.unshift({
+                name: player,
+                gamesWon: number
+            });
+        this.vsHighScores.pop();
+    }else{
+        for (var i = 1; i < 100;i++){
+            if (number > this.vsHighScores[i].gamesWon){
+                console.log("score at: " + i)
+                this.vsHighScores.splice(i,0,{
+                    name: player,
+                    gamesWon: number
+                });
+                this.vsHighScores.pop();
+                break;
+            }
+        }
+    }
+    var s = this.vsHighScores;
+    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
+        db.collection('highScores').updateOne({},{$set: {
+            vs: s
+        }});
+        db.close();
+    });
+}
+GameEngine.prototype.checkStarsLongestGame = function(player,time){
+    if (time < this.starsHighScores[99].time){
+        return;
+    }
+    //you got a high score
+    if (time > this.starsHighScores[0].time){
+        this.starsHighScores.unshift({
+                name: player,
+                time: time
+            });
+        this.starsHighScores.pop();
+    }else{
+        for (var i = 1; i < 100;i++){
+            if (time > this.starsHighScores[i].time){
+                console.log("score at: " + i)
+                this.starsHighScores.splice(i,0,{
+                    name: player,
+                    time: time
+                });
+                this.starsHighScores.pop();
+                break;
+            }
+        }
+    }
+    var s = this.starsHighScores;
+    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
+        db.collection('highScores').updateOne({},{$set: {
+            stars: s
+        }});
+        db.close();
+    });
+}
 // ----------------------------------------------------------
 // Socket Functions
 // ----------------------------------------------------------

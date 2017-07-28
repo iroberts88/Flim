@@ -1,0 +1,22 @@
+{ 
+    "userName" : "faulken", 
+    "password" : "Snarfed1", 
+    "stats" : {
+        "soloGamesPlayed" : 8, 
+        "coopGamesPlayed" : 1, 
+        "coopLevelRecord" : 4, 
+        "vsGamesPlayed" : 1, 
+        "starsGamesPlayed" : 1, 
+        "soloHighScore" : 375338, 
+        "coopHighScore" : 49, 
+        "vsGamesWon" : 1, 
+        "starsLongestGame" : 100, 
+        "soloLevelRecord" : 67
+    }, 
+    "chatLog" : [
+
+    ], 
+    "admin" : true, 
+    "createDate" : 1501013750032.0, 
+    "lastLogin" : 1501164212419.0
+}

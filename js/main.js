@@ -71,7 +71,15 @@ $(function() {
     // Set up keyboard bindings
     $(document).keydown(function(e) {
         var key = e.which;
-        ChatConsole.keyDown(key);
+        if (Settings.credentialsOn && key == 13){
+            if (Settings.credentials.getType() == 'login'){
+                Acorn.Net.socket_.emit('loginAttempt',{sn: document.getElementById('usrInput').value,pw:document.getElementById('pwInput').value});
+            }else if (Settings.credentials.getType() == 'new'){
+                Acorn.Net.socket_.emit('createUser',{sn: document.getElementById('usrInput').value,pw:document.getElementById('pwInput').value});
+            }
+        }else{
+            ChatConsole.keyDown(key);
+        }
 
         if (!ChatConsole.active) {
             Acorn.Input.keyDown(key);
@@ -145,12 +153,51 @@ function setupSocket() {
       }
     });
 
+    Acorn.Net.on('loggedIn', function (data) {
+      Player.userData = data;
+      Settings.toggleCredentials(false);
+      Acorn.changeState('mainMenu');
+    });
+
+    Acorn.Net.on('logout', function (data) {
+      Player.userData = null;
+      Acorn.changeState('loginScreen');
+    });
+
+    Acorn.Net.on('setLoginErrorText', function (data) {
+      try{
+        var state = Acorn.states['loginScreen'];
+        switch(data.text){
+            case 'wp':
+                state.loginErrorText.text = 'Username or password incorrect.';
+                break;
+            case 'ple':
+                state.loginErrorText.text = 'Password must be between 8 and 16 characters.';
+                break;
+            case 'ule':
+                state.loginErrorText.text = 'Username must be between 3 and 16 characters.';
+                break;
+            case 'uiu':
+                state.loginErrorText.text = 'Username is already in use.';
+                break;
+            case 'l':
+                state.loginErrorText.text = 'User is already logged in.';
+                break;
+        }
+      }catch(e){}
+    });
+
     Acorn.Net.on('warning', function (data) {
       Player.addWarning(data.time, data.level);
     });
 
     Acorn.Net.on('backToMainMenu', function (data) {
-      Acorn.changeState('mainMenu');
+        try{
+            Player.userData = data.userData;
+            Acorn.changeState('mainMenu');
+        }catch(e){
+            console.log(e);
+        }
     });
 
     Acorn.Net.on('youLose', function (data) {
@@ -183,6 +230,11 @@ function setupSocket() {
             uLost.anchor.y = 0.5;
             Graphics.uiContainer.addChild(uLost);
         }
+    });
+
+    Acorn.Net.on('highScores', function (data) {
+        Player.highScores = data;
+        Acorn.states['highScoreScreen'].gotHighScores = true;
     });
 
     Acorn.Net.on('youWin', function (data) {
@@ -403,34 +455,138 @@ Acorn.addState({
         this.newUser.buttonMode = true;
         Graphics.uiContainer.addChild(this.newUser);
 
+        this.loginErrorText = new PIXI.Text('', {font: '45px Orbitron', fill: 'white', align: 'left'});
+        this.loginErrorText.position.x = (Graphics.width / 2);
+        this.loginErrorText.position.y = (Graphics.height * .65);
+        this.loginErrorText.anchor.x = 0.5;
+        this.loginErrorText.anchor.y = 0.5;
+        Graphics.uiContainer.addChild(this.loginErrorText);
+
+        this.submitButton = new PIXI.Text('     Submit     ', {font: '65px Orbitron', fill: 'white', align: 'left'});
+        this.submitButton.position.x = (Graphics.width / 2) - this.submitButton.width;
+        this.submitButton.position.y = (Graphics.height * .75);
+        this.submitButton.anchor.x = 0.5;
+        this.submitButton.anchor.y = 0.5;
+        this.submitButton.interactive = true;
+        this.submitButton.buttonMode = true;
+
+        this.cancelButton = new PIXI.Text('     Cancel     ', {font: '65px Orbitron', fill: 'white', align: 'left'});
+        this.cancelButton.position.x = (Graphics.width / 2 + this.cancelButton.width);
+        this.cancelButton.position.y = (Graphics.height * .75);
+        this.cancelButton.anchor.x = 0.5;
+        this.cancelButton.anchor.y = 0.5;
+        this.cancelButton.interactive = true;
+        this.cancelButton.buttonMode = true;
+
+        this.cancelButton.on('click', function onClick(){
+            var state = Acorn.states['loginScreen'];
+            Graphics.uiContainer.addChild(state.newUser);
+            Graphics.uiContainer.addChild(state.loginText);
+            Graphics.uiContainer.addChild(state.guestText);
+            Graphics.uiContainer.removeChild(state.cancelButton);
+            Graphics.uiContainer.removeChild(state.submitButton);
+            Settings.toggleCredentials(false);
+            state.loginClicked = false;
+            state.loginErrorText.text = '';
+        });
+        this.cancelButton.on('tap', function onClick(){
+            var state = Acorn.states['loginScreen'];
+            Graphics.uiContainer.addChild(state.newUser);
+            Graphics.uiContainer.addChild(state.loginText);
+            Graphics.uiContainer.addChild(state.guestText);
+            Graphics.uiContainer.removeChild(state.cancelButton);
+            Graphics.uiContainer.removeChild(state.submitButton);
+            Settings.toggleCredentials(false);
+            state.loginClicked = false;
+            state.loginErrorText.text = '';
+        });
+
+        this.submitButton.on('click', function onClick(){
+            if (Settings.credentials.getType() == 'login'){
+                Acorn.Net.socket_.emit('loginAttempt',{sn: document.getElementById('usrInput').value,pw:document.getElementById('pwInput').value});
+            }else if (Settings.credentials.getType() == 'new'){
+                Acorn.Net.socket_.emit('createUser',{sn: document.getElementById('usrInput').value,pw:document.getElementById('pwInput').value});
+            }
+        });
+        this.submitButton.on('tap', function onClick(){
+            if (Settings.credentials.getType() == 'login'){
+                Acorn.Net.socket_.emit('loginAttempt',{sn: document.getElementById('usrInput').value,pw:document.getElementById('pwInput').value});
+            }else if (Settings.credentials.getType() == 'new'){
+                Acorn.Net.socket_.emit('createUser',{sn: document.getElementById('usrInput').value,pw:document.getElementById('pwInput').value});
+            }
+        });
+
         this.loginClicked = false;
 
         this.loginText.on('click', function onClick(){
-            var userName = window.prompt("Enter your Username: ",'');
-            var password = window.prompt("Enter your Password: ", '');
-            Acorn.Net.socket_.emit('loginAttempt',{sn: userName,pw:password});
+            var state = Acorn.states['loginScreen'];
+            Graphics.uiContainer.removeChild(state.newUser);
+            Graphics.uiContainer.removeChild(state.loginText);
+            Graphics.uiContainer.removeChild(state.guestText);
+            Graphics.uiContainer.addChild(state.cancelButton);
+            Graphics.uiContainer.addChild(state.submitButton);
+            Settings.credentials.setType('login');
+            Settings.toggleCredentials(true);
+            state.loginClicked = true;
+            document.getElementById('usrInput').focus();
         });
         this.loginText.on('tap', function onClick(){
-            var userName = window.prompt("Enter your Username: ",'');
-            var password = window.prompt("Enter your Password: ", '');
-            Acorn.Net.socket_.emit('loginAttempt',{sn: userName,pw:password});
+            var state = Acorn.states['loginScreen'];
+            Graphics.uiContainer.removeChild(state.newUser);
+            Graphics.uiContainer.removeChild(state.loginText);
+            Graphics.uiContainer.removeChild(state.guestText);
+            Graphics.uiContainer.addChild(state.cancelButton);
+            Graphics.uiContainer.addChild(state.submitButton);
+            Settings.credentials.setType('login');
+            Settings.toggleCredentials(true);
+            state.loginClicked = true;
+            document.getElementById('usrInput').focus();
         });
         this.newUser.on('click', function onClick(){
-            var userName = window.prompt("Enter a user name between 3 and 16 characters: ",'');
-            var password = window.prompt("Enter a password between 8 and 16 characters: ", '');
-            Acorn.Net.socket_.emit('createUser',{sn: userName,pw:password});
+            var state = Acorn.states['loginScreen'];
+            Graphics.uiContainer.removeChild(state.newUser);
+            Graphics.uiContainer.removeChild(state.loginText);
+            Graphics.uiContainer.removeChild(state.guestText);
+            Graphics.uiContainer.addChild(state.cancelButton);
+            Graphics.uiContainer.addChild(state.submitButton);
+            Settings.credentials.setType('new');
+            Settings.toggleCredentials(true);
+            state.loginClicked = true;
+            document.getElementById('usrInput').focus();
         });
         this.newUser.on('tap', function onClick(){
-            var userName = window.prompt("Enter a user name between 3 and 16 characters: ",'');
-            var password = window.prompt("Enter a password between 8 and 16 characters: ", '');
-            Acorn.Net.socket_.emit('createUser',{sn: userName,pw:password});
+            var state = Acorn.states['loginScreen'];
+            Graphics.uiContainer.removeChild(state.newUser);
+            Graphics.uiContainer.removeChild(state.loginText);
+            Graphics.uiContainer.removeChild(state.guestText);
+            Graphics.uiContainer.addChild(state.cancelButton);
+            Graphics.uiContainer.addChild(state.submitButton);
+            Settings.credentials.setType('new');
+            Settings.toggleCredentials(true);
+            state.loginClicked = true;
+            document.getElementById('usrInput').focus();
         });
     },
     update: function(dt){
         Graphics.worldPrimitives.clear();
-        Graphics.drawBoxAround(this.loginText,Graphics.worldPrimitives,-5,-5);
-        Graphics.drawBoxAround(this.guestText,Graphics.worldPrimitives,-5,-5);
-        Graphics.drawBoxAround(this.newUser,Graphics.worldPrimitives,-5,-5);
+        if (this.loginClicked){
+            Graphics.drawBoxAround(this.cancelButton,Graphics.worldPrimitives,-5,-5);
+            Graphics.drawBoxAround(this.submitButton,Graphics.worldPrimitives,-5,-5);
+        }else{
+            Graphics.drawBoxAround(this.loginText,Graphics.worldPrimitives,-5,-5);
+            Graphics.drawBoxAround(this.guestText,Graphics.worldPrimitives,-5,-5);
+            Graphics.drawBoxAround(this.newUser,Graphics.worldPrimitives,-5,-5);
+        }
+        if (Acorn.Input.isPressed(Acorn.Input.Key.BACKSPACE)){
+            if (Settings.credentialsOn){
+                if (document.activeElement.id == 'usrInput'){
+                    document.getElementById('usrInput').value = document.getElementById('usrInput').value.substring(0, document.getElementById('usrInput').value.length-1);
+                }else if (document.activeElement.id == 'pwInput'){
+                    document.getElementById('pwInput').value = document.getElementById('pwInput').value.substring(0, document.getElementById('pwInput').value.length-1);
+                }
+            }
+            Acorn.Input.setValue(Acorn.Input.Key.BACKSPACE, false);
+        }
         ChatConsole.update(dt);
     }
 });
@@ -440,6 +596,11 @@ Acorn.addState({
     stateId: 'mainMenu',
     init: function(){
         console.log('Initializing main menu');
+        if (!Player.userData){
+            console.log('user hasnt been set up. returning to login screen');
+            Acorn.changeState('loginScreen');
+            return;
+        }
         document.body.style.cursor = 'default';
         Graphics.clear();
         Player.gameEnded = false;
@@ -469,7 +630,90 @@ Acorn.addState({
             Acorn.Sound.play('flim');
         });
 
-
+        //set up player stats
+        this.userName = new PIXI.Text("Logged in as: \n" + Player.userData.name, {font: '32px Audiowide', fill: 'white', align: 'center'});
+        this.userName.anchor.x = 0;
+        this.userName.anchor.y = 0.5;
+        this.userName.position.x = 10;
+        this.userName.position.y = Graphics.height/5;
+        Graphics.uiContainer.addChild(this.userName);
+        
+        this.soloGP = new PIXI.Text("Solo Games Played: " + Player.userData.stats.soloGamesPlayed, {font: '16px Audiowide', fill: 'white', align: 'right'});
+        this.soloGP.anchor.x = 0;
+        this.soloGP.anchor.y = 0;
+        this.soloGP.position.x = 10;
+        this.soloGP.position.y = Graphics.height/5 + this.userName.height;
+        Graphics.uiContainer.addChild(this.soloGP);
+        this.soloHS = new PIXI.Text("Solo High Score: " + Player.userData.stats.soloHighScore, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.soloHS.anchor.x = 0;
+        this.soloHS.anchor.y = 0;
+        this.soloHS.position.x = 10;
+        this.soloHS.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height;
+        Graphics.uiContainer.addChild(this.soloHS);
+        this.soloHL = new PIXI.Text("Solo Highest Level Reached: " + Player.userData.stats.soloLevelRecord, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.soloHL.anchor.x = 0;
+        this.soloHL.anchor.y = 0;
+        this.soloHL.position.x = 10;
+        this.soloHL.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*2;
+        Graphics.uiContainer.addChild(this.soloHL);
+        this.coopGP = new PIXI.Text("Coop Games Played: " + Player.userData.stats.coopGamesPlayed, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.coopGP.anchor.x = 0;
+        this.coopGP.anchor.y = 0;
+        this.coopGP.position.x = 10;
+        this.coopGP.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*3;
+        Graphics.uiContainer.addChild(this.coopGP);
+        this.coopHS = new PIXI.Text("Coop High Score: " + Player.userData.stats.coopHighScore, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.coopHS.anchor.x = 0;
+        this.coopHS.anchor.y = 0;
+        this.coopHS.position.x = 10;
+        this.coopHS.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*4;
+        Graphics.uiContainer.addChild(this.coopHS);
+        this.coopHL = new PIXI.Text("Coop Highest Level Reached: " + Player.userData.stats.coopLevelRecord, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.coopHL.anchor.x = 0;
+        this.coopHL.anchor.y = 0;
+        this.coopHL.position.x = 10;
+        this.coopHL.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*5;
+        Graphics.uiContainer.addChild(this.coopHL);
+        this.vsGP = new PIXI.Text("Versus Games Played: " + Player.userData.stats.vsGamesPlayed, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.vsGP.anchor.x = 0;
+        this.vsGP.anchor.y = 0;
+        this.vsGP.position.x = 10;
+        this.vsGP.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*6;
+        Graphics.uiContainer.addChild(this.vsGP);
+        this.vsGW = new PIXI.Text("Versus Games Won: " + Player.userData.stats.vsGamesWon, {font: '16px Audiowide', fill: 'white', align: 'center'});
+        this.vsGW.anchor.x = 0;
+        this.vsGW.anchor.y = 0;
+        this.vsGW.position.x = 10;
+        this.vsGW.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*7;
+        Graphics.uiContainer.addChild(this.vsGW);
+        if (Player.userData.stats.starsGamesPlayed > 0){
+            this.starsGP = new PIXI.Text("Stars Games Played: " + Player.userData.stats.starsGamesPlayed, {font: '16px Audiowide', fill: 'white', align: 'center'});
+            this.starsGP.anchor.x = 0;
+            this.starsGP.anchor.y = 0;
+            this.starsGP.position.x = 10;
+            this.starsGP.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*8;
+            Graphics.uiContainer.addChild(this.starsGP);
+            this.starsLG = new PIXI.Text("Stars Longest Game: " + Player.userData.stats.starsLongestGame + ' Seconds', {font: '16px Audiowide', fill: 'white', align: 'center'});
+            this.starsLG.anchor.x = 0;
+            this.starsLG.anchor.y = 0;
+            this.starsLG.position.x = 10;
+            this.starsLG.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*9;
+            Graphics.uiContainer.addChild(this.starsLG);
+        }
+        this.highScoreButton = new PIXI.Text('High Scores' , {font: '32px Audiowide', fill: 'white', align: 'center'});
+        this.highScoreButton.anchor.x = .5;
+        this.highScoreButton.anchor.y = .5;
+        this.highScoreButton.position.x = 10 + this.highScoreButton.width/2;
+        this.highScoreButton.position.y = Graphics.height/4 + this.userName.height + this.soloGP.height*10;
+        Graphics.uiContainer.addChild(this.highScoreButton);
+        this.highScoreButton.interactive = true;
+        this.highScoreButton.buttonMode = true;
+        this.highScoreButton.on('click', function onClick(){
+            Acorn.changeState('highScoreScreen');
+        });
+        this.highScoreButton.on('tap', function onClick(){
+            Acorn.changeState('highScoreScreen');
+        });
         //set up the Co-op button
         this.multiPlayerButton = new PIXI.Text('CO-OP' , {font: '64px Audiowide', fill: 'white', align: 'center'});
         this.multiPlayerButton.anchor.x = .5;
@@ -576,6 +820,7 @@ Acorn.addState({
         Graphics.worldPrimitives.clear();
         Graphics.drawBoxAround(this.singlePlayerButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.multiPlayerButton,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.highScoreButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.versusButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.aboutButton,Graphics.worldPrimitives);
         Graphics.drawBoxAround(this.settingsButton,Graphics.worldPrimitives);
@@ -672,6 +917,399 @@ Acorn.addState({
         this.playerCount.text = 'Players Online: ' + Player.playerCountCurrent;
     }
 });
+
+Acorn.addState({
+    stateId: 'highScoreScreen',
+    init: function(){
+        Acorn.Net.socket_.emit('playerUpdate',{requestHighScores: true});
+        Graphics.clear();
+        this.statsContainer = new PIXI.Container();
+        Graphics.uiContainer.addChild(this.statsContainer);
+        this.gotHighScores = false;
+        this.phase = 1;
+        this.counter = 0;
+        this.textheight = 0;
+        this.height = 0;
+        this.startAt = 25;
+        this.heightBuffer = 0;
+        this.backButton = new PIXI.Text('Back', {font: '65px Orbitron', fill: 'white', align: 'center'});
+        this.backButton.position.x = (Graphics.width *.85);
+        this.backButton.position.y = (Graphics.height *0.9);
+        this.backButton.anchor.x = 0.5;
+        this.backButton.anchor.y = 0.5;
+        this.backButton.buttonMode = true;
+        this.backButton.interactive = true;
+        Graphics.uiContainer.addChild(this.backButton);
+        this.backButton.on('click', function onClick(){
+            Acorn.changeState('mainMenu');
+        });
+        this.backButton.on('tap', function onClick(){
+            Acorn.changeState('mainMenu');
+        });
+
+        this.soloButton = new PIXI.Text('Solo', {font: '65px Orbitron', fill: 'white', align: 'center'});
+        this.soloButton.position.x = (Graphics.width *.15);
+        this.soloButton.position.y = (Graphics.height *0.9);
+        this.soloButton.anchor.x = 0.5;
+        this.soloButton.anchor.y = 0.5;
+        this.soloButton.buttonMode = true;
+        this.soloButton.interactive = true;
+        Graphics.uiContainer.addChild(this.soloButton);
+        this.soloButton.on('click', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 1;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+        this.soloButton.on('tap', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 1;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+
+        this.coopButton = new PIXI.Text('Coop', {font: '65px Orbitron', fill: 'white', align: 'center'});
+        this.coopButton.position.x = (Graphics.width *.3);
+        this.coopButton.position.y = (Graphics.height *0.9);
+        this.coopButton.anchor.x = 0.5;
+        this.coopButton.anchor.y = 0.5;
+        this.coopButton.buttonMode = true;
+        this.coopButton.interactive = true;
+        Graphics.uiContainer.addChild(this.coopButton);
+        this.coopButton.on('click', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 2;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+        this.coopButton.on('tap', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 2;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+
+        this.vsButton = new PIXI.Text('Versus', {font: '65px Orbitron', fill: 'white', align: 'center'});
+        this.vsButton.position.x = (Graphics.width *.45);
+        this.vsButton.position.y = (Graphics.height *0.9);
+        this.vsButton.anchor.x = 0.5;
+        this.vsButton.anchor.y = 0.5;
+        this.vsButton.buttonMode = true;
+        this.vsButton.interactive = true;
+        Graphics.uiContainer.addChild(this.vsButton);
+        this.vsButton.on('click', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 3;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+        this.vsButton.on('tap', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 3;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+
+        this.starsButton = new PIXI.Text('Stars', {font: '65px Orbitron', fill: 'white', align: 'center'});
+        this.starsButton.position.x = (Graphics.width *.6);
+        this.starsButton.position.y = (Graphics.height *0.9);
+        this.starsButton.anchor.x = 0.5;
+        this.starsButton.anchor.y = 0.5;
+        this.starsButton.buttonMode = true;
+        this.starsButton.interactive = true;
+        Graphics.uiContainer.addChild(this.starsButton);
+        this.starsButton.on('click', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 4;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+        this.starsButton.on('tap', function onClick(){
+            var state = Acorn.states['highScoreScreen'];
+            state.statsContainer.removeChildren();
+            state.phase = 4;
+            state.counter = 0;
+            state.textheight = 0;
+            state.height = 0;
+            state.startAt = 25;
+            state.heightBuffer = 0;
+        });
+    },
+    update: function(dt){
+        if (Player.userData.stats.starsGamesPlayed == 0){
+            this.starsButton.visible = false;
+        }else{
+            this.starsButton.visible = true;
+            Graphics.drawBoxAround(this.starsButton,Graphics.worldPrimitives);
+        }
+        Graphics.worldPrimitives.clear();
+        if (this.gotHighScores){
+            switch(this.phase){
+                case 1:
+                    if (Player.userData.stats.starsGamesPlayed == 0){
+                        this.starsButton.visible = false;
+                    }else{
+                        this.starsButton.visible = true;
+                        Graphics.drawBoxAround(this.starsButton,Graphics.worldPrimitives);
+                    }
+                    this.vsButton.visible = true;
+                    this.coopButton.visible = true;
+                    this.soloButton.visible = false;
+                    Graphics.drawBoxAround(this.vsButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.coopButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
+                    if (this.counter == 26){
+                        this.startAt = Graphics.width *.25;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 51){
+                        this.startAt = Graphics.width *.50;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 76){
+                        this.startAt = Graphics.width *.75;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 0){
+                        this.slText = new PIXI.Text('Solo Leaderboard', {font: '45px Orbitron', fill: 'white', align: 'center'});
+                        this.slText.position.x = Graphics.width/2;
+                        this.slText.position.y = this.slText.height/2 + 10;
+                        this.slText.anchor.x = 0.5;
+                        this.slText.anchor.y = 0.5;
+                        this.statsContainer.addChild(this.slText);
+                    }else if (this.counter == 101){
+                        break;
+                    }else{
+                        var text1 = new PIXI.Text(this.counter + ':     ', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        this.height += text1.height;
+                        text1.position.x = this.startAt + text1.width/2;
+                        text1.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text1.anchor.x = 0.5;
+                        text1.anchor.y = 0.5;
+                        this.statsContainer.addChild(text1);
+                        var text2 = new PIXI.Text(Player.highScores.solo[this.counter-1].name, {font: '18px Orbitron', fill: 0x7facf4, align: 'center', padding: 2});
+                        text2.position.x = this.startAt + text1.width;
+                        text2.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text2.anchor.x = 0.0;
+                        text2.anchor.y = 0.5;
+                        this.statsContainer.addChild(text2);
+                        var text3 = new PIXI.Text(Player.highScores.solo[this.counter-1].score + '', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        text3.position.x = this.startAt + Graphics.width * 0.18;
+                        text3.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text3.anchor.x = 0.5;
+                        text3.anchor.y = 0.5;
+                        this.statsContainer.addChild(text3);
+                    }
+                    this.counter += 1;
+                    break;
+                case 2:
+                    if (Player.userData.stats.starsGamesPlayed == 0){
+                        this.starsButton.visible = false;
+                    }else{
+                        this.starsButton.visible = true;
+                        Graphics.drawBoxAround(this.starsButton,Graphics.worldPrimitives);
+                    }
+                    this.vsButton.visible = true;
+                    this.coopButton.visible = false;
+                    this.soloButton.visible = true;
+                    Graphics.drawBoxAround(this.vsButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.soloButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
+                    if (this.counter == 26){
+                        this.startAt = Graphics.width *.25;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 51){
+                        this.startAt = Graphics.width *.50;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 76){
+                        this.startAt = Graphics.width *.75;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 0){
+                        this.slText = new PIXI.Text('Coop Leaderboard', {font: '45px Orbitron', fill: 'white', align: 'center'});
+                        this.slText.position.x = Graphics.width/2;
+                        this.slText.position.y = this.slText.height/2 + 10;
+                        this.slText.anchor.x = 0.5;
+                        this.slText.anchor.y = 0.5;
+                        this.statsContainer.addChild(this.slText);
+                    }else if (this.counter == 101){
+                        break;
+                    }else{
+                        var text1 = new PIXI.Text(this.counter + ': ', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        this.height += text1.height;
+                        text1.position.x = this.startAt + text1.width/2;
+                        text1.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text1.anchor.x = 0.5;
+                        text1.anchor.y = 0.5;
+                        this.statsContainer.addChild(text1);
+                        var text2 = new PIXI.Text(Player.highScores.coop[this.counter-1].name1 + ' / ', {font: '12px Orbitron', fill: 0x7facf4, align: 'center', padding: 2});
+                        text2.position.x = this.startAt + text1.width;
+                        text2.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text2.anchor.x = 0.0;
+                        text2.anchor.y = 0.5;
+                        this.statsContainer.addChild(text2);
+                        var text3 = new PIXI.Text(Player.highScores.coop[this.counter-1].name2, {font: '12px Orbitron', fill: 0x7facf4, align: 'center', padding: 2});
+                        text3.position.x = this.startAt + text1.width + text2.width+ text3.width/2;
+                        text3.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text3.anchor.x = 0.5;
+                        text3.anchor.y = 0.5;
+                        this.statsContainer.addChild(text3);
+                        var text4 = new PIXI.Text(Player.highScores.coop[this.counter-1].score + '', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        text4.position.x = this.startAt + Graphics.width * 0.18;
+                        text4.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text4.anchor.x = 0.5;
+                        text4.anchor.y = 0.5;
+                        this.statsContainer.addChild(text4);
+                    }
+                    this.counter += 1;
+                    break;
+                case 3:
+                    if (Player.userData.stats.starsGamesPlayed == 0){
+                        this.starsButton.visible = false;
+                    }else{
+                        this.starsButton.visible = true;
+                        Graphics.drawBoxAround(this.starsButton,Graphics.worldPrimitives);
+                    }
+                    this.vsButton.visible = false;
+                    this.coopButton.visible = true;
+                    this.soloButton.visible = true;
+                    Graphics.drawBoxAround(this.soloButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.coopButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
+                    if (this.counter == 26){
+                        this.startAt = Graphics.width *.25;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 51){
+                        this.startAt = Graphics.width *.50;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 76){
+                        this.startAt = Graphics.width *.75;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 0){
+                        this.slText = new PIXI.Text('Versus Leaderboard', {font: '45px Orbitron', fill: 'white', align: 'center'});
+                        this.slText.position.x = Graphics.width/2;
+                        this.slText.position.y = this.slText.height/2 + 10;
+                        this.slText.anchor.x = 0.5;
+                        this.slText.anchor.y = 0.5;
+                        this.statsContainer.addChild(this.slText);
+                    }else if (this.counter == 101){
+                        break;
+                    }else{
+                        var text1 = new PIXI.Text(this.counter + ':     ', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        this.height += text1.height;
+                        text1.position.x = this.startAt + text1.width/2;
+                        text1.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text1.anchor.x = 0.5;
+                        text1.anchor.y = 0.5;
+                        this.statsContainer.addChild(text1);
+                        var text2 = new PIXI.Text(Player.highScores.vs[this.counter-1].name, {font: '18px Orbitron', fill: 0x7facf4, align: 'center', padding: 2});
+                        text2.position.x = this.startAt + text1.width;
+                        text2.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text2.anchor.x = 0.0;
+                        text2.anchor.y = 0.5;
+                        this.statsContainer.addChild(text2);
+                        var text3 = new PIXI.Text(Player.highScores.vs[this.counter-1].gamesWon + ' games won', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        text3.position.x = this.startAt + Graphics.width * 0.18;
+                        text3.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text3.anchor.x = 0.5;
+                        text3.anchor.y = 0.5;
+                        this.statsContainer.addChild(text3);
+                    }
+                    this.counter += 1;
+                    break;
+                case 4:
+                    this.starsButton.visible = false;
+                    this.vsButton.visible = true;
+                    this.coopButton.visible = true;
+                    this.soloButton.visible = true;
+                    Graphics.drawBoxAround(this.vsButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.soloButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.coopButton,Graphics.worldPrimitives);
+                    Graphics.drawBoxAround(this.backButton,Graphics.worldPrimitives);
+                    if (this.counter == 26){
+                        this.startAt = Graphics.width *.25;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 51){
+                        this.startAt = Graphics.width *.50;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 76){
+                        this.startAt = Graphics.width *.75;
+                        this.heightBuffer = this.height * -1;
+                    }
+                    if (this.counter == 0){
+                        this.slText = new PIXI.Text('Stars Leaderboard', {font: '45px Orbitron', fill: 'white', align: 'center'});
+                        this.slText.position.x = Graphics.width/2;
+                        this.slText.position.y = this.slText.height/2 + 10;
+                        this.slText.anchor.x = 0.5;
+                        this.slText.anchor.y = 0.5;
+                        this.statsContainer.addChild(this.slText);
+                    }else if (this.counter == 101){
+                        break;
+                    }else{
+                        var text1 = new PIXI.Text(this.counter + ':     ', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        this.height += text1.height;
+                        text1.position.x = this.startAt + text1.width/2;
+                        text1.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text1.anchor.x = 0.5;
+                        text1.anchor.y = 0.5;
+                        this.statsContainer.addChild(text1);
+                        var text2 = new PIXI.Text(Player.highScores.stars[this.counter-1].name, {font: '18px Orbitron', fill: 0x7facf4, align: 'center', padding: 2});
+                        text2.position.x = this.startAt + text1.width;
+                        text2.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text2.anchor.x = 0.0;
+                        text2.anchor.y = 0.5;
+                        this.statsContainer.addChild(text2);
+                        var text3 = new PIXI.Text(Player.highScores.stars[this.counter-1].time + ' seconds', {font: '18px Orbitron', fill: 'white', align: 'center', padding: 2});
+                        text3.position.x = this.startAt + Graphics.width * 0.18;
+                        text3.position.y = this.heightBuffer + this.slText.height + 25 + (this.counter * text1.height);
+                        text3.anchor.x = 0.5;
+                        text3.anchor.y = 0.5;
+                        this.statsContainer.addChild(text3);
+                    }
+                    this.counter += 1;
+                    break;
+            }
+        }
+        if (Player.userData.stats.starsGamesPlayed > 0){
+        }
+    }
+});
+
 
 Acorn.addState({
     stateId: 'inGame',
@@ -1116,6 +1754,20 @@ Acorn.addState({
             Acorn.changeState('mainMenu');
         });
 
+        this.logoutButton = new PIXI.Text("Log Out", {font: '40px Audiowide', fill: 'white', align: 'center'});
+        this.logoutButton.anchor.x = 0.5;
+        this.logoutButton.anchor.y = 0.5;
+        this.logoutButton.position.x = Graphics.width/2;
+        this.logoutButton.position.y = Graphics.height* 0.95;
+        Graphics.uiContainer.addChild(this.logoutButton);
+        this.logoutButton.interactive = true;
+        this.logoutButton.buttonMode = true;
+        this.logoutButton.on('click', function onClick(){
+            Acorn.Net.socket_.emit('playerUpdate',{logout: true});
+        });
+        this.logoutButton.on('tap', function onClick(){
+            Acorn.Net.socket_.emit('playerUpdate',{logout: true});
+        });
         //stop playing music if returning from in game
         Acorn.Sound.stop('flim');
     },
@@ -1129,6 +1781,7 @@ Acorn.addState({
         Graphics.drawBoxAround(this.trailsX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.statsX,Graphics.worldPrimitives, 14);
         Graphics.drawBoxAround(this.masterBar,Graphics.worldPrimitives);
+        Graphics.drawBoxAround(this.logoutButton,Graphics.worldPrimitives);
         Graphics.worldPrimitives.beginFill(0xFFFFFF,0.8);
         Graphics.worldPrimitives.drawRect(this.masterBar.position.x - this.masterBar._width/2,
                                   this.masterBar.position.y - this.masterBar._height/2,

@@ -23,8 +23,8 @@
         
         changeState: function(stateId){
             try{
-                this.states[stateId].init();
                 this.currentState = stateId;
+                this.states[stateId].init();
             }catch(e){
                 console.log('failed to change to state ' + stateId);
                 console.log(e);
@@ -53,7 +53,8 @@
             INTERACT: 8,
             RELOAD: 9,
             TOGGLEMAP: 10,
-            TOGGLESTATS: 11
+            TOGGLESTATS: 11,
+            BACKSPACE: 12
         },
         keysPressed: [],
         keyBindings: [],
@@ -87,6 +88,7 @@
             this.keyBindings[81] = Acorn.Input.Key.SWAPWEAP; //default Q
             this.keyBindings[82] = Acorn.Input.Key.RELOAD; //default R
             this.keyBindings[77] = Acorn.Input.Key.TOGGLEMAP; //default M
+            this.keyBindings[8] = Acorn.Input.Key.BACKSPACE; //default M
         },
         getBinding: function(keyCode) {
             return this.keyBindings[keyCode];

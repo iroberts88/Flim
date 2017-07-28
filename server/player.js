@@ -4,7 +4,8 @@
 
 var SAT = require('./SAT.js'), //SAT POLYGON COLLISSION1
     Unit = require('./unit.js').Unit,
-    mongo = require('mongodb').MongoClient;
+    User = require('./user.js').User,
+    mongo = require('mongodb').MongoClient
 
 var P = SAT.Polygon;
 var V = SAT.Vector;
@@ -38,6 +39,8 @@ Player = function(){
     player.godTemp = false;
 
     player.score = 0;
+
+    player.user = null;
 
     player.init = function (data) {
         //init player specific variables
@@ -117,8 +120,22 @@ Player = function(){
                     that.targetPosition.x = data.newMouseLoc[0];
                     that.targetPosition.y= data.newMouseLoc[1];
                 }
-            }else if (data.requestPlayerCount){
-                that.gameEngine.queuePlayer(that,'updatePlayerCount', {p: that.gameEngine.playerCount});
+            }else{
+                if (data.requestPlayerCount){
+                    that.gameEngine.queuePlayer(that,'updatePlayerCount', {p: that.gameEngine.playerCount});
+                }else if (data.logout){
+                    that.user.unlock();
+                    that.user.updateDB();
+                    that.user = null;
+                    that.gameEngine.queuePlayer(that,'logout', {});
+                }else if (data.requestHighScores){
+                    that.gameEngine.queuePlayer(that,'highScores', {
+                        solo: that.gameEngine.soloHighScores,
+                        coop: that.gameEngine.coopHighScores,
+                        vs: that.gameEngine.vsHighScores,
+                        stars: that.gameEngine.starsHighScores
+                    });
+                }
             }
         });
 
@@ -210,6 +227,11 @@ Player = function(){
                         break;
                 }
                 if (!commandBool && c != ''){
+                    if (c.length > 40){
+                        c = c.substring(0,40);
+                    }
+                    var d = new Date().toString();
+                    that.user.userData.chatLog.push({text: c, timeStamp:d});
                     that.gameSession.queueData("say", {playerId: that.id,text: c});
                 }
             }catch(e){
@@ -218,15 +240,21 @@ Player = function(){
         });
 
         this.socket.on('disconnect', function () {
-            console.log('Player ' + that.id + ' has disconnected.');
-            if (that.gameSession){
-                that.gameSession.queueData('removePlayer', that.id);
-                that.gameSession.removePlayer(that);
-            }
-            that.gameEngine.playerCount -= 1;
-            // If callback exists, call it
-            if(that.onDisconnectHandler != null && typeof that.onDisconnectHandler == 'function' ) {
+            try{
+                that.gameEngine.playerCount -= 1;
+                that.user.unlock();
+                console.log('Player ' + that.id + ' (' + that.user.userData.userName + ') has disconnected.');
+                that.user.updateDB();
+                if (that.gameSession){
+                    that.gameSession.queueData('removePlayer', that.id);
+                    that.gameSession.removePlayer(that);
+                }
+                // If callback exists, call it
+                if(that.onDisconnectHandler != null && typeof that.onDisconnectHandler == 'function' ) {
                     that.onDisconnectHandler();
+                }
+            }catch(e){
+                console.log('error on disconnect ( will error out on guest or user = null)');
             }
         });
 
@@ -246,24 +274,47 @@ Player = function(){
         });
 
         this.socket.on('loginAttempt', function (data) {
-            console.log(data);
-            if (!that.gameSession){
-                var url = 'mongodb://127.0.0.1/wisp';
-                if (data.guest){
-                    that.gameEngine.queuePlayer(that,"loggedIn", {userInfo:{name: 'guest'}});
-                }else if (data.sn && data.pw){
-                    var url = 'mongodb://127.0.0.1/wisp'; 
-                    data.sn = data.sn.toLowerCase();
-                    mongo.connect(url, function(err, db) {
-                        // ---- Attemp to find existing user ----
-                        var query = { userName: data.sn };
-                        db.collection('users').find(query).toArray(function(err, arr) {
-                            if (arr.length == 1 && data.pw == arr[0].password){
-                                that.gameEngine.queuePlayer(that,"loggedIn", {userInfo:{name: data.sn}});
-                            }
-                        });
-                    });
+            try{
+                if (!that.gameSession){
+                    if (data.guest){
+                        //SET USER DATA TO GUEST
+                        that.user = User();
+                        that.user.init({});
+                        that.user.setOwner(that);
+                        that.user.setLastLogin(Date.now());
+                        that.gameEngine.queuePlayer(that,"loggedIn", {name:that.user.userData.userName,stats:that.user.userData.stats});
+                    }else if (data.sn && data.pw){
+                        data.sn = data.sn.toLowerCase();
+                        if (!that.gameEngine.users[that.gameEngine._userIndex[data.sn.toLowerCase()]].lock){
+                            var url = 'mongodb://127.0.0.1/wisp';
+                            mongo.connect(url, function(err, db) {
+                                // ---- Attemp to find existing user ----
+                                var query = { userName: data.sn };
+                                db.collection('users').find(query).toArray(function(err, arr) {
+                                    if (err) throw err;
+                                    if (arr.length == 1 && data.pw == arr[0].password){
+                                        //SET USER DATA TO EXISTING USER
+                                        that.user = User();
+                                        that.user.init(arr[0]);
+                                        that.user.setOwner(that);
+                                        that.user.lock();
+                                        that.user.setLastLogin(Date.now());
+                                        that.gameEngine.queuePlayer(that,"loggedIn", {name:arr[0].userName,stats:arr[0].stats});
+                                    }else{
+                                        that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'wp'});
+                                    }
+                                });
+                                db.close();
+                            });
+                        }else{
+                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'l'});
+                        }
+                    }
                 }
+            }catch(e){
+                console.log('Login Attempt failed');
+                console.log(e);
+                that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'wp'});
             }
         });
         //TODO - set player variable to show they are logged in
@@ -276,37 +327,35 @@ Player = function(){
                     
                     // ---- Attemp to create new user ----
                     var query = { userName: data.sn };
+                    //make sure the username is not in use
                     db.collection('users').find(query).toArray(function(err, arr) {
                         if (err) throw err;
-                        //user does not exist
+                        //SET USER DATA TO NEW USER
                         if (data.sn.length >= 3 && data.sn.length <= 16 && data.pw.length >= 8 && data.pw.length <= 16 && arr.length == 0){
                             console.log('valid account info - creating account');
                             var u = {
                                 userName: data.sn,
-                                password: data.pw,
-                                stats: {
-                                    soloGamesPlayed : 0,
-                                    coopGamesPlayed : 0,
-                                    vsGamesPlayed : 0,
-                                    starsGamesPlayed : 0,
-                                    soloHighScore : 0,
-                                    coopHighScore : 0,
-                                    vsGamesWon : 0,
-                                    starsLongestGame : 0,
-                                    soloLevelRecord : 0
-                                },
-                                chatLog: [],
-                                admin: false,
-                                createDate: Date.now(),
-                                lastLogin: Date.now()
+                                password: data.pw
                             };
-                            db.collection('users').insertOne(u, function(err, res) {
+                            that.user = User();
+                            that.user.init(u)
+                            that.user.setOwner(that);
+                            db.collection('users').insertOne(that.user.userData, function(err, res) {
                                 if (err) throw err;
                                 console.log("added user: " + data.sn);
                             });
-                            that.gameEngine.queuePlayer(that,"loggedIn", {userInfo:{name: data.sn}});
-                        }else{
-                            console.log('invalid account info');
+                            var query = { userName: data.sn };
+                            db.collection('users').find(query).toArray(function(err, arr2) {
+                                that.gameEngine.users[arr2[0]._id] = arr2[0];
+                                that.gameEngine._userIndex[data.sn] = arr2[0]._id;
+                                that.gameEngine.queuePlayer(that,"loggedIn", {name:arr2[0].userName,stats:arr2[0].stats});
+                            });
+                        }else if (arr.length != 0){
+                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'uiu'});
+                        }else if (data.sn.length < 3 || data.sn.length > 16){
+                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'ule'});
+                        }else if (data.pw.length < 8 || data.pw.length > 16){
+                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'ple'});
                         }
                         db.close();
                     });

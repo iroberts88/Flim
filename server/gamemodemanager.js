@@ -30,6 +30,8 @@ var GameModeManager = function(session) {
     this.tickEnemiesFunc = null;
 
     this.score = null;
+
+    this.sentCoopLose = null;
 }
 
 GameModeManager.prototype.init = function (data) {
@@ -53,6 +55,7 @@ GameModeManager.prototype.init = function (data) {
     this.starsMax = 30;
     this.starsCurrent = 0;
     this.score = 0;
+    this.sentCoopLose = false;
 };
 
 
@@ -363,12 +366,19 @@ GameModeManager.prototype.chaosEvent = function() {
 
 GameModeManager.prototype.killPlayer = function(player){
     player.kill = true;
+    if (this.gameMode == 'solo'){
+        player.user.checkSoloHighScore(this.score);
+        player.user.checkSoloLevelRecord(this.session.level-1);
+        player.gameEngine.checkSoloHighScore(player,this.score,this.session.level-1);
+    }
     this.session.queueData('killPlayer', {id:player.id});
-    this.session.queueData('youLose', {score: player.score});
+    this.session.queueData('youLose', {score: this.score});
 }
 
 GameModeManager.prototype.killPlayerStars = function(player){
     player.kill = true;
+    player.user.checkStarsLongestGame(Math.round(this.totalTime*10)/10);
+    player.gameEngine.checkStarsLongestGame(player.user.userData.userName, Math.round(this.totalTime*10)/10)
     this.session.queueData('killPlayer', {id:player.id});
     this.session.queueData('youLasted', {time: Math.round(this.totalTime*10)/10});
 }
@@ -389,6 +399,8 @@ GameModeManager.prototype.killPlayerVersus = function(player){
         if (winner.id != player.id){
             winner.god = true;
             winner.kill = true;
+            winner.user.vsGameWon();
+            winner.gameEngine.checkVSGamesWon(winner.user.userData.userName,winner.user.userData.stats.vsGamesWon);
             this.session.queuePlayer(winner,'youWin', {});
         }
     }
@@ -416,25 +428,35 @@ GameModeManager.prototype.tickPlayers = function(deltaTime){
 
 GameModeManager.prototype.tickPlayersCoop = function(deltaTime){
     var activePlayers = 0;
+    var players = 0;
     for (var i in this.session.players){
         var player = this.session.players[i];
         player.tick(deltaTime);
         if (!player.kill){
             activePlayers += 1;
         }
+        players += 1;
     }
-    if (!activePlayers){
+    if (!activePlayers && players > 0){
         //there are no active PLayers... they have all died. remove all from session after countdown!
-        this.session.queueData('youLose', {score:this.score});
+        if (!this.sentCoopLose){
+            this.session.queueData('youLose', {score:this.score});
+            for (var i in this.session.players){
+                var player = this.session.players[i];
+                player.user.checkCoopHighScore(this.score);
+                player.user.checkCoopLevelRecord(this.session.level-1);
+            }
+            this.session.engine.checkCoopHighScore(this.session.players,this.score,this.session.level-1);
+            this.sentCoopLose = true;
+            this.session.canJoin = false;
+        }
         for (var i in this.session.players){
-            var player = this.session.players[i];
             player.killCountDown -= deltaTime;
             if (player.killCountDown <= 0){
                 //remove player from session?
                 this.session.removePlayer(player);
             }
         }
-        this.session.canJoin = false;
     }else{
         //there are active players... if you are between a session re-add the dead players!
         for (var i in this.session.players){
@@ -478,13 +500,7 @@ GameModeManager.prototype.tickEnemies = function(deltaTime){
                 var B = Behaviour.getBehaviour(enemy.killFunc.name);
                 B(enemy,deltaTime,enemy.killFunc);
             }
-            if (enemy.behaviour.targetId){
-                this.session.players[enemy.behaviour.targetId].score += Math.round(enemy.scoreBase*(this.timePerEvent-this.timePerEventTicker));
-            }else{
-                for(var player in this.session.players){
-                    player.score += Math.round(enemy.scoreBase*(this.timePerEvent-this.timePerEventTicker));
-                }
-            }
+            this.score += Math.round(enemy.scoreBase*(this.timePerEvent-this.timePerEventTicker));
             this.session.queueData('removeEnemy', {id: enemy.id});
             delete this.session.enemies[i];
         }

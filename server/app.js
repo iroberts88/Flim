@@ -39,6 +39,7 @@ function init() {
             ge.loadUsers(arr);
             rc.ready('dbUsers');
         });
+        db.close();
     });
 }
 

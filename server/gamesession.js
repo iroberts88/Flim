@@ -156,7 +156,6 @@ GameSession.prototype.addPlayer = function(p) {
     this.gameModeManager.warningSent = false;
     p.setGameSession(this);
     this.playerCount += 1;
-
     //send the new player data to players already in the session
     for (var i in this.players){
         var d = {
@@ -164,7 +163,8 @@ GameSession.prototype.addPlayer = function(p) {
                 x: p.hitData.pos.x,
                 y: p.hitData.pos.y,
                 radius: p.radius,
-                speed: p.speed
+                speed: p.speed,
+                name: p.user.userData.userName
             };
         this.queuePlayer(this.players[i],'addPlayerWisp', d);
     }
@@ -179,13 +179,29 @@ GameSession.prototype.addPlayer = function(p) {
             x: player.hitData.pos.x,
             y: player.hitData.pos.y,
             radius: player.radius,
-            speed: player.speed
+            speed: player.speed,
+            name: player.user.userData.userName
         })
     }
     var enemies = [];
     for (var enemy in this.enemies){
         var e = this.enemies[enemy];
         enemies.push({type: e.type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+    }
+    //set user games played
+    switch (this.gameModeManager.gameMode){
+        case 'solo':
+            p.user.soloGamePlayed();
+            break;
+        case 'coop':
+            p.user.coopGamePlayed();
+            break;
+        case 'vs':
+            p.user.vsGamePlayed();
+            break;
+        case 'star':
+            p.user.starGamePlayed();
+            break;
     }
     //gameInfo data will init the game state for the new player
     this.queuePlayer(p,'gameInfo', {id: p.id, x: 960, y: 540, players: players, radius: p.radius, speed: p.speed, enemies: enemies});
@@ -203,7 +219,7 @@ GameSession.prototype.removePlayer = function(p) {
     this.engine.players[p.id] = p;
     p.init({});
     //return the player back to the main menu
-    this.engine.queuePlayer(p,'backToMainMenu',{id:p.id});
+    this.engine.queuePlayer(p,'backToMainMenu',{userData: {name: p.user.userData.userName, stats: p.user.userData.stats}});
     p.gameSession = null;
     delete this.players[p.id];
     this.playerCount -= 1;

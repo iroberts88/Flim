@@ -29,6 +29,8 @@
                 kill: null,
                 playerCount: null,
                 tint: null,
+
+                name: null,
                     
                 init: function(data) {
                     this.maxPathLength = 8;
@@ -54,6 +56,7 @@
                         this.tint = 0xFFFFFF;
                     }
 
+                    
 
                     this.rRotation = 0.067;
                     this.rDivider = 1.5;
@@ -76,7 +79,15 @@
                     this.sprite.tint = this.tint;
                     this.r2.tint = this.tint;
                     this.r1.tint = this.tint;
-
+                    if (typeof data.name != 'undefined' && data.name != 'guest'){
+                        this.name = new PIXI.Text(data.name, {font: '14px Orbitron', fill: 'white', align: 'left'});
+                        this.name.alpha = .8;
+                        this.name.anchor.x = 0.5;
+                        this.name.anchor.y = 1;
+                        this.name.position.x = 0;
+                        this.name.position.y = -20;
+                        this.player.addChild(this.name);
+                    }
                     if (typeof data.radius != 'undefined'){
                         this.setScale(data.radius/30);
                     }else{

@@ -202,19 +202,19 @@ Behaviour.prototype.square2 = function(enemy, deltaTime, data){
     }
     if (data.inPlay){
         var radius = 20;
-        if (enemy.sprite.position.x <= 0){
+        if (enemy.sprite.position.x < 0){
             enemy.sprite.position.x = 0;
             enemy.moveVector.x = enemy.moveVector.x * -1;
         }
-        if (enemy.sprite.position.y <= 0){
+        if (enemy.sprite.position.y < 0){
             enemy.sprite.position.y = 0;
             enemy.moveVector.y = enemy.moveVector.y * -1;
         }
-        if (enemy.sprite.position.x >= 1920){
+        if (enemy.sprite.position.x > 1920){
             enemy.sprite.position.x = 1920;
             enemy.moveVector.x = enemy.moveVector.x * -1;
         }
-        if (enemy.sprite.position.y >= 1080){
+        if (enemy.sprite.position.y > 1080){
             enemy.sprite.position.y = 1080;
             enemy.moveVector.y = enemy.moveVector.y * -1;
         }
