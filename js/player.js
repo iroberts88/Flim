@@ -7,5 +7,6 @@
     Player.pingTime = 0;
     Player.userData = null;
     Player.highScores = null;
+    Player.mouseLoc = [0,0];
     window.Player = Player;
 })(window);

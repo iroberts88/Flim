@@ -194,6 +194,9 @@ var Stats = function () {
 
             startTime = this.end();
 
+        },
+        getPing: function(){
+            return ping;
         }
 
     }

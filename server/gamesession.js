@@ -55,7 +55,7 @@ GameSession.prototype.init = function (data) {
                 timeBetweenEvents: .5,
                 warningTime: .4,
                 maxSquares: 4,
-                squaresEvery: 4
+                squaresEvery: 2
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -275,9 +275,19 @@ GameSession.prototype.addEnemy = function(eCode, data) {
             //hexagon
             eData.speed = 800;
             eData.behaviour = {name: 'basicMoveTowards', spring: 20, targetId: data.target};
+            eData.killFunc = {name: 'hexagonKill'};
+            if (data.n){
+                eData.killFunc.n = data.n;
+            }else{
+                eData.killFunc.n = 3;
+            }
             eData.radius = 20;
             eData.killToStartNextEvent = true;
-            eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
+            if (data.pos){
+                eData.pos = data.pos;
+            }else{
+                eData.pos = this.gameModeManager.getRandomPos(false,data.switchSides);
+            }
             eData.scoreBase = 5;
             eData.squareKill = true;
             break;

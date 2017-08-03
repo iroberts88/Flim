@@ -20,6 +20,7 @@ var behaviourEnums = {
     Pentagon: 'pentagon',
     Pentagon2: 'pentagon2',
     PentagonKill: 'pentagonKill',
+    HexagonKill: 'hexagonKill',
     Chaos: 'chaos',
     Trapezoid: 'trapezoid',
     Parallelogram: 'parallelogram'
@@ -170,19 +171,31 @@ Behaviour.prototype.pentagonKill = function(enemy, deltaTime, data){
     var enemiesAdded = [];
     var pos = [enemy.hitData.pos.x, enemy.hitData.pos.y];
     if (data.stage == 1){
-        var vec = new V(0,1);
-        for (var i = 0; i < 12;i++){
+        var vec = new V(0,-1);
+        for (var i = 0; i < 5;i++){
             var e = enemy.gameSession.addEnemy('pent2',{pos:pos, moveVec:[vec.x,vec.y], target: enemy.behaviour.targetId});
             enemiesAdded.push({type: 'pent2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-            vec.rotate(0.523599);
+            vec.rotate(1.25664);
         }
     }else if (data.stage == 2){
         var vec = new V(0,1);
-        for (var i = 0; i < 6;i++){
+        for (var i = 0; i < 5;i++){
             var e = enemy.gameSession.addEnemy('pent3',{pos:pos, moveVec:[vec.x,vec.y], target: enemy.behaviour.targetId});
             enemiesAdded.push({type: 'pent3', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
-            vec.rotate(1.0472);
+            vec.rotate(1.25664);
         }
+    }
+    enemy.gameSession.queueData('addEnemies', {data: enemiesAdded});
+}
+
+Behaviour.prototype.hexagonKill = function(enemy, deltaTime, data){
+    var enemiesAdded = [];
+    var vec = new V(enemy.moveVector.x,enemy.moveVector.y).normalize();
+    var pos = [enemy.hitData.pos.x + vec.x*2200,enemy.hitData.pos.y + vec.y*2200];
+    if (data.n > 1){
+        var e = enemy.gameSession.addEnemy('hex',{pos:pos, target: enemy.behaviour.targetId, n: (data.n-1)});
+        enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+
     }
     enemy.gameSession.queueData('addEnemies', {data: enemiesAdded});
 }
@@ -222,22 +235,22 @@ Behaviour.prototype.square2 = function(enemy, deltaTime, data){
     }
     if (data.inPlay){
         var radius = 20;
-        if (enemy.hitData.pos.x <= 0){
+        if (enemy.hitData.pos.x < 0){
             enemy.hitData.pos.x = 0;
             enemy.moveVector.x = enemy.moveVector.x * -1;
             update = true;
         }
-        if (enemy.hitData.pos.y <= 0){
+        if (enemy.hitData.pos.y < 0){
             enemy.hitData.pos.y = 0;
             enemy.moveVector.y = enemy.moveVector.y * -1;
             update = true;
         }
-        if (enemy.hitData.pos.x >= 1920){
+        if (enemy.hitData.pos.x > 1920){
             enemy.hitData.pos.x = 1920;
             enemy.moveVector.x = enemy.moveVector.x * -1;
             update = true;
         }
-        if (enemy.hitData.pos.y >= 1080){
+        if (enemy.hitData.pos.y > 1080){
             enemy.hitData.pos.y = 1080;
             enemy.moveVector.y = enemy.moveVector.y * -1;
             update = true;
@@ -407,6 +420,9 @@ Behaviour.prototype.getBehaviour = function(actionStr){
             break;
         case behaviourEnums.PentagonKill:
             return Behaviour.pentagonKill;
+            break;
+        case behaviourEnums.HexagonKill:
+            return Behaviour.hexagonKill;
             break;
         case behaviourEnums.Chaos:
             return Behaviour.chaos;

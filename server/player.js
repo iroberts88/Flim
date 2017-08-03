@@ -162,13 +162,17 @@ Player = function(){
                         break;
                     case 'god':
                         //toggle god mode
-                        commandBool = true
-                        if (that.god){
-                            that.god = false;
+                        if (that.user.userData.admin){
+                            commandBool = true
+                            if (that.god){
+                                that.god = false;
+                            }else{
+                                that.god = true;
+                            }
+                            break;
                         }else{
-                            that.god = true;
+                            console.log('Not an admin');
                         }
-                        break;
                     case 'how':
                         commandBool = true;
                         if (commands[1] == 'do'){
@@ -186,9 +190,11 @@ Player = function(){
                         }
                         break;
                     case 'test':
-                        commandBool = true;
-                        if (!that.gameSession){
-                            that.tryingToJoinGame = 'secret';
+                        if (that.user.userData.admin){
+                            commandBool = true;
+                            if (!that.gameSession){
+                                that.tryingToJoinGame = 'secret';
+                            }
                         }
                         break;
                     case 'stars':
@@ -198,24 +204,30 @@ Player = function(){
                         }
                         break;
                     case 'setlevel':
-                        commandBool = true;
-                        try{
-                            that.gameSession.level = parseInt(commands[1]);
-                        }catch(e){
+                        if (that.user.userData.admin){
+                            commandBool = true;
+                            try{
+                                that.gameSession.level = parseInt(commands[1]);
+                            }catch(e){
 
+                            }
                         }
                         break;
                     case 't':
-                        commandBool = true;
-                        try{
-                            that.gameSession.level = 666;
-                        }catch(e){
-                            
+                        if (that.user.userData.admin){
+                            commandBool = true;
+                            try{
+                                that.gameSession.level = 666;
+                            }catch(e){
+                                
+                            }
                         }
                         break;
                     case 'log':
-                        commandBool = true;
-                        console.log('log');
+                        if (that.user.userData.admin){
+                            commandBool = true;
+                            console.log('log');
+                        }
                         break;
                     case 'ping':
                         commandBool = true;
@@ -320,47 +332,52 @@ Player = function(){
         //TODO - set player variable to show they are logged in
         //on the client - catch "loggedIn" and move to the main menu, display stats, add logout button
         this.socket.on('createUser', function (data) {
-            if (!that.gameSession && data.sn && data.pw){
-                var url = 'mongodb://127.0.0.1/wisp'; 
+            try{
                 data.sn = data.sn.toLowerCase();
-                mongo.connect(url, function(err, db) {
-                    
-                    // ---- Attemp to create new user ----
-                    var query = { userName: data.sn };
-                    //make sure the username is not in use
-                    db.collection('users').find(query).toArray(function(err, arr) {
-                        if (err) throw err;
-                        //SET USER DATA TO NEW USER
-                        if (data.sn.length >= 3 && data.sn.length <= 16 && data.pw.length >= 8 && data.pw.length <= 16 && arr.length == 0){
-                            console.log('valid account info - creating account');
-                            var u = {
-                                userName: data.sn,
-                                password: data.pw
-                            };
-                            that.user = User();
-                            that.user.init(u)
-                            that.user.setOwner(that);
-                            db.collection('users').insertOne(that.user.userData, function(err, res) {
-                                if (err) throw err;
-                                console.log("added user: " + data.sn);
-                            });
-                            var query = { userName: data.sn };
-                            db.collection('users').find(query).toArray(function(err, arr2) {
-                                that.gameEngine.users[arr2[0]._id] = arr2[0];
-                                that.gameEngine._userIndex[data.sn] = arr2[0]._id;
-                                that.gameEngine.queuePlayer(that,"loggedIn", {name:arr2[0].userName,stats:arr2[0].stats});
-                            });
-                        }else if (arr.length != 0){
-                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'uiu'});
-                        }else if (data.sn.length < 3 || data.sn.length > 16){
-                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'ule'});
-                        }else if (data.pw.length < 8 || data.pw.length > 16){
-                            that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'ple'});
-                        }
-                        db.close();
-                    });
+                if (!that.gameSession && data.sn != 'guest' && data.pw){
+                    var url = 'mongodb://127.0.0.1/wisp';
+                    mongo.connect(url, function(err, db) {
+                        
+                        // ---- Attemp to create new user ----
+                        var query = { userName: data.sn };
+                        //make sure the username is not in use
+                        db.collection('users').find(query).toArray(function(err, arr) {
+                            if (err) throw err;
+                            //SET USER DATA TO NEW USER
+                            if (data.sn.length >= 3 && data.sn.length <= 16 && data.pw.length >= 8 && data.pw.length <= 16 && arr.length == 0){
+                                console.log('valid account info - creating account');
+                                var u = {
+                                    userName: data.sn,
+                                    password: data.pw
+                                };
+                                that.user = User();
+                                that.user.init(u)
+                                that.user.setOwner(that);
+                                db.collection('users').insertOne(that.user.userData, function(err, res) {
+                                    if (err) throw err;
+                                    console.log("added user: " + data.sn);
+                                });
+                                var query = { userName: data.sn };
+                                db.collection('users').find(query).toArray(function(err, arr2) {
+                                    that.gameEngine.users[arr2[0]._id] = arr2[0];
+                                    that.gameEngine._userIndex[data.sn] = arr2[0]._id;
+                                    that.gameEngine.queuePlayer(that,"loggedIn", {name:arr2[0].userName,stats:arr2[0].stats});
+                                });
+                            }else if (arr.length != 0){
+                                that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'uiu'});
+                            }else if (data.sn.length < 3 || data.sn.length > 16){
+                                that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'ule'});
+                            }else if (data.pw.length < 8 || data.pw.length > 16){
+                                that.gameEngine.queuePlayer(that,"setLoginErrorText", {text: 'ple'});
+                            }
+                            db.close();
+                        });
 
-                });
+                    });
+                }
+            }catch(e){
+                console.log('error creating user');
+                console.log(e.stack);
             }
         });
 

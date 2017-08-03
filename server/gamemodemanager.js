@@ -441,12 +441,14 @@ GameModeManager.prototype.tickPlayersCoop = function(deltaTime){
         //there are no active PLayers... they have all died. remove all from session after countdown!
         if (!this.sentCoopLose){
             this.session.queueData('youLose', {score:this.score});
-            for (var i in this.session.players){
-                var player = this.session.players[i];
-                player.user.checkCoopHighScore(this.score);
-                player.user.checkCoopLevelRecord(this.session.level-1);
+            if (this.gameMode == 'coop'){
+                for (var i in this.session.players){
+                    var player = this.session.players[i];
+                    player.user.checkCoopHighScore(this.score);
+                    player.user.checkCoopLevelRecord(this.session.level-1);
+                }
+                this.session.engine.checkCoopHighScore(this.session.players,this.score,this.session.level-1);
             }
-            this.session.engine.checkCoopHighScore(this.session.players,this.score,this.session.level-1);
             this.sentCoopLose = true;
             this.session.canJoin = false;
         }

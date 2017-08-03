@@ -230,6 +230,44 @@
             g.lineTo(sprite.position.x + sprite.width/2 - xbuffer,sprite.position.y + sprite.height/2 - ybuffer);
             g.lineTo(sprite.position.x - sprite.width/2 + xbuffer,sprite.position.y + sprite.height/2 - ybuffer);
             g.lineTo(sprite.position.x - sprite.width/2 + xbuffer,sprite.position.y - sprite.height/2 + ybuffer);
+        },
+        setSlideBar: function(bar,func){
+            bar.on('mousedown', function onClick(){
+                bar.clicked = true;
+            });
+            bar.on('mouseup', function onClick(e){
+                if (bar.clicked){
+                    var position = e.data.getLocalPosition(e.target);
+                    var start =  -1 * bar._width/2;
+                    var percent = (position.x - start) / bar._width;
+                    if (percent < 0){percent = 0;}
+                    if (percent > 1){percent = 1;}
+                    func(percent);
+                    bar.percent = percent;
+                }
+                bar.clicked = false;
+            });
+            bar.on('mouseupoutside', function onClick(){
+                bar.clicked = false;
+            });
+            bar.on('touchstart', function onClick(){
+                bar.clicked = true;
+            });
+            bar.on('touchend', function onClick(e){
+                if (bar.clicked){
+                    var position = e.data.getLocalPosition(e.target);
+                    var start =  -1 * bar._width/2;
+                    var percent = (position.x - start) / bar._width;
+                    if (percent < 0){percent = 0;}
+                    if (percent > 1){percent = 1;}
+                    func(percent);
+                    bar.percent = percent;
+                }
+                bar.clicked = false;
+            });
+            bar.on('touchendoutside', function onClick(){
+                bar.clicked = false;
+            });
         }
     };
 

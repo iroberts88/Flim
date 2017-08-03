@@ -51,7 +51,6 @@
             RELOAD: 6,
             SWAPWEAP: 7,
             INTERACT: 8,
-            RELOAD: 9,
             TOGGLEMAP: 10,
             TOGGLESTATS: 11,
             BACKSPACE: 12
