@@ -24,11 +24,9 @@ $(function() {
       google: {
         families: [ 'Audiowide', 'Arvo', 'Podkova:700' , 'Electrolize', 'Orbitron', 'Sigmar One','Audiowide']
       },
-
       active: function() {
         // do something
       }
-
     };
     (function() {
         var wf = document.createElement('script');
@@ -38,7 +36,7 @@ $(function() {
         wf.async = 'true';
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(wf, s);
-      })();
+    })();
 
     // initialize Graphics
     document.body.style.margin = "0px 0px 0px 0px";

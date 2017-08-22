@@ -141,7 +141,7 @@ GameSession.prototype.init = function (data) {
             this.gameModeManager.killPlayerFunc = this.gameModeManager.killPlayer;
             this.gameModeManager.tickPlayersFunc = this.gameModeManager.tickPlayers;
             this.gameModeManager.tickEnemiesFunc = this.gameModeManager.tickEnemies;
-            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri','trap','hex','chaos','star'];
+            this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri','pent3','chaos','c1','c2','c3','tri','pent3','chaos','c1','c2','c3','tri','pent3','chaos','trap','hex','star','pent','pent2'];
             break;
     }
     this.gameModeManager.gameMode = data.gameMode;
@@ -394,6 +394,9 @@ GameSession.prototype.addEnemy = function(eCode, data) {
         case "pent2":
             //pentagon
             eData.speed = 450;
+            if (typeof data.moveVec == 'undefined'){
+                data.moveVec = [0,0];
+            }
             eData.behaviour = {name: 'pentagon2', spring: 3.5, targetId: data.target,moveVec:data.moveVec};
             eData.killFunc = {name: 'pentagonKill', stage: 2};
             eData.radius = 12;
@@ -406,6 +409,9 @@ GameSession.prototype.addEnemy = function(eCode, data) {
         case "pent3":
             //pentagon
             eData.speed = 400;
+            if (typeof data.moveVec == 'undefined'){
+                data.moveVec = [0,0];
+            }
             eData.behaviour = {name: 'pentagon2', spring: 3.5, targetId: data.target,moveVec:data.moveVec};
             eData.radius = 8;
             eData.killToStartNextEvent = true;
@@ -434,6 +440,7 @@ GameSession.prototype.emit = function() {
     try{
         var i;
         for(i in this.players) {
+            this.players[i].netQueue.push(Date.now());
             this.players[i].socket.emit('serverUpdate', this.players[i].netQueue);
         }
     }catch(e){
@@ -454,7 +461,7 @@ GameSession.prototype.queueData = function(c, d) {
 }
 
 //Queue data to a specific player
-GameSession.prototype.queuePlayer = function(player, c, d) {
+GameSession.prototype.queuePlayer = function(player, c, d,t) {
     var data = { call: c, data: d};
     player.netQueue.push(data);
 }

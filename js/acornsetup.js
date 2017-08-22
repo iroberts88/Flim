@@ -214,11 +214,23 @@
             });
 
             Acorn.Net.on('addEnemies', function (data) {
+                Player.receivedEnemies = true;
+                var serverScriptTime = data.timeStamp - data.received;
+                var responseTime = (Date.now() - Player.erTime);
+                var ms = 0;
+                ms = Math.min(0,(responseTime - serverScriptTime)/2000);
                 if (!Player.gameEnded){
-                  for (var i = 0; i < data.data.length; i++){
-                    Enemies.addEnemy(data.data[i]);
+                  for (var i = 0; i < data.enemies.length; i++){
+                    Enemies.addEnemy(data.enemies[i],ms);
                   }
                 }
+            });
+
+            Acorn.Net.on('enemiesReady', function (data) {
+                //the server is ready to send down a batch of enemies
+                Player.erTime = Date.now();
+                Player.receivedEnemies = false;
+                Acorn.Net.socket_.emit('playerUpdate', {requestEnemies: true});
             });
 
             Acorn.Net.on('removeEnemy', function (data) {

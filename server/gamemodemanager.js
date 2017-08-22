@@ -35,7 +35,6 @@ var GameModeManager = function(session) {
 }
 
 GameModeManager.prototype.init = function (data) {
-    //TODO different game types etc. in init
     this.timePerEvent = data.timePerEvent;
     this.timeBetweenEvents = data.timeBetweenEvents;
     this.timePerEventTicker = 0;
@@ -121,26 +120,33 @@ GameModeManager.prototype.normalTick = function(deltaTime){
 GameModeManager.prototype.starsTick = function(deltaTime){
     this.totalTime += deltaTime;
     this.starsTicker += deltaTime;
+    var enemiesAdded = [];
     if (this.starsTicker >= 1.0){
         //add star
         if (this.starsCurrent < this.starsMax){
-            var enemiesAdded = [];
             var e = this.session.addEnemy('star',{});
-            enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            enemiesAdded.push(e);
             this.session.queueData('addEnemies', {data: enemiesAdded});
             this.starsTicker -= 1.0;
             this.starsCurrent += 1;
         }else if (this.starsTicker >= 10.0){
-            var enemiesAdded = [];
             for (var player in this.session.players){
                 var e = this.session.addEnemy('tri',{target: player});
-                enemiesAdded.push({type: 'tri', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
             }
             this.session.queueData('addEnemies', {data: enemiesAdded});
             this.starsTicker -= 10.0;
             this.starsCurrent += 1;
         }
     }
+    for (var player in this.session.players){
+        var p = this.session.players[player];
+        for (var i = 0; i < enemiesAdded.length;i++){
+            var e = enemiesAdded[i];
+            p.enemiesToAdd.push({type:e.type,id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour})
+        }
+    }
+    this.session.queueData('enemiesReady', {});
 }
 
 
@@ -174,11 +180,11 @@ GameModeManager.prototype.newEvent = function() {
             }
             if (Math.random()*100 < chance){
                 var e = this.session.addEnemy('sq2',data);
-                enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
+                enemiesAdded.push(e);
                 this.squares.push(e);
             }else{
                 var e = this.session.addEnemy('sq',data);
-                enemiesAdded.push({type: 'sq', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                enemiesAdded.push(e);
                 this.squares.push(e);
             }
         }
@@ -186,12 +192,12 @@ GameModeManager.prototype.newEvent = function() {
             for (var i = 0; i < Math.min(3,Math.ceil(this.session.level/26));i++){
                 data.target = player;
                 var e = this.session.addEnemy('pent',data);
-                enemiesAdded.push({type: 'pent', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
             }
         }
         for (var i = 0; i < Math.min(10,Math.floor(this.session.level/14));i++){
             var e = this.session.addEnemy('star',data);
-            enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
         }
     }else if (this.session.level % 25 == 0){
         //parallellogram event!!!
@@ -204,7 +210,7 @@ GameModeManager.prototype.newEvent = function() {
         var num = Math.min(10,Math.ceil(this.session.level / 17));
         for (var i = 0; i < num; i++){
             var e = this.session.addEnemy('star',data);
-            enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
         }
         //add parallelograms
         enemiesAdded = this.getParallelograms(enemiesAdded);
@@ -223,11 +229,11 @@ GameModeManager.prototype.newEvent = function() {
             }
             if (Math.random()*100 < chance){
                 var e = this.session.addEnemy('sq2',data);
-                enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
+                enemiesAdded.push(e);
                 this.squares.push(e);
             }else{
                 var e = this.session.addEnemy('sq',data);
-                enemiesAdded.push({type: 'sq', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                enemiesAdded.push(e);
                 this.squares.push(e);
             }
         }
@@ -250,7 +256,7 @@ GameModeManager.prototype.newEvent = function() {
             for (var i = 0; i < positions.length; i++){
                 data.pos = positions[i];
                 var e = this.session.addEnemy('trap',data);
-                enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                enemiesAdded.push(e);
                 e.hitData.rotate(3.14);
             }
             positions = [[64,1112],[192,1112],[320,1112],[448,1112],[576,1112],[704,1112],[832,1112],[960,1112],[1088,1112],
@@ -258,20 +264,20 @@ GameModeManager.prototype.newEvent = function() {
             for (var i = 0; i < positions.length; i++){
                 data.pos = positions[i];
                 var e = this.session.addEnemy('trap',data);
-                enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                enemiesAdded.push(e);
             }
             positions = [[-32,192],[-32,320],[-32,448],[-32,576],[-32,704],[-32,832],[-32,960]];
             for (var i = 0; i < positions.length; i++){
                 data.pos = positions[i];
                 var e = this.session.addEnemy('trap',data);
-                enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                enemiesAdded.push(e);
                 e.hitData.rotate(-1.57);
             }
             positions = [[1952,192],[1952,320],[1952,448],[1952,576],[1952,704],[1952,832],[1952,960]];
             for (var i = 0; i < positions.length; i++){
                 data.pos = positions[i];
                 var e = this.session.addEnemy('trap',data);
-                enemiesAdded.push({type: 'trap', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y});
+                enemiesAdded.push(e);
                 e.hitData.rotate(1.57);
             }
         }
@@ -288,22 +294,22 @@ GameModeManager.prototype.newEvent = function() {
                 }
                 data.target = player;
                 var e = this.session.addEnemy(type,data);
-                enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
             }
             if (this.session.level == 20){
                 data.target = player;
                 var e = this.session.addEnemy('hex',data);
-                enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
             }
             if (this.session.level >= 27 && this.session.level%3 == 0){
                 if (Math.round(Math.random())){
                     data.target = player;
                     var e = this.session.addEnemy('hex',data);
-                    enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                    enemiesAdded.push(e);
                 }else{
                     data.target = player;
                     var e = this.session.addEnemy('pent',data);
-                    enemiesAdded.push({type: 'pent', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                    enemiesAdded.push(e);
                 }
             }
         }
@@ -311,11 +317,18 @@ GameModeManager.prototype.newEvent = function() {
         if (this.session.level >= 15){
             for (var i = 0; i < stars; i++){
                 var e = this.session.addEnemy('star',data);
-                enemiesAdded.push({type: 'star', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                enemiesAdded.push(e);
             }
         }
     }
-    this.session.queueData('addEnemies', {data: enemiesAdded});
+    for (var player in this.session.players){
+        var p = this.session.players[player];
+        for (var i = 0; i < enemiesAdded.length;i++){
+            var e = enemiesAdded[i];
+            p.enemiesToAdd.push({type:e.type,id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour})
+        }
+    }
+    this.session.queueData('enemiesReady', {});
     this.session.level += 1;
     this.warningSent = false;
 }
@@ -336,7 +349,7 @@ GameModeManager.prototype.chaosEvent = function() {
             this.squares.splice(r,1);
         }
         var e = this.session.addEnemy('sq2',data);
-        enemiesAdded.push({type: 'sq2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour:e.behaviour});
+        enemiesAdded.push(e);
         this.squares.push(e);
     }
     rand = Math.ceil(rand/this.session.playerCount);
@@ -346,15 +359,22 @@ GameModeManager.prototype.chaosEvent = function() {
             data.target = player;
             data.pos = this.getRandomPos(true,false);
             var e = this.session.addEnemy(type,data);
-            enemiesAdded.push({type: type, id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            enemiesAdded.push(e);
         }
     }
     for (var p = 0; p < Math.round(Math.random()*8); p++){
         data.pos = this.getRandomPos(true,false);
         var e = this.session.addEnemy('par', data);
-        enemiesAdded.push({type: 'par', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+        enemiesAdded.push(e);
     }
-    this.session.queueData('addEnemies', {data: enemiesAdded});
+    for (var player in this.session.players){
+        var p = this.session.players[player];
+        for (var i = 0; i < enemiesAdded.length;i++){
+            var e = enemiesAdded[i];
+            p.enemiesToAdd.push({type:e.type,id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour})
+        }
+    }
+    this.session.queueData('enemiesReady', {});
     this.session.level += 1;
     this.warningSent = false;
 }
@@ -384,7 +404,6 @@ GameModeManager.prototype.killPlayerStars = function(player){
 }
 
 GameModeManager.prototype.killPlayerCoop = function(player){
-    //TODO - score multiplier for this level should be 0 when a player dies
     player.kill = true;
     player.revive = true;
     this.session.queueData('killPlayer', {id:player.id});
@@ -625,7 +644,7 @@ GameModeManager.prototype.getParallelograms = function(enemiesAdded) {
             for (var j = 0; j < arr[i].length;j++){
                 if (arr[i][j]){
                     var e = this.session.addEnemy('par', {pos: [rowStart+192*i,colStart+(128*j)]});
-                    enemiesAdded.push({type: 'par', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                    enemiesAdded.push(e);
                 }
             }
         }
@@ -634,7 +653,7 @@ GameModeManager.prototype.getParallelograms = function(enemiesAdded) {
             for (var j = 0; j < arr[i].length;j++){
                 if (arr[i][j]){
                     var e = this.session.addEnemy('par', {pos: [rowStart+192*j,colStart+(128*i)]});
-                    enemiesAdded.push({type: 'par', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+                    enemiesAdded.push(e);
                 }
             }
         }

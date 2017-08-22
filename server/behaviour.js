@@ -138,7 +138,6 @@ Behaviour.prototype.pentagon = function(enemy, deltaTime, data){
 };
 
 Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
-    data.update = false;
     if (!enemy.moveVector){
         enemy.moveVector = new V(data.moveVec[0],data.moveVec[1]);
     }
@@ -152,7 +151,6 @@ Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
     if (data.ticker > .5 && !data.inPlay){
         enemy.squareKill = true;
         data.inPlay = true;
-        data.update = true;
     }
     if (data.inPlay){
         var Behaviour = require('./behaviour.js').Behaviour;
@@ -161,9 +159,6 @@ Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
         //move
         enemy.hitData.pos.x += enemy.speed * enemy.moveVector.x * deltaTime;
         enemy.hitData.pos.y += enemy.speed * enemy.moveVector.y * deltaTime;
-    }
-    if (data.update){
-        enemy.gameSession.queueData('updateEnemyLoc',{id: enemy.id,newPos: [enemy.hitData.pos.x,enemy.hitData.pos.y],newDir: [enemy.moveVector.x,enemy.moveVector.y]});
     }
 };
 
@@ -174,18 +169,25 @@ Behaviour.prototype.pentagonKill = function(enemy, deltaTime, data){
         var vec = new V(0,-1);
         for (var i = 0; i < 5;i++){
             var e = enemy.gameSession.addEnemy('pent2',{pos:pos, moveVec:[vec.x,vec.y], target: enemy.behaviour.targetId});
-            enemiesAdded.push({type: 'pent2', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            enemiesAdded.push(e);
             vec.rotate(1.25664);
         }
     }else if (data.stage == 2){
         var vec = new V(0,1);
         for (var i = 0; i < 5;i++){
             var e = enemy.gameSession.addEnemy('pent3',{pos:pos, moveVec:[vec.x,vec.y], target: enemy.behaviour.targetId});
-            enemiesAdded.push({type: 'pent3', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+            enemiesAdded.push(e);
             vec.rotate(1.25664);
         }
     }
-    enemy.gameSession.queueData('addEnemies', {data: enemiesAdded});
+    for (var player in enemy.gameSession.players){
+        var p = enemy.gameSession.players[player];
+        for (var i = 0; i < enemiesAdded.length;i++){
+            var e = enemiesAdded[i];
+            p.enemiesToAdd.push({type:e.type,id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour})
+        }
+    }
+    enemy.gameSession.queueData('enemiesReady', {});
 }
 
 Behaviour.prototype.hexagonKill = function(enemy, deltaTime, data){
@@ -194,10 +196,17 @@ Behaviour.prototype.hexagonKill = function(enemy, deltaTime, data){
     var pos = [enemy.hitData.pos.x + vec.x*2200,enemy.hitData.pos.y + vec.y*2200];
     if (data.n > 1){
         var e = enemy.gameSession.addEnemy('hex',{pos:pos, target: enemy.behaviour.targetId, n: (data.n-1)});
-        enemiesAdded.push({type: 'hex', id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour});
+        enemiesAdded.push(e);
 
     }
-    enemy.gameSession.queueData('addEnemies', {data: enemiesAdded});
+    for (var player in enemy.gameSession.players){
+        var p = enemy.gameSession.players[player];
+        for (var i = 0; i < enemiesAdded.length;i++){
+            var e = enemiesAdded[i];
+            p.enemiesToAdd.push({type:e.type,id: e.id, x: e.hitData.pos.x, y: e.hitData.pos.y, behaviour: e.behaviour})
+        }
+    }
+    enemy.gameSession.queueData('enemiesReady', {});
 }
 
 Behaviour.prototype.square = function(enemy, deltaTime, data){

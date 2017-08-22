@@ -42,6 +42,8 @@ Player = function(){
 
     player.user = null;
 
+    player.enemiesToAdd = null;
+
     player.init = function (data) {
         //init player specific variables
         this.speed = 6000;
@@ -62,7 +64,9 @@ Player = function(){
 
         this.vectorHitbox = new P(new V(960,540),[new V(0,-1),new V(0,1),new V(10,1),new V(10,-1)]);
 
-        player.tryingToJoinGame = false;
+        this.tryingToJoinGame = false;
+
+        this.enemiesToAdd = [];
 
         if (typeof data.socket != 'undefined'){
             this.socket = data.socket;
@@ -119,15 +123,31 @@ Player = function(){
                     //update the new location
                     that.targetPosition.x = data.newMouseLoc[0];
                     that.targetPosition.y= data.newMouseLoc[1];
+                }else if(data.requestEnemies){
+                    var enemiesToAdd = [];
+                    that.gameSession.queuePlayer(that,'addEnemies',{enemies: that.enemiesToAdd, received: Date.now()});
+                    that.enemiesToAdd = [];
+                }else if (data.killedEnemy){
+                    try{
+                        that.gameSession.enemies[data.killedEnemy].kill = true;
+                    }catch(e){
+                        //console.log(e);
+                        //TODO check if the enemy was actually killed // is even close to a square
+                    }
                 }
             }else{
                 if (data.requestPlayerCount){
                     that.gameEngine.queuePlayer(that,'updatePlayerCount', {p: that.gameEngine.playerCount});
                 }else if (data.logout){
-                    that.user.unlock();
-                    that.user.updateDB();
-                    that.user = null;
-                    that.gameEngine.queuePlayer(that,'logout', {});
+                    try{
+                        that.gameEngine.queuePlayer(that,'logout', {});
+                        that.user.unlock();
+                        that.user.updateDB();
+                        that.user = null;
+                    }catch(e){
+                        console.log('error - unable to logout user');
+                        console.log(e.stack);
+                    }
                 }else if (data.requestHighScores){
                     that.gameEngine.queuePlayer(that,'highScores', {
                         solo: that.gameEngine.soloHighScores,
@@ -298,7 +318,7 @@ Player = function(){
                     }else if (data.sn && data.pw){
                         data.sn = data.sn.toLowerCase();
                         if (!that.gameEngine.users[that.gameEngine._userIndex[data.sn.toLowerCase()]].lock){
-                            var url = 'mongodb://127.0.0.1/wisp';
+                            var url = 'mongodb://127.0.0.1/lithiumAve';
                             mongo.connect(url, function(err, db) {
                                 // ---- Attemp to find existing user ----
                                 var query = { userName: data.sn };
@@ -335,7 +355,7 @@ Player = function(){
             try{
                 data.sn = data.sn.toLowerCase();
                 if (!that.gameSession && data.sn != 'guest' && data.pw){
-                    var url = 'mongodb://127.0.0.1/wisp';
+                    var url = 'mongodb://127.0.0.1/lithiumAve';
                     mongo.connect(url, function(err, db) {
                         
                         // ---- Attemp to create new user ----

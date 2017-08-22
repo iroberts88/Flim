@@ -16,9 +16,6 @@ var behaviourEnums = {
 };
 
 Behaviour.prototype.chaos = function(enemy, deltaTime, data){
-    if (typeof data.changedSpeed == 'undefined'){
-        data.changedSpeed = false;
-    }
     if (typeof data.colorShift == 'undefined'){
         data.colorShift = {
             r: 255,
@@ -28,13 +25,10 @@ Behaviour.prototype.chaos = function(enemy, deltaTime, data){
             speed: 10.0
         };
     }
-    if (!data.changedSpeed){
-        enemy.speed = data.speed;
-        data.changedSpeed = true;
-    }
+    enemy.speed = data.speed;
     Utils.colorShifter(data.colorShift);
     var c = '0x' + Utils.componentToHex(Math.round(data.colorShift.r)) + Utils.componentToHex(Math.round(data.colorShift.g)) + Utils.componentToHex(Math.round(data.colorShift.b));
-    parseInt(c);
+    c = parseInt(c);
     enemy.sprite.tint = c;
     Behaviour.basicMoveTowards(enemy,deltaTime, data);
 }
@@ -86,6 +80,8 @@ Behaviour.prototype.basicMoveTowards = function(enemy, deltaTime, data){
     //move
     enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    enemy.hitData.pos.x = enemy.sprite.position.x;
+    enemy.hitData.pos.y = enemy.sprite.position.y;
 };
 
 Behaviour.prototype.pentagon = function(enemy, deltaTime, data){
@@ -129,6 +125,8 @@ Behaviour.prototype.pentagon = function(enemy, deltaTime, data){
     //move
     enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    enemy.hitData.pos.x = enemy.sprite.position.x;
+    enemy.hitData.pos.y = enemy.sprite.position.y;
 };
 
 Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
@@ -154,12 +152,15 @@ Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
     }
     data.ticker += deltaTime;
     if (data.ticker > .5){
+        enemy.canBeKilled = true;
         data.rotate = false;
         Behaviour.basicMoveTowards(enemy,deltaTime,data);
     }else{
         //move
         enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
         enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+        enemy.hitData.pos.x = enemy.sprite.position.x;
+        enemy.hitData.pos.y = enemy.sprite.position.y;
     }
     
 };
@@ -175,20 +176,21 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
     }
     data.alphaTicker += (deltaTime/2);
 
-    /*
+    
     for (var i in Enemies.enemyList){
-        var e = enemy.gameSession.enemies[i];
+        var e = Enemies.enemyList[i];
         var kill = false;
-        if (e.type !== 'sq' && e.type !== 'sq2'){
+        if (e.canBeKilled){
             //collide?
             if (SAT.testPolygonPolygon(enemy.hitData, e.hitData)){
                 kill = true;
             }
         }
         if (kill){
-            e.kill = true;
+            e.sprite.visible = false;
+            Acorn.Net.socket_.emit('playerUpdate', {killedEnemy: e.id});
         }
-    }*/
+    }
 };
 
 Behaviour.prototype.square2 = function(enemy, deltaTime, data){
@@ -226,6 +228,8 @@ Behaviour.prototype.square2 = function(enemy, deltaTime, data){
     //move
     enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    enemy.hitData.pos.x = enemy.sprite.position.x;
+    enemy.hitData.pos.y = enemy.sprite.position.y;
 };
 
 Behaviour.prototype.star = function(enemy, deltaTime, data){
@@ -268,6 +272,8 @@ Behaviour.prototype.star = function(enemy, deltaTime, data){
     //move
     enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    enemy.hitData.pos.x = enemy.sprite.position.x;
+    enemy.hitData.pos.y = enemy.sprite.position.y;
 };
 
 Behaviour.prototype.trapezoid = function(enemy, deltaTime, data){
@@ -314,6 +320,8 @@ Behaviour.prototype.trapezoid = function(enemy, deltaTime, data){
     //move
     enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    enemy.hitData.pos.x = enemy.sprite.position.x;
+    enemy.hitData.pos.y = enemy.sprite.position.y;
 };
 
 Behaviour.prototype.parallelogram = function(enemy, deltaTime, data){
@@ -335,6 +343,8 @@ Behaviour.prototype.parallelogram = function(enemy, deltaTime, data){
     //move
     enemy.sprite.position.x += enemy.speed * enemy.moveVector.x * deltaTime;
     enemy.sprite.position.y += enemy.speed * enemy.moveVector.y * deltaTime;
+    enemy.hitData.pos.x = enemy.sprite.position.x;
+    enemy.hitData.pos.y = enemy.sprite.position.y;
 };
 
 Behaviour.prototype.getBehaviour = function(actionStr){

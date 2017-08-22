@@ -1,4 +1,8 @@
 //Enemies
+var P = SAT.Polygon,
+    V = SAT.Vector,
+    C = SAT.Circle;
+
 
 (function(window) {
 
@@ -64,11 +68,13 @@
         alterEnemy: function(data){
           
         },
-        addEnemy: function(data){
+        addEnemy: function(data,ms){
            var newEnemy = {id: data.id,type: data.type};
            switch(data.type){
                 case "chaos":
                     //????
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:10,pos: [data.x,data.y]});
                     newEnemy.speed = 0;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('circle');
@@ -82,6 +88,8 @@
                     break;
                 case "star":
                     //bouncing star
+                    newEnemy.canBeKilled = false;
+                    newEnemy.hitData = Enemies.getHitData({radius:20,pos: [data.x,data.y]});
                     newEnemy.speed = 450;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('star');
@@ -95,6 +103,8 @@
                     break;
                 case "hex":
                     //hexagon
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:20,pos: [data.x,data.y]});
                     newEnemy.speed = 800;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('hexagon');
@@ -108,6 +118,8 @@
                     break;
                 case "tri":
                     //triangle
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:30,pos: [data.x,data.y]});
                     newEnemy.speed = 700;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('triangle');
@@ -121,6 +133,8 @@
                     break;
                 case "c1":
                     //slow circle
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:8,pos: [data.x,data.y]});
                     newEnemy.speed = 450;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('circle');
@@ -134,6 +148,8 @@
                     break;
                 case "c2":
                     //med circle
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:8,pos: [data.x,data.y]});
                     newEnemy.speed = 600;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('circle');
@@ -147,6 +163,8 @@
                     break;
                 case "c3":
                     //fast circle
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:8,pos: [data.x,data.y]});
                     newEnemy.speed = 750;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('circle');
@@ -160,6 +178,8 @@
                     break;
                 case "sq":
                     //square
+                    newEnemy.canBeKilled = false;
+                    newEnemy.hitData = Enemies.getHitData({hitBoxSize:[60,60],pos: [data.x,data.y]});
                     newEnemy.speed = 0;
                     newEnemy.behaviour = {name: 'square'};
                     newEnemy.sprite = Graphics.getSprite('square');
@@ -173,6 +193,8 @@
                     break;
                 case "sq2":
                     //square2
+                    newEnemy.canBeKilled = false;
+                    newEnemy.hitData = Enemies.getHitData({hitBoxSize:[60,60],pos: [data.x,data.y]});
                     newEnemy.speed = 150;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('square');
@@ -186,6 +208,8 @@
                     break;
                 case "trap":
                     //trapezoid
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({pos: [data.x,data.y],points: [[-32,-32],[-64,32],[64,32],[32,-32]]});
                     newEnemy.speed = 100;
                     newEnemy.behaviour = {name: 'trapezoid'};
                     newEnemy.sprite = Graphics.getSprite('trapezoid');
@@ -199,6 +223,8 @@
                     break;
                 case "par":
                     //parallelogram
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({pos: [data.x,data.y],points:[[-64,-64],[-128,64],[64,64],[128,-64]]});
                     newEnemy.speed = 200;
                     newEnemy.behaviour = {name: 'parallelogram'};
                     newEnemy.sprite = Graphics.getSprite('parallelogram');
@@ -212,6 +238,8 @@
                     break;
                 case "pent":
                     //pentagon
+                    newEnemy.canBeKilled = true;
+                    newEnemy.hitData = Enemies.getHitData({radius:20,pos: [data.x,data.y]});
                     newEnemy.speed = 500;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('pentagon');
@@ -225,6 +253,8 @@
                     break;
                 case "pent2":
                     //pentagon2
+                    newEnemy.canBeKilled = false;
+                    newEnemy.hitData = Enemies.getHitData({radius:12,pos: [data.x,data.y]});
                     newEnemy.speed = 450;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('pentagon');
@@ -238,6 +268,8 @@
                     break;
                 case "pent3":
                     //pentagon3
+                    newEnemy.canBeKilled = false;
+                    newEnemy.hitData = Enemies.getHitData({radius:8,pos: [data.x,data.y]});
                     newEnemy.speed = 400;
                     newEnemy.behaviour = data.behaviour;
                     newEnemy.sprite = Graphics.getSprite('pentagon');
@@ -261,6 +293,11 @@
             Graphics.worldContainer.addChild(newEnemy.sprite);
             Graphics.worldContainer.addChild(newEnemy.outsideScreenTri);
             this.enemyList[newEnemy.id] = newEnemy;
+            //update enemy based on server response time
+            if (typeof ms == 'undefined'){
+                ms = 0;
+            }
+            //newEnemy.bFunc(newEnemy, ms, newEnemy.behaviour);
         },
 
         killEnemy: function(id){
@@ -288,6 +325,30 @@
                 console.log('failed to remove enemy');
                 console.log(e);
             }
+        },
+
+        getHitData: function(data){
+            var h;
+            if (data.radius){
+                h = new P(new V(data.pos[0], data.pos[1]),   [new V(Math.round(-.8*data.radius),Math.round(-.8*data.radius)),
+                                                                         new V(Math.round(-.8*data.radius),Math.round(.8*data.radius)),
+                                                                         new V(Math.round(.8*data.radius),Math.round(.8*data.radius)),
+                                                                         new V(Math.round(.8*data.radius),Math.round(-.8*data.radius))]);
+            }else if (data.hitBoxSize){
+                h = new P(new V(data.pos[0], data.pos[1]),   [new V(-1*data.hitBoxSize[0]/2,-1*data.hitBoxSize[1]/2),
+                                                                         new V(-1*data.hitBoxSize[0]/2,data.hitBoxSize[1]/2),
+                                                                         new V(data.hitBoxSize[0]/2,data.hitBoxSize[1]/2),
+                                                                         new V(data.hitBoxSize[0]/2,-1*data.hitBoxSize[1]/2)]);
+            }else if (data.hd){
+                var points = [];
+                for (var i = 0; i < data.hd.points.length; i++){
+                    points.push(new V(data.hd.points[i][0],data.hd.points[i][1]));
+                }
+                h = new P(new V(data.hd.pos[0],data.hd.pos[1]),points);
+            }else{
+                h = new P(new V(data.pos[0], data.pos[1]),   [new V(-1,-1),new V(-1,1),new V(1,1),new V(1,-1)]);
+            }
+            return h;
         }
         
     };

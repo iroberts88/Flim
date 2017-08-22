@@ -170,7 +170,7 @@ function User() {
                 //Player is not a guest - update last login Time
                 try{
                     var d = this.userData;
-                    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
+                    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
                         db.collection('users').update({userName: d.userName},{$set: {
                             stats: d.stats,
                             chatLog: d.chatLog,

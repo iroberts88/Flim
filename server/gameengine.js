@@ -152,8 +152,8 @@ GameEngine.prototype.loadHighScores = function(arr) {
         var c = this.coopHighScores;
         var v = this.vsHighScores;
         var st = this.starsHighScores;
-        mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
-            db.collection('highScores').updateOne({},{$set: {
+        mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
+            db.collection('wisp_highScores').updateOne({},{$set: {
                 solo: s,
                 coop: c,
                 vs: v,
@@ -205,8 +205,8 @@ GameEngine.prototype.checkSoloHighScore = function(player,score,level){
         }
     }
     var s = this.soloHighScores;
-    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
-        db.collection('highScores').updateOne({},{$set: {
+    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
+        db.collection('wisp_highScores').updateOne({},{$set: {
             solo: s
         }});
         db.close();
@@ -246,8 +246,8 @@ GameEngine.prototype.checkCoopHighScore = function(players,score,level){
         }
     }
     var s = this.coopHighScores;
-    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
-        db.collection('highScores').updateOne({},{$set: {
+    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
+        db.collection('wisp_highScores').updateOne({},{$set: {
             coop: s
         }});
         db.close();
@@ -278,8 +278,8 @@ GameEngine.prototype.checkVSGamesWon = function(player,number){
         }
     }
     var s = this.vsHighScores;
-    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
-        db.collection('highScores').updateOne({},{$set: {
+    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
+        db.collection('wisp_highScores').updateOne({},{$set: {
             vs: s
         }});
         db.close();
@@ -310,8 +310,8 @@ GameEngine.prototype.checkStarsLongestGame = function(player,time){
         }
     }
     var s = this.starsHighScores;
-    mongo.connect('mongodb://127.0.0.1/wisp', function(err, db) {
-        db.collection('highScores').updateOne({},{$set: {
+    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
+        db.collection('wisp_highScores').updateOne({},{$set: {
             stars: s
         }});
         db.close();
@@ -340,6 +340,7 @@ GameEngine.prototype.emit = function() {
     try{
         for(i in this.players) {
             if (this.players[i].netQueue.length > 0){
+                this.players[i].netQueue.push(Date.now());
                 this.players[i].socket.emit('serverUpdate', this.players[i].netQueue);
             }
         }
