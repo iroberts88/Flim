@@ -27,7 +27,7 @@
 
             //create the PIXI stage
             this.stage = new PIXI.Container();
-            this.stage.interactive = false;
+            this.stage.interactive = true;
             this.filtersToApply = [];
 
             //create PIXI renderer
@@ -43,8 +43,6 @@
 
             this.world = new PIXI.Container();
             this.ui = new PIXI.Container();
-            this.world.interactive = false;
-            this.ui.interactive = false;
             this.stage.addChild(this.world);
             this.stage.addChild(this.ui);
 

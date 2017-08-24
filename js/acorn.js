@@ -73,6 +73,7 @@
 
             //Mouse
             window.onmousemove = Acorn.Input.handleMouseMove;
+            window.touchmove = Acorn.Input.handleTouchEvent;
             //window.onmousedown = handleMouseClick;
             //window.onmouseup = handleMouseUp;
         },

@@ -183,6 +183,11 @@
 
             Acorn.Net.on('updateEnemyLoc', function (data) {
               //update player position
+              if (typeof data.visible != 'undefined'){
+                if (data.visible){
+                    Enemies.enemyList[data.id].sprite.visible = true;
+                }
+              }
               try{
                   Enemies.enemyList[data.id].sprite.position.x = data.newPos[0];
                   Enemies.enemyList[data.id].sprite.position.y = data.newPos[1];
@@ -214,6 +219,7 @@
             });
 
             Acorn.Net.on('addEnemies', function (data) {
+                console.log(data);
                 Player.receivedEnemies = true;
                 var serverScriptTime = data.timeStamp - data.received;
                 var responseTime = (Date.now() - Player.erTime);
@@ -1704,6 +1710,7 @@
             });
 
             Acorn.Input.onTouchEvent(function(e) {
+                //Acorn.Net.socket_.emit('log',{log: "got to touch event"});
                 var position = e.data.getLocalPosition(e.target);
                 mouseX = position.x;
                 mouseY = position.y;

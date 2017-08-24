@@ -129,10 +129,23 @@ Player = function(){
                     that.enemiesToAdd = [];
                 }else if (data.killedEnemy){
                     try{
-                        that.gameSession.enemies[data.killedEnemy].kill = true;
+                        var enemy = that.gameSession.enemies[data.killedEnemy];
+                        var near = false; //see if enemy is near a square
+                        for (var i = 0; i < that.gameSession.gameModeManager.squares.length;i++){
+                            var square = that.gameSession.gameModeManager.squares[i];
+                            var distance = 75; //enemy must be within 75 pixels for the kill to be confirmed
+                            var dX = square.hitData.pos.x-enemy.hitData.pos.x;
+                            var dY = square.hitData.pos.y-enemy.hitData.pos.y;
+                            if (Math.sqrt(dX*dX+dY*dY) < distance){
+                                near = true;
+                            }
+                        }
+                        if (near){
+                            enemy.kill = true;
+                        }else{
+                            enemy.gameSession.queueData('updateEnemyLoc',{id: enemy.id,visible: true,newPos: [enemy.hitData.pos.x,enemy.hitData.pos.y],newDir: [enemy.moveVector.x,enemy.moveVector.y]});
+                        }
                     }catch(e){
-                        //console.log(e);
-                        //TODO check if the enemy was actually killed // is even close to a square
                     }
                 }
             }else{
@@ -243,12 +256,6 @@ Player = function(){
                             }
                         }
                         break;
-                    case 'log':
-                        if (that.user.userData.admin){
-                            commandBool = true;
-                            console.log('log');
-                        }
-                        break;
                     case 'ping':
                         commandBool = true;
                         if (!that.gameSession){
@@ -270,7 +277,11 @@ Player = function(){
                 console.log(e);
             }
         });
-
+        this.socket.on('log', function (data) {
+            if (that.admin){
+                console.log(data);
+            }
+        });
         this.socket.on('disconnect', function () {
             try{
                 that.gameEngine.playerCount -= 1;
