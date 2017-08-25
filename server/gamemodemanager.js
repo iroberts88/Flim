@@ -126,7 +126,6 @@ GameModeManager.prototype.starsTick = function(deltaTime){
         if (this.starsCurrent < this.starsMax){
             var e = this.session.addEnemy('star',{});
             enemiesAdded.push(e);
-            this.session.queueData('addEnemies', {data: enemiesAdded});
             this.starsTicker -= 1.0;
             this.starsCurrent += 1;
         }else if (this.starsTicker >= 10.0){
@@ -134,7 +133,6 @@ GameModeManager.prototype.starsTick = function(deltaTime){
                 var e = this.session.addEnemy('tri',{target: player});
                 enemiesAdded.push(e);
             }
-            this.session.queueData('addEnemies', {data: enemiesAdded});
             this.starsTicker -= 10.0;
             this.starsCurrent += 1;
         }

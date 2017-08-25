@@ -133,19 +133,19 @@ Player = function(){
                         var near = false; //see if enemy is near a square
                         for (var i = 0; i < that.gameSession.gameModeManager.squares.length;i++){
                             var square = that.gameSession.gameModeManager.squares[i];
-                            var distance = 75; //enemy must be within 75 pixels for the kill to be confirmed
+                            var distance = 400; //enemy must be within <distance> pixels for the kill to be confirmed
                             var dX = square.hitData.pos.x-enemy.hitData.pos.x;
                             var dY = square.hitData.pos.y-enemy.hitData.pos.y;
                             if (Math.sqrt(dX*dX+dY*dY) < distance){
                                 near = true;
                             }
                         }
-                        if (near){
-                            enemy.kill = true;
-                        }else{
-                            enemy.gameSession.queueData('updateEnemyLoc',{id: enemy.id,visible: true,newPos: [enemy.hitData.pos.x,enemy.hitData.pos.y],newDir: [enemy.moveVector.x,enemy.moveVector.y]});
-                        }
+                        enemy.kill = true;
                     }catch(e){
+                    }
+                }else if (data.killedPlayer){
+                    if (!that.god && !that.kill){
+                        that.gameSession.gameModeManager.killPlayerFunc(that);
                     }
                 }
             }else{

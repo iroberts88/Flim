@@ -89,10 +89,16 @@
                         this.player.addChild(this.name);
                     }
                     if (typeof data.radius != 'undefined'){
+                        this.radius = data.radius;
                         this.setScale(data.radius/30);
                     }else{
+                        this.radius = 30;
                         this.setScale(1);
                     }
+                    this.hitData = new SAT.Polygon(new SAT.Vector(960, 540),   [new SAT.Vector(Math.round(-.8*this.radius),Math.round(-.8*this.radius)),
+                                             new SAT.Vector(Math.round(-.8*this.radius),Math.round(.8*this.radius)),
+                                             new SAT.Vector(Math.round(.8*this.radius),Math.round(.8*this.radius)),
+                                             new SAT.Vector(Math.round(.8*this.radius),Math.round(-.8*this.radius))]);
 
                     this.player.addChild(this.sprite);
                     this.player.addChild(this.r1);
@@ -123,6 +129,8 @@
                     this.path.push([x,y]);
                     this.player.position.x = x;
                     this.player.position.y = y;
+                    this.hitData.pos.x = x;
+                    this.hitData.pos.y = y;
                     this.r1.scale.x = this.scale;
                     this.r1.scale.y = this.scale/this.rDivider;
                     this.r2.scale.x = this.scale;

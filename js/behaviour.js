@@ -149,10 +149,12 @@ Behaviour.prototype.pentagon2 = function(enemy, deltaTime, data){
     }
     if (typeof data.ticker == 'undefined'){
         data.ticker = 0;
+        enemy.active = false;
     }
     data.ticker += deltaTime;
     if (data.ticker > .5){
         enemy.canBeKilled = true;
+        enemy.active = true;
         data.rotate = false;
         Behaviour.basicMoveTowards(enemy,deltaTime,data);
     }else{
@@ -171,7 +173,9 @@ Behaviour.prototype.square = function(enemy, deltaTime, data){
     }
     if (data.alphaTicker < 1){
         enemy.sprite.alpha = data.alphaTicker;
+        enemy.active = false
     }else{
+        enemy.active = true;
         data.alphaTicker = 1;
     }
     data.alphaTicker += (deltaTime/2);

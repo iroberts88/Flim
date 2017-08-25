@@ -44,6 +44,11 @@ var P = SAT.Polygon,
                 }
                 Enemies.onScreen(enemy.outsideScreenTri,enemy.sprite);
                 enemy.bFunc(enemy, dt, enemy.behaviour);
+                if (Player.hitData){
+                    if (SAT.testPolygonPolygon(enemy.hitData, Player.hitData) && enemy.active){
+                        Acorn.Net.socket_.emit('playerUpdate', {killedPlayer: Player.id});
+                    }
+                }
             }
         },
         onScreen: function(triangle,sprite){
@@ -69,7 +74,7 @@ var P = SAT.Polygon,
           
         },
         addEnemy: function(data,ms){
-           var newEnemy = {id: data.id,type: data.type};
+           var newEnemy = {id: data.id,type: data.type, active: true};
            switch(data.type){
                 case "chaos":
                     //????

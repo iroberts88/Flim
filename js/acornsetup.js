@@ -138,7 +138,7 @@
             Acorn.Net.on('disconnect', function (data) {
                 if (!Player.gameEnded) {
                     Player.gameEnded = true;
-                    var uLost = new PIXI.Text('Disconnect', { font: '100px Audiowide', fill: 'white', align: 'left' });
+                    var uLost = new PIXI.Text('Player Disconnected', { font: '75px Audiowide', fill: 'white', align: 'left' });
                     uLost.position.x = (Graphics.width / 2);
                     uLost.position.y = (Graphics.height / 4);
                     uLost.anchor.x = 0.5;
@@ -560,7 +560,7 @@
                         this.starsLG.position.y = Graphics.height/5 + this.userName.height + this.soloGP.height*9;
                         Graphics.uiContainer.addChild(this.starsLG);
                     }
-                    this.highScoreButton = new PIXI.Text('High Scores' , {font: '32px Audiowide', fill: 'white', align: 'center'});
+                    this.highScoreButton = new PIXI.Text('Leaderboard' , {font: '32px Audiowide', fill: 'white', align: 'center'});
                     this.highScoreButton.anchor.x = .5;
                     this.highScoreButton.anchor.y = .5;
                     this.highScoreButton.position.x = 10 + this.highScoreButton.width/2;
