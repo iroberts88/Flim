@@ -19,7 +19,7 @@ var GameEngine = function() {
     this.sessions = {}; //List of currently active gameSessions
     this.players = {}; //List of players that do not have a gameSession
     this.openSessions = null;
-
+    this.hashSalt = 'Salt makes things taste better';
     this.playerCount = 0;
     //variables for ID's
     this.ids = {};

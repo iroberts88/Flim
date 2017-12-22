@@ -7,6 +7,8 @@ var SAT = require('./SAT.js'), //SAT POLYGON COLLISSION1
     User = require('./user.js').User,
     mongo = require('mongodb').MongoClient
 
+const crypto = require('crypto');
+
 var P = SAT.Polygon;
 var V = SAT.Vector;
 var C = SAT.Circle;
@@ -335,7 +337,8 @@ Player = function(){
                                 var query = { userName: data.sn };
                                 db.collection('users').find(query).toArray(function(err, arr) {
                                     if (err) throw err;
-                                    if (arr.length == 1 && data.pw == arr[0].password){
+                                    const hash = crypto.createHmac('sha256', data.pw).update(that.gameEngine.hashSalt);
+                                    if (arr.length == 1 && hash.digest('hex') == arr[0].password){
                                         //SET USER DATA TO EXISTING USER
                                         that.user = User();
                                         that.user.init(arr[0]);
@@ -377,9 +380,10 @@ Player = function(){
                             //SET USER DATA TO NEW USER
                             if (data.sn.length >= 3 && data.sn.length <= 16 && data.pw.length >= 8 && data.pw.length <= 16 && arr.length == 0){
                                 console.log('valid account info - creating account');
+                                const hash = crypto.createHmac('sha256', data.pw).update(that.gameEngine.hashSalt);
                                 var u = {
                                     userName: data.sn,
-                                    password: data.pw
+                                    password: hash.digest('hex')
                                 };
                                 that.user = User();
                                 that.user.init(u)

@@ -4,7 +4,9 @@ var app = require('http').createServer(webResponse),
     io = require('socket.io').listen(app),
     GameEngine = require('./gameengine.js').GameEngine,
     RequireCheck = require('./requirecheck.js').RequireCheck;
-    
+
+const crypto = require('crypto');
+
 var rc = null,
     ge = null;
 
@@ -12,7 +14,6 @@ function init() {
     rc = new RequireCheck();
     ge = new GameEngine();
     rc.onReady(onReady);
-    io.settings.log = false; //enable node logging
     // ----------------------------------------------------------
     // Start Database Connection
     // ----------------------------------------------------------
