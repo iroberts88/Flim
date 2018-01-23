@@ -3,7 +3,12 @@
 //----------------------------------------------------------------
 
 var GameSession = require('./gamesession.js').GameSession,
-    mongo = require('mongodb').MongoClient
+    AWS = require("aws-sdk");
+    
+AWS.config.update({
+  region: "us-east-1",
+  endpoint: "https://dynamodb.us-east-1.amazonaws.com"
+});
 
 var self = null;
 
@@ -120,11 +125,7 @@ GameEngine.prototype.getID = function() {
 // ----------------------------------------------------------
 
 GameEngine.prototype.loadHighScores = function(arr) {
-    this.soloHighScores = arr[0].solo;
-    this.coopHighScores = arr[0].coop;
-    this.vsHighScores = arr[0].vs;
-    this.starsHighScores = arr[0].stars;
-    if (typeof arr[0].solo[0] == 'undefined'){
+    if (typeof arr[0] == 'undefined'){
         //highscores database is uninitialized
         //initialize it
         for (var i = 1; i <= 100;i++){
@@ -152,15 +153,28 @@ GameEngine.prototype.loadHighScores = function(arr) {
         var c = this.coopHighScores;
         var v = this.vsHighScores;
         var st = this.starsHighScores;
-        mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
-            db.collection('wisp_highScores').updateOne({},{$set: {
+        var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+        var params = {
+            TableName: 'wisp_highScores',
+            Item: {
+                modeid: 'main',
                 solo: s,
                 coop: c,
                 vs: v,
                 stars: st
-            }});
-            db.close();
+            }
+        }
+        docClient.put(params, function(err, data) {
+            if (err) {
+                console.error("Unable to add high Scores. Error JSON:", JSON.stringify(err, null, 2));
+            } else {
+            }
         });
+    }else{
+        this.soloHighScores = arr[0].solo;
+        this.coopHighScores = arr[0].coop;
+        this.vsHighScores = arr[0].vs;
+        this.starsHighScores = arr[0].stars;
     }
     console.log('loaded High Scores from db');
 }
@@ -168,8 +182,8 @@ GameEngine.prototype.loadHighScores = function(arr) {
 GameEngine.prototype.loadUsers = function(arr) {
     for (var i = 0;i < arr.length;i++){
         this.users[arr[i]._id] = arr[i];
-        this.users[arr[i]._id].lock = false;
-        this._userIndex[arr[i].userName] = arr[i]._id;
+        this.users[arr[i]._id].loggedin = false;
+        this._userIndex[arr[i].username] = arr[i]._id;
     }
     console.log("loaded " + (i) + ' users from db');
 }
@@ -185,7 +199,7 @@ GameEngine.prototype.checkSoloHighScore = function(player,score,level){
     //you got a high score
     if (score > this.soloHighScores[0].score){
         this.soloHighScores.unshift({
-                name: player.user.userData.userName,
+                name: player.user.userData.username,
                 score: score,
                 level: level
             });
@@ -195,7 +209,7 @@ GameEngine.prototype.checkSoloHighScore = function(player,score,level){
             if (score > this.soloHighScores[i].score){
                 console.log("score at: " + i)
                 this.soloHighScores.splice(i,0,{
-                    name: player.user.userData.userName,
+                    name: player.user.userData.username,
                     score: score,
                     level: level
                 })
@@ -205,11 +219,22 @@ GameEngine.prototype.checkSoloHighScore = function(player,score,level){
         }
     }
     var s = this.soloHighScores;
-    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
-        db.collection('wisp_highScores').updateOne({},{$set: {
-            solo: s
-        }});
-        db.close();
+
+    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+    var params = {
+        TableName: 'wisp_highScores',
+        Key:{modeid: 'main'},
+        UpdateExpression: "set solo = :s",
+        ExpressionAttributeValues: {
+            ":s": s
+        }
+    }
+    docClient.update(params, function(err, data) {
+        if (err) {
+            console.error("Unable to set solo high scores. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Update solo high scores succeeded:", JSON.stringify(data, null, 2));
+        }
     });
 }
 
@@ -220,7 +245,7 @@ GameEngine.prototype.checkCoopHighScore = function(players,score,level){
     }
     var p = [];
     for (var player in players){
-        p.push(players[player].user.userData.userName);
+        p.push(players[player].user.userData.username);
     }
     //you got a high score
     if (score > this.coopHighScores[0].score){
@@ -246,11 +271,22 @@ GameEngine.prototype.checkCoopHighScore = function(players,score,level){
         }
     }
     var s = this.coopHighScores;
-    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
-        db.collection('wisp_highScores').updateOne({},{$set: {
-            coop: s
-        }});
-        db.close();
+    
+    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+    var params = {
+        TableName: 'wisp_highScores',
+        Key:{modeid: 'main'},
+        UpdateExpression: "set coop = :s",
+        ExpressionAttributeValues: {
+            ":s": s
+        }
+    }
+    docClient.update(params, function(err, data) {
+        if (err) {
+            console.error("Unable to set coop high scores. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Update coop high scores succeeded:", JSON.stringify(data, null, 2));
+        }
     });
 }   
 GameEngine.prototype.checkVSGamesWon = function(player,number){
@@ -278,11 +314,22 @@ GameEngine.prototype.checkVSGamesWon = function(player,number){
         }
     }
     var s = this.vsHighScores;
-    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
-        db.collection('wisp_highScores').updateOne({},{$set: {
-            vs: s
-        }});
-        db.close();
+    
+    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+    var params = {
+        TableName: 'wisp_highScores',
+        Key:{modeid: 'main'},
+        UpdateExpression: "set vs = :s",
+        ExpressionAttributeValues: {
+            ":s": s
+        }
+    }
+    docClient.update(params, function(err, data) {
+        if (err) {
+            console.error("Unable to set vs high scores. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Update vs high scores succeeded:", JSON.stringify(data, null, 2));
+        }
     });
 }
 GameEngine.prototype.checkStarsLongestGame = function(player,time){
@@ -310,11 +357,22 @@ GameEngine.prototype.checkStarsLongestGame = function(player,time){
         }
     }
     var s = this.starsHighScores;
-    mongo.connect('mongodb://127.0.0.1/lithiumAve', function(err, db) {
-        db.collection('wisp_highScores').updateOne({},{$set: {
-            stars: s
-        }});
-        db.close();
+    
+    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+    var params = {
+        TableName: 'wisp_highScores',
+        Key:{modeid: 'main'},
+        UpdateExpression: "set stars = :s",
+        ExpressionAttributeValues: {
+            ":s": s
+        }
+    }
+    docClient.update(params, function(err, data) {
+        if (err) {
+            console.error("Unable to set stars high scores. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Update stars high scores succeeded:", JSON.stringify(data, null, 2));
+        }
     });
 }
 // ----------------------------------------------------------

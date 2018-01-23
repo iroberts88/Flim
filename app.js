@@ -1,14 +1,20 @@
 var app = require('http').createServer(webResponse),
     fs = require('fs'),
-    mongo = require('mongodb').MongoClient,
+    AWS = require("aws-sdk"),
     io = require('socket.io').listen(app),
     GameEngine = require('./gameengine.js').GameEngine,
     RequireCheck = require('./requirecheck.js').RequireCheck;
 
 const crypto = require('crypto');
-
+    
 var rc = null,
     ge = null;
+
+//{endpoint: "https://dynamodb.us-west-1.amazonaws.com"}
+AWS.config.update({
+  region: "us-east-1",
+  endpoint: "https://dynamodb.us-east-1.amazonaws.com"
+});
 
 function init() {
     rc = new RequireCheck();
@@ -17,30 +23,30 @@ function init() {
     // ----------------------------------------------------------
     // Start Database Connection
     // ----------------------------------------------------------
-    var url = 'mongodb://127.0.0.1/lithiumAve';
     rc.ready();
     
     rc.require('dbHighScores','dbUsers');
 
-    // Use connect method to connect to the DB
-    mongo.connect(url, function(err, db) {
-        console.log("Connected to db");
-        console.log("DB errors: " + err);
-        
-        // ---- Load HighScores ----
-        var HSColl = db.collection('wisp_highScores');
-        HSColl.find().toArray(function(err, arr) {
-            ge.loadHighScores(arr);
-            rc.ready('dbHighScores');
-        });
-
-        // ---- Load Userbase ----
-        var usersColl = db.collection('users');
-        usersColl.find().toArray(function(err, arr) {
-            ge.loadUsers(arr);
+    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+    // ---- Load Userbase ----
+    docClient.scan({TableName: 'wisp_highScores'}, function(err, data) {
+        if (err) {
+            console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Loading high scores... ");
+            ge.loadHighScores(data.Items);
             rc.ready('dbUsers');
-        });
-        db.close();
+        }
+    });
+    // ---- Load Userbase ----
+    docClient.scan({TableName: 'users'}, function(err, data) {
+        if (err) {
+            console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("Loading users... " + data.Items.length + ' found');
+            ge.loadUsers(data.Items);
+            rc.ready('dbUsers');
+        }
     });
 }
 
@@ -51,7 +57,8 @@ init();
 // ----------------------------------------------------------
 // Start Web Server
 // ----------------------------------------------------------
-app.listen(8087);
+var port = process.env.PORT || 3000;
+app.listen(port);
 
 function webResponse(req, res) {
     var filename = req.url;
@@ -63,7 +70,7 @@ function webResponse(req, res) {
 
     //console.log('HTTP Request: ' + filename);
 
-    fs.readFile(__dirname + '/..' + filename, function(err, data) {
+    fs.readFile(__dirname + '/public' + filename, function(err, data) {
         if (err) {
             console.log('Couldn\'t find file: ' + req.url);
             res.writeHead(500);

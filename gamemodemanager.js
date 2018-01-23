@@ -396,7 +396,7 @@ GameModeManager.prototype.killPlayer = function(player){
 GameModeManager.prototype.killPlayerStars = function(player){
     player.kill = true;
     player.user.checkStarsLongestGame(Math.round(this.totalTime*10)/10);
-    player.gameEngine.checkStarsLongestGame(player.user.userData.userName, Math.round(this.totalTime*10)/10)
+    player.gameEngine.checkStarsLongestGame(player.user.userData.username, Math.round(this.totalTime*10)/10)
     this.session.queueData('killPlayer', {id:player.id});
     this.session.queueData('youLasted', {time: Math.round(this.totalTime*10)/10});
 }
@@ -417,7 +417,7 @@ GameModeManager.prototype.killPlayerVersus = function(player){
             winner.god = true;
             winner.kill = true;
             winner.user.vsGameWon();
-            winner.gameEngine.checkVSGamesWon(winner.user.userData.userName,winner.user.userData.stats.vsGamesWon);
+            winner.gameEngine.checkVSGamesWon(winner.user.userData.username,winner.user.stats.vsGamesWon);
             this.session.queuePlayer(winner,'youWin', {});
         }
     }

@@ -164,7 +164,7 @@ GameSession.prototype.addPlayer = function(p) {
                 y: p.hitData.pos.y,
                 radius: p.radius,
                 speed: p.speed,
-                name: p.user.userData.userName
+                name: p.user.userData.username
             };
         this.queuePlayer(this.players[i],'addPlayerWisp', d);
     }
@@ -180,7 +180,7 @@ GameSession.prototype.addPlayer = function(p) {
             y: player.hitData.pos.y,
             radius: player.radius,
             speed: player.speed,
-            name: player.user.userData.userName
+            name: player.user.userData.username
         })
     }
     var enemies = [];
@@ -219,7 +219,7 @@ GameSession.prototype.removePlayer = function(p) {
     this.engine.players[p.id] = p;
     p.init({});
     //return the player back to the main menu
-    this.engine.queuePlayer(p,'backToMainMenu',{userData: {name: p.user.userData.userName, stats: p.user.userData.stats}});
+    this.engine.queuePlayer(p,'backToMainMenu',{userData: {name: p.user.userData.username, stats: p.user.stats}});
     p.gameSession = null;
     delete this.players[p.id];
     this.playerCount -= 1;
