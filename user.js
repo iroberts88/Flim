@@ -40,6 +40,10 @@ function User() {
                 soloLevelRecord : 0
             }
 
+            if (d.guest){
+                this.owner.gameEngine.queuePlayer(this.owner,"loggedIn", {name:this.userData.username,stats:this.stats});
+                return;
+            }
             if (typeof d.username != 'undefined'){
                 this.userData.username = d.username;
                 this.userData.password = d.password;
