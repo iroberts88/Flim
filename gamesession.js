@@ -54,8 +54,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 50,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 4,
-                squaresEvery: 2
+                maxSquares: 5,
+                squaresEvery: 1
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -70,8 +70,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 50,
                 timeBetweenEvents: 3,
                 warningTime: 2,
-                maxSquares: 4,
-                squaresEvery: 2
+                maxSquares: 5,
+                squaresEvery: 1
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
             this.gameModeManager.eventFunc = this.gameModeManager.newEvent;
@@ -85,8 +85,8 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: .5,
                 warningTime: .4,
-                maxSquares: 4,
-                squaresEvery: 4
+                maxSquares: 5,
+                squaresEvery: 2
             });
             this.gameModeManager.eventEnemyArray = ['c1','c2','c3','tri'];
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;
@@ -103,7 +103,7 @@ GameSession.prototype.init = function (data) {
                 timePerEvent: 35,
                 timeBetweenEvents: 3,
                 warningTime: 2,
-                maxSquares: 4,
+                maxSquares: 5,
                 squaresEvery: 1
             });
             this.gameModeManager.tickFunc = this.gameModeManager.normalTick;

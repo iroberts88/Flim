@@ -1,6 +1,6 @@
 branch-defaults:
   dev:
-    environment: Wisp-prod
+    environment: wisp-prod
 environment-defaults:
   Wisp-prod:
     branch: null

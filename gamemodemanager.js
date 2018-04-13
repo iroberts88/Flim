@@ -162,42 +162,7 @@ GameModeManager.prototype.newEvent = function() {
     }else{
         data.switchSides = false;
     }
-    if (this.session.level % 13 == 0){
-        //add squares every 4 levels
-        //TODO add squares to its own func
-        if (this.session.level%this.squaresEvery == 0 || this.squares.length == 0){
-            if (this.squares.length >= this.maxSquares){
-                var r = (Math.floor(Math.random()*this.squares.length));
-                var randomSquare = this.squares[r];
-                randomSquare.kill = true;
-                this.squares.splice(r,1);
-            }
-            var chance = 10+Math.sqrt(this.session.level*10);
-            if (this.session.level <=28){
-                chance = 0;
-            }
-            if (Math.random()*100 < chance){
-                var e = this.session.addEnemy('sq2',data);
-                enemiesAdded.push(e);
-                this.squares.push(e);
-            }else{
-                var e = this.session.addEnemy('sq',data);
-                enemiesAdded.push(e);
-                this.squares.push(e);
-            }
-        }
-        for (var player in this.session.players){
-            for (var i = 0; i < Math.min(3,Math.ceil(this.session.level/26));i++){
-                data.target = player;
-                var e = this.session.addEnemy('pent',data);
-                enemiesAdded.push(e);
-            }
-        }
-        for (var i = 0; i < Math.min(10,Math.floor(this.session.level/14));i++){
-            var e = this.session.addEnemy('star',data);
-                enemiesAdded.push(e);
-        }
-    }else if (this.session.level % 25 == 0){
+    if (this.session.level % 20 == 0){
         //parallellogram event!!!
         //kill all squares
         for (var i = 0; i < this.squares.length; i++){
@@ -222,7 +187,7 @@ GameModeManager.prototype.newEvent = function() {
                 this.squares.splice(r,1);
             }
             var chance = 10+Math.sqrt(this.session.level*10);
-            if (this.session.level <=25){
+            if (this.session.level <=15){
                 chance = 0;
             }
             if (Math.random()*100 < chance){
@@ -236,18 +201,30 @@ GameModeManager.prototype.newEvent = function() {
             }
         }
         switch(this.session.level){
-            case 3:
+            case 2:
                 this.eventEnemyArray.push('c2');
                 break;
-            case 6:
+            case 4:
                 this.eventEnemyArray.push('c3');
                 break;
-            case 10:
+            case 6:
                 this.eventEnemyArray.push('tri');
+                break;
+            case 100:
+                this.eventEnemyArray.push('chaos');
+                break;
+            case 200:
+                this.eventEnemyArray.push('hex');
+                break;
+            case 300:
+                this.eventEnemyArray.push('pent');
+                break;
+            case 400:
+                this.eventEnemyArray.push('star');
                 break;
         }
         this.trapEvery = Math.max(2,(8-Math.floor(this.session.level/50)));
-        if (this.session.level >= 24 && this.session.level%this.trapEvery == 0){
+        if (this.session.level >= 10 && this.session.level%this.trapEvery == 0){
             //for trapezoid event
             var positions = [[64,-32],[192,-32],[320,-32],[448,-32],[576,-32],[704,-32],[832,-32],[960,-32],[1088,-32],
                             [1216,-32],[1344,-32],[1472,-32],[1600,-32],[1728,-32],[1856,-32]];
@@ -294,12 +271,12 @@ GameModeManager.prototype.newEvent = function() {
                 var e = this.session.addEnemy(type,data);
                 enemiesAdded.push(e);
             }
-            if (this.session.level == 20){
+            if (this.session.level == 9){
                 data.target = player;
                 var e = this.session.addEnemy('hex',data);
                 enemiesAdded.push(e);
             }
-            if (this.session.level >= 27 && this.session.level%3 == 0){
+            if (this.session.level >= 12 && this.session.level%3 == 0){
                 if (Math.round(Math.random())){
                     data.target = player;
                     var e = this.session.addEnemy('hex',data);
@@ -311,8 +288,8 @@ GameModeManager.prototype.newEvent = function() {
                 }
             }
         }
-        var stars = Math.min(10,(Math.ceil(this.session.level/25)+this.session.level%2));
-        if (this.session.level >= 15){
+        var stars = Math.min(10,(Math.ceil(this.session.level/12)+Math.round(Math.random()*3)));
+        if (this.session.level >= 8){
             for (var i = 0; i < stars; i++){
                 var e = this.session.addEnemy('star',data);
                 enemiesAdded.push(e);
