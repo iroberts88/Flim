@@ -153,21 +153,20 @@ GameEngine.prototype.loadHighScores = function(arr) {
         var c = this.coopHighScores;
         var v = this.vsHighScores;
         var st = this.starsHighScores;
-        var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-        var params = {
-            TableName: 'wisp_highScores',
-            Item: {
-                modeid: 'main',
-                solo: s,
-                coop: c,
-                vs: v,
-                stars: st
-            }
+        var data = {
+            "items": [
+                {
+                    'modeid': 'main',
+                    'coop': c,
+                    'solo': s,
+                    'vs': v,
+                    'stars': st
+                }
+            ]
         }
-        docClient.put(params, function(err, data) {
-            if (err) {
-                console.error("Unable to add high Scores. Error JSON:", JSON.stringify(err, null, 2));
-            } else {
+        fs.writeFile('./db/wisp_highScores.json',JSON.stringify(data, null, 2), function(err){
+            if (err){
+                return console.log(err);
             }
         });
     }else{
@@ -218,24 +217,7 @@ GameEngine.prototype.checkSoloHighScore = function(player,score,level){
             }
         }
     }
-    var s = this.soloHighScores;
-
-    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-    var params = {
-        TableName: 'wisp_highScores',
-        Key:{modeid: 'main'},
-        UpdateExpression: "set solo = :s",
-        ExpressionAttributeValues: {
-            ":s": s
-        }
-    }
-    docClient.update(params, function(err, data) {
-        if (err) {
-            console.error("Unable to set solo high scores. Error JSON:", JSON.stringify(err, null, 2));
-        } else {
-            console.log("Update solo high scores succeeded:", JSON.stringify(data, null, 2));
-        }
-    });
+    
 }
 
 GameEngine.prototype.checkCoopHighScore = function(players,score,level){
@@ -270,24 +252,7 @@ GameEngine.prototype.checkCoopHighScore = function(players,score,level){
             }
         }
     }
-    var s = this.coopHighScores;
-    
-    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-    var params = {
-        TableName: 'wisp_highScores',
-        Key:{modeid: 'main'},
-        UpdateExpression: "set coop = :s",
-        ExpressionAttributeValues: {
-            ":s": s
-        }
-    }
-    docClient.update(params, function(err, data) {
-        if (err) {
-            console.error("Unable to set coop high scores. Error JSON:", JSON.stringify(err, null, 2));
-        } else {
-            console.log("Update coop high scores succeeded:", JSON.stringify(data, null, 2));
-        }
-    });
+   
 }   
 GameEngine.prototype.checkVSGamesWon = function(player,number){
     if (number < this.vsHighScores[99].gamesWon){
@@ -313,24 +278,7 @@ GameEngine.prototype.checkVSGamesWon = function(player,number){
             }
         }
     }
-    var s = this.vsHighScores;
-    
-    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-    var params = {
-        TableName: 'wisp_highScores',
-        Key:{modeid: 'main'},
-        UpdateExpression: "set vs = :s",
-        ExpressionAttributeValues: {
-            ":s": s
-        }
-    }
-    docClient.update(params, function(err, data) {
-        if (err) {
-            console.error("Unable to set vs high scores. Error JSON:", JSON.stringify(err, null, 2));
-        } else {
-            console.log("Update vs high scores succeeded:", JSON.stringify(data, null, 2));
-        }
-    });
+   
 }
 GameEngine.prototype.checkStarsLongestGame = function(player,time){
     if (time < this.starsHighScores[99].time){
@@ -356,24 +304,6 @@ GameEngine.prototype.checkStarsLongestGame = function(player,time){
             }
         }
     }
-    var s = this.starsHighScores;
-    
-    var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-    var params = {
-        TableName: 'wisp_highScores',
-        Key:{modeid: 'main'},
-        UpdateExpression: "set stars = :s",
-        ExpressionAttributeValues: {
-            ":s": s
-        }
-    }
-    docClient.update(params, function(err, data) {
-        if (err) {
-            console.error("Unable to set stars high scores. Error JSON:", JSON.stringify(err, null, 2));
-        } else {
-            console.log("Update stars high scores succeeded:", JSON.stringify(data, null, 2));
-        }
-    });
 }
 // ----------------------------------------------------------
 // Socket Functions

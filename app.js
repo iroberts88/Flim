@@ -28,15 +28,14 @@ function init() {
     rc.require('dbHighScores','dbUsers');
 
     var docClient = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-    // ---- Load Userbase ----
-    docClient.scan({TableName: 'wisp_highScores'}, function(err, data) {
+    fs.readFile('./db/wisp_highScores.json', "utf8",function read(err, data) {
         if (err) {
-            console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
-        } else {
-            console.log("Loading high scores... ");
-            ge.loadHighScores(data.Items);
-            rc.ready('dbUsers');
+            throw err;
         }
+        var obj = JSON.parse(data);
+
+        ge.loadHighScores(obj.items);
+        rc.ready('dbHighScores');
     });
     // ---- Load Userbase ----
     docClient.scan({TableName: 'users'}, function(err, data) {
@@ -59,6 +58,43 @@ init();
 // ----------------------------------------------------------
 var port = process.env.PORT || 3000;
 app.listen(port);
+
+process.on('exit', (code) => {
+    console.log("Running exit code...")
+    var s = ge.soloHighScores;
+    var c = ge.coopHighScores;
+    var v = ge.vsHighScores;
+    var st = ge.starsHighScores;
+    var data = {
+        "items": [
+            {
+                'modeid': 'main',
+                'coop': c,
+                'solo': s,
+                'vs': v,
+                'stars': st
+            }
+        ],
+        "derp": "what"
+    }
+    //synchronus file write to update high scores
+    fs.writeFileSync('./db/wisp_highScores.json',JSON.stringify(data, null, 2), function(err){
+        if (err){
+            return console.log(err);
+        }
+    });
+});
+
+process.on('SIGINT', function () {
+    console.log('Ctrl-C...');
+    process.exit(2);
+});
+
+process.on('uncaughtException', function(e) {
+    console.log('Uncaught Exception...');
+    console.log(e.stack);
+    process.exit(99);
+});
 
 function webResponse(req, res) {
     var filename = req.url;

@@ -1,0 +1,49 @@
+{
+  "wisp_userdata": [
+    {
+      "stats": {
+        "soloGamesPlayed": 3,
+        "coopLevelRecord": 0,
+        "coopHighScore": 0,
+        "soloLevelRecord": 57,
+        "vsGamesPlayed": 0,
+        "soloHighScore": 210341,
+        "starsLongestGame": 43.4,
+        "starsGamesPlayed": 1,
+        "coopGamesPlayed": 0,
+        "vsGamesWon": 0
+      },
+      "username": "ian"
+    },
+    {
+      "stats": {
+        "soloGamesPlayed": 1,
+        "coopLevelRecord": 0,
+        "coopHighScore": 0,
+        "soloLevelRecord": 8,
+        "vsGamesPlayed": 0,
+        "soloHighScore": 4255,
+        "starsLongestGame": 0,
+        "starsGamesPlayed": 0,
+        "coopGamesPlayed": 0,
+        "vsGamesWon": 0
+      },
+      "username": "ian2"
+    },
+    {
+      "stats": {
+        "soloGamesPlayed": 8,
+        "coopLevelRecord": 15,
+        "coopHighScore": 7409,
+        "soloLevelRecord": 75,
+        "vsGamesPlayed": 0,
+        "soloHighScore": 328910,
+        "starsLongestGame": 62.9,
+        "starsGamesPlayed": 1,
+        "coopGamesPlayed": 1,
+        "vsGamesWon": 0
+      },
+      "username": "faulken"
+    }
+  ]
+}
