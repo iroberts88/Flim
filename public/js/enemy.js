@@ -309,6 +309,8 @@ var P = SAT.Polygon,
             try{
                 Graphics.worldContainer.removeChild(this.enemyList[id].sprite);
                 Graphics.worldContainer.removeChild(this.enemyList[id].outsideScreenTri);
+                this.enemyList[id].sprite.destroy();
+                this.enemyList[id].outsideScreenTri.destroy();
                 var dustAmount = Math.ceil(Math.random()*5) + 5;
                 for (var i = 0; i < dustAmount; i ++){
                     if (this.enemyList[id].type == 'sq' || this.enemyList[id].type == 'par' || this.enemyList[id].type == 'trap'){

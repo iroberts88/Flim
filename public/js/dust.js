@@ -27,6 +27,7 @@
                     if (particle.sprite.alpha < 0.1){
                         Graphics.worldContainer.removeChild(particle.sprite);
                         this.dust.splice(i,1);
+                        particle.sprite.destroy();
                         i -= 1;
                     }
                 }
