@@ -1,7 +1,7 @@
 var app = require('http').createServer(webResponse),
     fs = require('fs'),
     AWS = require("aws-sdk"),
-    io = require('socket.io').listen(app),
+    io = require('socket.io')(app),
     GameEngine = require('./gameengine.js').GameEngine,
     RequireCheck = require('./requirecheck.js').RequireCheck;
 
