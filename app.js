@@ -23,7 +23,6 @@ function init() {
     // ----------------------------------------------------------
     // Start Database Connection
     // ----------------------------------------------------------
-    rc.ready();
     
     rc.require('dbHighScores','dbUsers');
 
@@ -56,8 +55,6 @@ init();
 // ----------------------------------------------------------
 // Start Web Server
 // ----------------------------------------------------------
-var port = process.env.PORT || 3000;
-app.listen(port);
 
 process.on('exit', (code) => {
     console.log("Running exit code...")
@@ -120,6 +117,9 @@ function webResponse(req, res) {
 
 function onReady() {
     console.log('All require items loaded. Starting Game Engine');
+    var port = process.env.PORT || 3000;
+    app.listen(port);
+
     ge.init();
 }
 
@@ -128,7 +128,7 @@ function onReady() {
 // ----------------------------------------------------------
 // Start Socket Listener
 // ----------------------------------------------------------
-io.sockets.on('connection', ge.newConnection);
+io.on('connection', ge.newConnection);
 
 console.log('Listening');
 
