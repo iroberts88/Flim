@@ -11,4 +11,5 @@
     Player.highScores = null;
     Player.mouseLoc = [0,0];
     window.Player = Player;
+    Player.currentScore = 0;
 })(window);

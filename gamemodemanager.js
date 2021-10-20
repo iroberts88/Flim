@@ -497,7 +497,7 @@ GameModeManager.prototype.tickEnemies = function(deltaTime){
                 B(enemy,deltaTime,enemy.killFunc);
             }
             this.score += Math.round(enemy.scoreBase*(this.timePerEvent-this.timePerEventTicker));
-            this.session.queueData('removeEnemy', {id: enemy.id});
+            this.session.queueData('removeEnemy', {id: enemy.id,scoreUpdate: this.score});
             delete this.session.enemies[i];
         }
     }
@@ -523,7 +523,7 @@ GameModeManager.prototype.tickEnemiesCoop = function(deltaTime){
             if (alive){
                 this.score += Math.round(enemy.scoreBase*(this.timePerEvent-this.timePerEventTicker));
             }
-            this.session.queueData('removeEnemy', {id: enemy.id});
+            this.session.queueData('removeEnemy', {id: enemy.id,scoreUpdate: this.score});
             delete this.session.enemies[i];
         }
     }

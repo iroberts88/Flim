@@ -112,15 +112,15 @@ function webResponse(req, res) {
 
         res.writeHead(200);
         res.end(data);
+        return err;
     });
 }
 
 function onReady() {
     console.log('All require items loaded. Starting Game Engine');
+    ge.init();
     var port = process.env.PORT || 3000;
     app.listen(port);
-
-    ge.init();
 }
 
 

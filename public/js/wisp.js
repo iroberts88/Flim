@@ -166,6 +166,10 @@
                             this.warning.lText.alpha = this.warning.lText.alpha*.98;
                             if (this.warning.lText.alpha < .05){
                                 Graphics.worldContainer.removeChild(this.warning.lText);
+                                Graphics.worldContainer.removeChild(this.warning.stext);
+                                this.warning.lText.destroy();
+                                this.warning.stext.destroy();
+                                this.warning.text.destroy();
                                 this.warning = null;
                             }
                         }
@@ -293,10 +297,21 @@
                     newText2.position.y = Graphics.height/3 - 70;
                     newText2.alpha = 0.5;
                     Graphics.worldContainer.addChild(newText2);
+                    var newText3 = new PIXI.Text('score: '+Player.currentScore,{font:"50px Electrolize", fill:'white'});
+                    newText3.anchor.x = 0.5;
+                    newText3.anchor.y = 0;
+                    newText3.position.x = Graphics.width/2;
+                    newText3.position.y = newText2.position.y + newText2.height + 10;
+                    newText3.alpha = 0.5;
+                    Graphics.worldContainer.addChild(newText3);
+                    if (Player.currentScore <= 0){
+                        newText3.alpha = 0;
+                    }
                     this.warning = {
                         time: time,
                         text: newText,
-                        lText: newText2
+                        lText: newText2,
+                        stext: newText3
                     }
                 }
             }

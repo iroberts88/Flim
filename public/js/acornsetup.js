@@ -241,6 +241,9 @@
 
             Acorn.Net.on('removeEnemy', function (data) {
                 Enemies.killEnemy(data.id);
+                if (data.scoreUpdate){
+                    Player.currentScore = data.scoreUpdate;
+                }
             });
 
             Acorn.Net.on('enemyNewTarget', function (data) {
@@ -464,6 +467,7 @@
                     document.body.style.cursor = 'default';
                     Graphics.clear();
                     Player.gameEnded = false;
+                    Player.currentScore = 0;
                     this.wispLogo = new PIXI.Text('W.I.S.P.' , {font: '200px Orbitron', fill: 'white', align: 'left'});
                     this.wispLogo.position.x = (Graphics.width / 2);
                     this.wispLogo.position.y = (Graphics.height / 4);
@@ -1267,7 +1271,7 @@
                     this.welcome.anchor.y = 0.5;
                     Graphics.uiContainer.addChild(this.welcome);
 
-                    this.nameDrop = new PIXI.Text('By Ian Roberts' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left'});
+                    this.nameDrop = new PIXI.Text('By [NAME REDACTED]' , {font: '48px Orbitron', fill: 0xd9b73, align: 'left'});
                     this.nameDrop.position.x = (Graphics.width / 2);
                     this.nameDrop.position.y = (175);
                     this.nameDrop.anchor.x = 0.5;
